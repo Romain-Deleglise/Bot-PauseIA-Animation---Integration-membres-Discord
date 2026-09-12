@@ -23,7 +23,7 @@
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
 nom          = "Projets"
-salon        = "111111111111111111"
+salon        = "1548365905870721084"
 couleur      = "#27AE60"
 description  = """
 Un projet vous parle et vous souhaitez y contribuer, ou vous en êtes déjà membre ? Levez la main 🙋 pour le rejoindre.
@@ -159,7 +159,7 @@ Prendre contact avec différentes associations dont la mission est proche de cel
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
 nom          = "Équipes"
-salon        = "222222222222222222"
+salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
 description  = """
@@ -216,7 +216,7 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
 nom          = "Groupes locaux"
-salon        = "333333333333333333"
+salon        = "1548366084967760004"
 couleur      = "#F2994A"
 role_parent  = "groupe-local"
 description  = """
@@ -328,7 +328,7 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
 nom          = "Compétences"
-salon        = "444444444444444444"
+salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
 description  = """
 Vous souhaitez porter les valeurs de PauseIA en mettant une de vos compétences à disposition ? Nul besoin d'un gros engagement. Levez la main 🙋 : vous serez rattaché à cette compétence, prêt à donner un coup de main quand vous le pouvez."""
