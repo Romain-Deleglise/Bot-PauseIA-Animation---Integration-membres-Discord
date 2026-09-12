@@ -1,33 +1,7 @@
-# Contenu du forum PauseIA, transcrit du cahier des charges.
-#
-# `/forum importer` lit ce fichier, crée les rôles manquants, publie les cartes
-# et met à jour celles qui existent déjà. Il est rejouable et ne supprime rien.
-# Ensuite, c'est Discord qui fait foi.
-#
-# À COMPLÉTER AVANT LE PREMIER IMPORT
-#   - `salon` : les quatre valeurs ci-dessous sont factices. Mettez les
-#     identifiants des vrais fils (clic droit sur le fil > Copier l'identifiant).
-#   - `illustration` : ajoutez une URL https par fil quand les visuels existent.
-#   - `mp` : le message privé de bienvenue, si vous en voulez un.
-#   - Les référents sont notés `@pseudo` comme dans le CDC. À l'import, le bot en fait une mention cliquable si la personne est membre du serveur, et signale les autres.
-#
-# ÉCARTS AVEC LE CDC
-#   - Les descriptions de « Groupes locaux » et « Compétences » étaient
-#     interverties dans le CDC : rétablies ici.
-#   - Melun et Colmar n'avaient pas de titre : déduits du nom du rôle.
-#   - Les marqueurs [Inactif], [En structuration], [À venir] et [Besoin d'aide]
-#     sont conservés dans les titres, comme dans le CDC.
-#   - Les deux groupes [Inactif] portent `couleur = "#99AAB5"`, qui grise leur
-#     carte. Ce champ est facultatif et vaut pour n'importe quel message.
-
-# ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
-nom          = "Projets"
+# Projets
 salon        = "1548365905870721084"
 couleur      = "#27AE60"
-description  = """
-Un projet vous parle et vous souhaitez y contribuer, ou vous en êtes déjà membre ? Levez la main 🙋 pour le rejoindre.
-Si vous avez des idées qui ne sont pas encore listées ici, vous pouvez en discuter dans #idées"""
 
 [[fils.messages]]
 slug    = "fresque-ia"
@@ -46,9 +20,10 @@ slug    = "pauseaction"
 titre   = "PauseAction"
 role    = "pauseaction"
 texte   = """
-Référent : @antonin7067
+Référent : @clemence_coqcinelle
 
 Chaque semaine, nous trouvons une action simple, signer, partager ou commenter, réalisable en moins de cinq minutes, sur notre groupe WhatsApp.
+Nous avons grandement besoin d'un nouveau référent pour ce projet!
 
 Coordonné par l'équipe *communication*."""
 
@@ -75,11 +50,11 @@ Porter la position de PauseIA auprès des institutions et des élus. Dans ce pro
 Coordonné par l'équipe *plaidoyer* de l'association. Vous pouvez d'ailleurs rejoindre cette équipe si vous êtes très motivé."""
 
 [[fils.messages]]
-slug    = "accueil-orientation"
+slug    = "onboarding"
 titre   = "Accueil et orientation"
-role    = "accueil-orientation"
+role    = "onboarding"
 texte   = """
-Référent : @pouetpouetaumarche
+Référent : @gadow2_0
 
 Accueillir les nouveaux membres sur le Discord et les orienter vers les projets et équipes qui leur correspondent.
 On essaie de proposer des visios à chaque nouveau membre, et c'est très motivant et enrichissant !
@@ -108,25 +83,27 @@ role    = "rencontres-pauseia"
 texte   = """
 Référente : @clemence_coqcinelle
 
-Rejoignez ce projet pour aider à organiser des rencontres dans la vraie vie. Prochain objectif : week-end de rencontre et de formation de Pause IA.
+Rejoignez ce projet pour aider à organiser des rencontres entre membres de toute la France. Prochain objectif : week-end de rencontre et de formation de Pause IA.
 
 Coordonné par le bureau."""
 
 [[fils.messages]]
-slug    = "partenariats-createurs"
-titre   = "[En structuration] Partenariats créateurs de contenu"
-role    = "partenariats-créateurs"
+slug    = "partenariats-influenceurs"
+titre   = "[En structuration] Partenariats avec des influenceurs"
+role    = "partenariats-influenceurs"
 texte   = """
 Référent : @flavien0525
 
-Identifier et solliciter des streamers et youtubeurs pour inviter Maxime Fournes sur leurs chaînes."""
+Identifier et solliciter des streamers et youtubeurs pour inviter Maxime Fournes sur leurs chaînes, mais aussi contacter d'autres types de profils influents pour organiser des rencontres.
+"""
 
 [[fils.messages]]
-slug    = "creation-artistique"
-titre   = "[À venir] Création artistique humaine (Pause I-Art)"
-role    = "creation-artistique"
+slug    = "illustration"
+titre   = "[À venir] Illustration humaine (PauseIArt)"
+role    = "illustration"
 texte   = """
 Rejoignez ce projet si vous avez envie de produire des illustrations humaines pour les réseaux sociaux et la communication de Pause IA.
+Cela comprend aussi la création de tracts, de visuels originaux pour les groupes locaux et même de goodies pour notre boutique.
 
 Coordonné par l'équipe *communication*."""
 
@@ -140,30 +117,19 @@ Référent : @dyson4282. Il a développé un jeu multijoueur super, n'hésitez p
 Concevoir des jeux vidéo et jeux de rôle au service de la sensibilisation. Plusieurs personnes ont manifesté leur intérêt, mais tout reste à faire !"""
 
 [[fils.messages]]
-slug    = "flyers"
-titre   = "[Besoin d'aide] Création de flyers"
-role    = "flyers"
-texte   = """
-Créer des supports visuels (flyers, affiches, pancartes, pins…) pour aider les groupes locaux. Contactez @rambip ou @clemence_coqcinelle si vous voulez donner un coup de main.
-
-Coordonné par l'équipe *initiatives locales*."""
-
-[[fils.messages]]
 slug    = "relation-associations"
 titre   = "[À venir] Relations associations"
 role    = "relation-associations"
 texte   = """
-Prendre contact avec différentes associations dont la mission est proche de celle de PauseIA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour que d'autres membres puissent les rencontrer et créer des liens."""
+Prendre contact avec différentes associations dont la mission est proche de celle de PauseIA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour créer des liens."""
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
-nom          = "Équipes"
+# Équipes
 salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
-description  = """
-Le cœur de l'action : nos équipes. Leurs membres s'y investissent de l'ordre de cinq heures par semaine. Explorez les équipes et levez la main 🙋 sur celle où vous voulez contribuer."""
 
 [[fils.messages]]
 slug    = "communication"
@@ -174,7 +140,7 @@ Référente : @jeannebazard
 
 L'équipe suit l'actualité, rédige les communiqués de presse, les posts pour les réseaux sociaux, la newsletter et le blog Substack.
 
-Poste à pourvoir : responsable YouTube."""
+Un nouvel employé va bientôt rejoindre cette équipe."""
 
 [[fils.messages]]
 slug    = "plaidoyer"
@@ -215,15 +181,10 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
-nom          = "Groupes locaux"
+# Groupes locaux
 salon        = "1548366084967760004"
 couleur      = "#F2994A"
 role_parent  = "groupe-local"
-description  = """
-PauseIA près de chez vous.
-Les membres des groupes locaux se retrouvent pour discuter, tracter, former et faire vivre le mouvement sur le terrain. Levez la main 🙋 pour rejoindre le vôtre et rencontrer les membres de votre région.
-Si vous ne trouvez pas de groupe local près de chez vous, vous pouvez remplir ce formulaire : https://pauseia.notion.site/2e128fc94b7780fd94b6d35c35b2f0ac
-L'équipe en charge des groupes locaux vous contactera dès qu'un groupe pourra être créé près de chez vous."""
 
 [[fils.messages]]
 slug    = "bordeaux"
@@ -260,7 +221,7 @@ role    = "gl-grenoble"
 texte   = """
 Référent : @nothing.45
 
-Groupe créé début 2026, on a été super nombreux (5) et on a fait plein de choses : premier mai, municipales, sessions de tractage, discussion avec la mairie, fresque. Mais après de nombreux départs il ne reste que deux membres. Rejoignez-nous vite pour qu'on recommence !"""
+Groupe créé début 2026, on a été autrefois nombreux (5) et on a fait plein de choses : premier mai, municipales, sessions de tractage, discussion avec la mairie, fresque. Mais après de nombreux départs il ne reste que quelques membres. Rejoignez-nous vite pour qu'on recommence !"""
 
 [[fils.messages]]
 slug    = "lille"
@@ -327,25 +288,23 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
-nom          = "Compétences"
+# Compétences
 salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
-description  = """
-Vous souhaitez porter les valeurs de PauseIA en mettant une de vos compétences à disposition ? Nul besoin d'un gros engagement. Levez la main 🙋 : vous serez rattaché à cette compétence, prêt à donner un coup de main quand vous le pouvez."""
 
 [[fils.messages]]
 slug    = "aide-creation"
 titre   = "Aide à la création"
 role    = "comp-aide-creation"
 texte   = """
-Vous voulez donner un coup de main pour créer du contenu militant : relecture, sous-titrage, communication, conseils techniques…"""
+Vous voulez donner un coup de main pour créer du contenu militant: relecture, sous-titrage, communication, conseils techniques…"""
 
 [[fils.messages]]
 slug    = "artivisme"
 titre   = "Artivisme"
 role    = "comp-artivisme"
 texte   = """
-Vous pratiquez un art et voulez le mettre au service de la cause. Exemples : photo, illustration, mise en scène, tournage vidéo, chant, motion design, sculpture, poésie, danse…"""
+Vous pratiquez un art et voulez le mettre au service de la cause. Exemples: photo, illustration, mise en scène, tournage vidéo, chant, motion design, sculpture, poésie, danse…"""
 
 [[fils.messages]]
 slug    = "crea-graphisme"
@@ -380,7 +339,7 @@ slug    = "sensibilisation"
 titre   = "Sensibilisation"
 role    = "comp-sensibilisation"
 texte   = """
-Vous savez animer et présenter pour faire connaître les enjeux de l'IA. Vous avez déjà organisé des ateliers ou des événements similaires."""
+Vous savez animer et présenter des ateliers, campagnes de sensibilisation ou des événements similaires. Vous voulez utiliser cette compétence pour faire connaître les enjeux de l'IA."""
 
 [[fils.messages]]
 slug    = "vulgarisation-ia"
@@ -397,8 +356,8 @@ texte   = """
 Vous pouvez apporter une expertise sur les risques et la sécurité de l'IA."""
 
 [[fils.messages]]
-slug    = "support-technique-ia"
-titre   = "Support technique en IA"
+slug    = "support-technique"
+titre   = "Support technique en informatique"
 role    = "comp-tech"
 texte   = """
 Vous savez mettre en œuvre des outils et des solutions techniques liés à l'IA."""
