@@ -1,0 +1,27 @@
+# Bot Rôles sur le VPS. Avant le premier démarrage :
+#   docker login registry.kher.nl
+#   mkdir -p bot-roles-data && sudo chown -R 65534:65534 bot-roles-data
+# Le conteneur tourne en utilisateur 65534 : sans ce chown, le bot ne peut pas créer sa base.
+
+services:
+  bot-roles:
+    image: registry.kher.nl/pause-ia/bot-roles:3.4.0
+    container_name: "pauseia-bot-roles"
+    env_file: .env
+    volumes:
+      - ./bot-roles-data:/data
+    restart: unless-stopped
+    # Image sans système de fichiers : rien à écrire hors de /data.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Pas de réseau traefik_web : le bot n'expose aucun port et ne fait que sortir vers discord.com.
+    labels:
+      - "traefik.enable=false"
