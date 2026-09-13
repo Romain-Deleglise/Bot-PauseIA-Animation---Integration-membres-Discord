@@ -29,25 +29,38 @@ python3 deploy/reset-forum.py --purge
 Les identifiants des fils et la liste des rôles à supprimer sont en tête du
 script, à ajuster si le contenu évolue.
 
-## `backup-db.sh`
+## Sauvegardes automatiques (conteneur `backup`)
 
-Sauvegarde cohérente de `data/bot.db` (mode WAL) via `sqlite3 .backup`, à chaud,
-sans arrêter le bot. Fait tourner les sauvegardes et supprime celles de plus de
-`KEEP_DAYS` jours (14 par défaut).
+**C'est le mécanisme en place.** Le `docker-compose.yml` inclut un service
+`backup` : un petit conteneur qui monte le même volume `./data` que le bot et
+prend un instantané cohérent de la base (`sqlite3 .backup`, compatible WAL, à
+chaud) à intervalle régulier, dans `./backups/`, avec rotation.
 
-Prérequis : `sudo apt install -y sqlite3`.
+Rien à programmer sur l'hôte : `docker compose up -d` lance aussi les
+sauvegardes, et elles repartent toutes seules au redémarrage du serveur. La
+boucle est dans [`backup-service.sh`](backup-service.sh) ; l'intervalle
+(`INTERVAL`, en secondes) et la rétention (`KEEP_DAYS`, en jours) se règlent dans
+la section `backup` du `docker-compose.yml` (défaut : 1 jour, 14 jours de
+rétention).
+
+Vérifier que ça tourne :
+
+```bash
+docker compose logs backup            # doit afficher « sauvegarde créée : … »
+ls -lh ./backups/                     # les instantanés datés
+```
+
+> Les sauvegardes vivent sur le **même serveur** : elles protègent d'une
+> corruption ou d'une suppression, pas d'une perte du serveur lui-même. Pour
+> couvrir ce cas, copiez régulièrement `backups/` ailleurs.
+
+## `backup-db.sh` (sauvegarde manuelle ponctuelle)
+
+Même sauvegarde, mais lancée à la main sur l'hôte (utile pour un instantané
+avant une opération risquée). Prérequis : `sudo apt install -y sqlite3`.
 
 ```bash
 cd /opt/volunteer-apps/apps/bot-roles
 deploy/backup-db.sh                       # data/bot.db -> backups/
 DB=/chemin/bot.db DEST=/backups KEEP_DAYS=30 deploy/backup-db.sh
 ```
-
-Cron quotidien (3 h), via `crontab -e` :
-
-```cron
-0 3 * * * /opt/volunteer-apps/apps/bot-roles/deploy/backup-db.sh >> /var/log/bot-roles-backup.log 2>&1
-```
-
-> Les sauvegardes vivent sur le même serveur : pour se prémunir d'une perte du
-> serveur lui-même, copiez régulièrement le dossier `backups/` ailleurs.
