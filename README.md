@@ -195,6 +195,7 @@ répondent en message éphémère, visible du seul appelant.
 |---|---|
 | `créer` | Ajoute un message à un fil et publie sa carte |
 | `modifier` | Change titre, texte, rôle, couleur, fil ou rang. Édite la carte sur place |
+| `éditer` | Ouvre une fenêtre (modal) pré-remplie pour corriger titre et texte en multiligne, sans passer par des `\n` |
 | `supprimer` | Supprime la carte. Le rôle reste sur le serveur, ses porteurs le gardent |
 | `liste` | Liste les messages d'un fil, ou de tout le forum |
 

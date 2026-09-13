@@ -10,7 +10,8 @@ use crate::db::posts::Post;
 use crate::discord::channel;
 use crate::discord::embed;
 use crate::ids;
-use crate::state::{Context, Error};
+use crate::state::{Context, Data, Error};
+use poise::Modal as _;
 use poise::serenity_prelude as serenity;
 
 /// Propose les messages existants, préfixés de leur fil.
@@ -77,12 +78,111 @@ fn slug_from(title: &str) -> String {
     }
 }
 
+/// Titre retenu après édition : le champ saisi, ou l'ancien s'il est vidé.
+///
+/// Discord impose déjà un titre non vide (champ requis du modal) ; ce repli
+/// couvre le cas d'un texte réduit à des espaces.
+fn chosen_title(current: &str, input: &str) -> String {
+    let trimmed = input.trim();
+    if trimmed.is_empty() {
+        current.to_owned()
+    } else {
+        trimmed.to_owned()
+    }
+}
+
+/// Fenêtre d'édition du titre et du texte d'une carte.
+///
+/// Un modal offre une vraie zone de texte multiligne, là où un paramètre de
+/// commande slash tient sur une ligne et force à écrire les sauts en `\n`.
+#[derive(Debug, poise::Modal)]
+#[name = "Éditer le message"]
+struct EditModal {
+    #[name = "Titre"]
+    #[max_length = 256]
+    titre: String,
+    #[name = "Texte"]
+    #[paragraph]
+    #[max_length = 4000]
+    texte: Option<String>,
+}
+
 #[poise::command(
     slash_command,
     rename = "message",
-    subcommands("creer", "modifier", "supprimer", "liste")
+    subcommands("creer", "modifier", "editer", "supprimer", "liste")
 )]
 pub async fn message(_ctx: Context<'_>) -> Result<(), Error> {
+    Ok(())
+}
+
+/// Éditer le titre et le texte d'un message, dans une fenêtre multiligne.
+///
+/// Contrairement aux autres commandes, elle ne diffère pas la réponse : un modal
+/// doit être la toute première réponse à l'interaction. Le rôle, la couleur, le
+/// fil et le rang restent du ressort de `/forum message modifier`.
+#[poise::command(slash_command, rename = "éditer")]
+pub async fn editer(
+    ctx: poise::ApplicationContext<'_, Data, Error>,
+    #[description = "Message à éditer"]
+    #[autocomplete = "autocomplete_post"]
+    message: String,
+) -> Result<(), Error> {
+    let base = Context::Application(ctx);
+
+    let Some(current) = resolve(base, &message).await? else {
+        base.send(
+            poise::CreateReply::default()
+                .content("Message introuvable. Choisissez-le dans les suggestions.")
+                .ephemeral(true),
+        )
+        .await?;
+        return Ok(());
+    };
+    let Some(thread) = db::categories::by_id(&ctx.data().db, current.category_id).await? else {
+        base.send(
+            poise::CreateReply::default()
+                .content("Le fil de ce message est introuvable, la base est incohérente.")
+                .ephemeral(true),
+        )
+        .await?;
+        return Ok(());
+    };
+
+    // Pré-remplissage avec le contenu actuel. Le corps stocké porte déjà ses
+    // mentions sous forme `<@id>` : les re-traiter à la soumission est sans
+    // effet, `link_handles` laissant intactes les mentions déjà écrites.
+    let defaults = EditModal {
+        titre: current.title.clone(),
+        texte: Some(current.body.clone()).filter(|body| !body.is_empty()),
+    };
+    let Some(edited) = EditModal::execute_with_defaults(ctx, defaults).await? else {
+        // Modal fermé sans soumission : Discord a déjà refermé la fenêtre.
+        return Ok(());
+    };
+
+    let raw = edited.texte.unwrap_or_default();
+    let (body, unknown) = commands::link_mentions(base, embed::format_description(&raw)).await?;
+    let updated = Post {
+        title: chosen_title(&current.title, &edited.titre),
+        body,
+        ..current.clone()
+    };
+    db::posts::update(&ctx.data().db, &updated).await?;
+    // Édition sur place : les réactions et les rôles déjà accordés survivent.
+    channel::refresh(ctx.http(), ctx.data(), &thread, &updated).await?;
+    ctx.data().reload_caches().await?;
+
+    base.send(
+        poise::CreateReply::default()
+            .content(format!(
+                "Message **{}** modifié.{}",
+                updated.title,
+                commands::unknown_handles_note(&unknown)
+            ))
+            .ephemeral(true),
+    )
+    .await?;
     Ok(())
 }
 
@@ -400,5 +500,16 @@ mod tests {
     fn a_title_without_letters_still_yields_a_slug() {
         assert_eq!(slug_from("---"), "message");
         assert_eq!(slug_from(""), "message");
+    }
+
+    #[test]
+    fn an_edited_title_falls_back_to_the_old_one_when_blank() {
+        assert_eq!(
+            chosen_title("Paris", "Paris intra-muros"),
+            "Paris intra-muros"
+        );
+        // Le titre est requis côté Discord ; ce repli couvre un champ d'espaces.
+        assert_eq!(chosen_title("Paris", "   "), "Paris");
+        assert_eq!(chosen_title("Paris", "  Lyon  "), "Lyon");
     }
 }
