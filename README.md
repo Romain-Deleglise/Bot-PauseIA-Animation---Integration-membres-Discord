@@ -97,6 +97,49 @@ git tag 3.0.0 && git push origin 3.0.0
 Le pipeline vérifie le formatage, la qualité et les tests, puis construit et
 publie l'image. Un push sur une branche ne publie rien.
 
+### Déploiement sans registre : build local (serveur PauseIA / GitHub)
+
+Le serveur PauseIA (Hetzner) déploie **depuis GitHub, sans le registre GitLab** :
+l'image est **construite sur place**, et le `docker-compose.yml` la reprend via
+`BOT_IMAGE` dans le `.env`.
+
+Installation initiale, dans `/opt/volunteer-apps/apps/` :
+
+```bash
+git clone https://github.com/Romain-Deleglise/Bot-PauseIA-Animation---Integration-membres-Discord.git bot-roles
+cd bot-roles
+
+cp .env.example .env
+$EDITOR .env
+#   DISCORD_TOKEN       = jeton du bot (portail développeur Discord)
+#   DISCORD_GUILD_ID    = identifiant du serveur
+#   MANAGE_ROLE_IDS     = identifiants des RÔLES autorisés (pas des membres),
+#                         séparés par des virgules
+#   BOT_IMAGE=bot-roles:local   ← indispensable : utilise l'image construite ici
+
+# Le conteneur tourne en 65534 : le volume de données doit lui appartenir.
+mkdir -p ./data && sudo chown -R 65534:65534 ./data
+
+docker build -t bot-roles:local .
+docker compose up -d
+docker compose logs -f
+```
+
+`docker compose up -d` lance aussi le conteneur **`backup`** (sauvegardes
+automatiques et roulantes de la base — voir [`deploy/README.md`](deploy/README.md)).
+
+Mettre à jour après un merge sur `main` :
+
+```bash
+cd /opt/volunteer-apps/apps/bot-roles
+git pull
+docker build -t bot-roles:local .
+docker compose up -d
+```
+
+Les scripts d'exploitation (sauvegarde manuelle, nettoyage des rôles périmés)
+sont documentés dans [`deploy/README.md`](deploy/README.md).
+
 ## Configuration
 
 Sept variables, toutes décrites dans [`.env.example`](.env.example). Le bot les
