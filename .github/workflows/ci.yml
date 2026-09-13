@@ -1,0 +1,45 @@
+# Vérifie le code à chaque push et proposition de fusion.
+#
+# Reproduit l'étape `check` du pipeline GitLab d'origine (fmt, clippy, tests),
+# car ce fichier .gitlab-ci.yml ne s'exécute pas sur GitHub. Sans cette CI, un
+# commit qui casse la compilation ou un test passerait inaperçu jusqu'au
+# prochain `docker build` manuel sur le serveur.
+
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+# Annule les exécutions obsolètes quand on repousse sur la même branche.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # MSRV du projet : Rust 1.94 (édition 2024). On épingle une version connue
+      # plutôt que « stable » pour que la CI ne dérive pas d'un jour à l'autre.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.95"
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Format
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: Tests
+        run: cargo test --locked
