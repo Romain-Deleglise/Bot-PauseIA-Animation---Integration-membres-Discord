@@ -49,6 +49,7 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 |---|---|
 | `/forum message créer` | Publie une carte dans un fil : titre, texte, rôle, couleur, rang. Sans rôle, pas de réaction. |
 | `/forum message modifier` | Modifie titre, texte, rôle, couleur, fil ou rang. La carte est éditée sur place : réactions et rôles conservés. |
+| `/forum message éditer` | Ouvre une fenêtre (modal) pré-remplie avec le titre et le texte actuels, éditables en multiligne, puis met la carte à jour sur place. Pour le rôle, la couleur, le fil ou le rang, utiliser `modifier`. |
 | `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent : supprimez-le à la main si besoin. Demande `confirmer: True`. |
 | `/forum message liste` | Liste les cartes d'un fil, ou de tout le forum. |
 

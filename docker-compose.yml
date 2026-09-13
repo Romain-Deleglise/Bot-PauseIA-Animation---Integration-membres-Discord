@@ -28,3 +28,26 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  # Sauvegardes automatiques et roulantes de la base, sans cron sur l'hôte :
+  # un conteneur qui monte le même volume et prend un instantané régulier.
+  # `docker compose up -d` suffit à les lancer, et elles repartent au reboot.
+  backup:
+    image: alpine:3
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+      - ./backups:/backups
+      - ./deploy/backup-service.sh:/backup-service.sh:ro
+    # INTERVAL (s) et KEEP_DAYS (jours) sont ajustables ici.
+    environment:
+      INTERVAL: "86400"
+      KEEP_DAYS: "14"
+    entrypoint: ["/bin/sh", "/backup-service.sh"]
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
