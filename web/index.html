@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forum PauseIA — éditeur de contenu</title>
+<style>
+  :root {
+    --fond:#1e1f22; --panneau:#2b2d31; --champ:#1e1f22; --bord:#3f4147;
+    --texte:#dbdee1; --clair:#f2f3f5; --gris:#949ba4; --bleu:#5865f2;
+    --rouge:#f23f43; --vert:#23a55a; --jaune:#f0b132;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fond); color:var(--texte);
+         font:15px/1.45 "Noto Sans","DejaVu Sans","Noto Color Emoji",system-ui,sans-serif; }
+  header { position:sticky; top:0; z-index:10; background:var(--panneau);
+           border-bottom:1px solid var(--bord); padding:12px 20px;
+           display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:16px; margin:0 auto 0 0; color:var(--clair); }
+  button { background:var(--bleu); color:#fff; border:0; border-radius:4px;
+           padding:8px 14px; font:inherit; font-size:14px; cursor:pointer; }
+  button.sobre { background:#4e5058; }
+  button.danger { background:transparent; color:var(--rouge); padding:4px 8px; }
+  button.mini { background:#4e5058; padding:3px 9px; font-size:13px; }
+  button:hover { filter:brightness(1.15); }
+  main { padding:20px; max-width:1400px; margin:0 auto; }
+  .onglets { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+  .onglets button { background:var(--panneau); color:var(--texte); }
+  .onglets button[aria-selected=true] { background:var(--bleu); color:#fff; }
+  .bloc { background:var(--panneau); border-radius:8px; padding:16px 18px; margin-bottom:18px; }
+  .bloc h2 { font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+             color:var(--gris); margin:0; }
+  .bloc-titre { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .bloc-titre h2 { margin-right:auto; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
+  label { display:block; font-size:12px; color:var(--gris); margin-bottom:4px; }
+  input, textarea { width:100%; background:var(--champ); color:var(--texte);
+                    border:1px solid var(--bord); border-radius:4px; padding:8px 10px;
+                    font:inherit; font-size:14px; }
+  textarea { min-height:120px; resize:vertical; line-height:1.4; }
+  input:focus, textarea:focus { outline:none; border-color:var(--bleu); }
+  .plein { grid-column:1/-1; }
+  .msg { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,460px); gap:20px;
+         background:var(--panneau); border-radius:8px; padding:16px 18px; margin-bottom:14px; }
+  @media (max-width:1000px) { .msg { grid-template-columns:1fr; } }
+  .msg-titre { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .msg-titre b { color:var(--clair); font-size:14px; }
+  .msg-titre .rang { color:var(--gris); font-size:13px; margin-right:auto; }
+  .apercu { font-size:12px; color:var(--gris); }
+  /* `border` d'abord, `border-left` ensuite : dans l'ordre inverse la couleur
+     du fil serait écrasée par celle du contour. */
+  .embed { border:1px solid var(--bord); border-left:4px solid var(--c,#4e5058);
+           background:#2b2d31; border-radius:4px; padding:12px 16px 14px; margin-top:8px; }
+  .embed .t { font-size:16px; font-weight:600; color:var(--clair); margin-bottom:8px; }
+  .embed .d { font-size:14px; white-space:pre-wrap; word-wrap:break-word; }
+  .embed .cle { font-size:14px; font-weight:600; color:var(--clair); margin:10px 0 3px; }
+  .role { color:#c9cdfb; background:rgba(88,101,242,.25); border-radius:3px; padding:0 3px; }
+  .reac { display:inline-flex; gap:6px; margin-top:10px; background:#2b2d31;
+          border:1px solid var(--bord); border-radius:8px; padding:3px 9px; font-size:14px; }
+  .avis { border-radius:6px; padding:12px 16px; margin-bottom:18px; font-size:14px; line-height:1.5; }
+  .avis.ok { background:rgba(35,165,90,.12); border-left:4px solid var(--vert); }
+  .avis.ko { background:rgba(242,63,67,.12); border-left:4px solid var(--rouge); }
+  .avis.info { background:rgba(240,177,50,.12); border-left:4px solid var(--jaune); }
+  .avis ul { margin:8px 0 0; padding-left:20px; }
+  .compte { color:var(--gris); font-size:13px; }
+  .vide { background:var(--panneau); border-radius:8px; padding:40px; text-align:center; }
+  .vide p { color:var(--gris); max-width:520px; margin:0 auto 20px; }
+  .vide .actions { display:flex; gap:10px; justify-content:center; }
+  footer { color:var(--gris); font-size:13px; padding:0 20px 40px; max-width:1400px; margin:0 auto; }
+  code { background:var(--champ); padding:1px 5px; border-radius:3px; font-size:13px; }
+</style>
+
+<header>
+  <h1>Forum PauseIA — éditeur de contenu</h1>
+  <span class="compte" id="compte"></span>
+  <button class="sobre" id="btn-importer">Importer un .toml</button>
+  <button class="sobre" id="btn-modele">Modèle vierge</button>
+  <button id="btn-exporter">Exporter le .toml</button>
+  <input type="file" id="fichier" accept=".toml,text/plain" hidden>
+</header>
+
+<main>
+  <div class="avis info">
+    Cette page ne parle ni à Discord ni à aucun serveur : tout se passe dans
+    votre navigateur, rien n'est envoyé ni enregistré en ligne. Elle démarre
+    vide, exprès — le contenu du forum nomme des personnes et des villes, il
+    n'a pas à séjourner sur une page consultable.
+    <span id="etat-chargement"></span>
+  </div>
+  <div id="erreurs"></div>
+  <div class="onglets" id="onglets"></div>
+  <div id="contenu"></div>
+</main>
+
+<footer>
+  Aperçu approximatif du rendu Discord : la mise en forme Markdown des textes et
+  les mentions ne sont pas interprétées ici.
+</footer>
+
+<script>
+"use strict";
+
+/* ─── Lecture et écriture du TOML ──────────────────────────────────────────
+   Un analyseur restreint à ce fichier : blocs [[fils]] et [[fils.messages]],
+   clés à valeur chaîne, simples ou entre triples guillemets. Le format du
+   fichier est fixe, et une bibliothèque complète coûterait plus qu'elle
+   n'apporte. Le bot, lui, lit le fichier avec un vrai analyseur TOML : c'est
+   lui qui fait autorité en cas de désaccord. */
+
+const CLES_FIL = ["nom","salon","couleur","illustration","description","role_parent","mp"];
+const CLES_MSG = ["slug","titre","role","couleur","texte"];
+
+function lireToml(texte) {
+  const lignes = texte.split(/\r?\n/);
+  const doc = { entete:[], fils:[] };
+  let fil = null, cible = null, i = 0, vuFil = false;
+
+  while (i < lignes.length) {
+    const brut = lignes[i], ligne = brut.trim();
+    if (!ligne || ligne.startsWith("#")) {
+      if (!vuFil) doc.entete.push(brut);
+      i++; continue;
+    }
+    if (ligne === "[[fils]]") {
+      vuFil = true; fil = { messages:[] }; doc.fils.push(fil); cible = fil; i++; continue;
+    }
+    if (ligne === "[[fils.messages]]") {
+      vuFil = true;
+      if (!fil) throw new Error(`ligne ${i+1} : un message avant tout fil`);
+      const msg = {}; fil.messages.push(msg); cible = msg; i++; continue;
+    }
+    const m = ligne.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+    if (!m) throw new Error(`ligne ${i+1} : « ${ligne} » n'est pas comprise`);
+    if (!cible) throw new Error(`ligne ${i+1} : « ${m[1]} » est en dehors de tout fil`);
+    const cle = m[1], reste = m[2];
+
+    if (reste.startsWith('"""')) {
+      const apres = reste.slice(3);
+      if (apres.endsWith('"""') && apres.length >= 3) {
+        cible[cle] = desechapper(apres.slice(0, -3)); i++; continue;
+      }
+      const morceaux = apres.length ? [apres] : [];
+      i++;
+      let ferme = false;
+      while (i < lignes.length) {
+        const l = lignes[i], fin = l.indexOf('"""');
+        if (fin >= 0) { morceaux.push(l.slice(0, fin)); ferme = true; i++; break; }
+        morceaux.push(l); i++;
+      }
+      if (!ferme) throw new Error(`chaîne multiligne non fermée pour « ${cle} »`);
+      cible[cle] = desechapper(morceaux.join("\n"));
+      continue;
+    }
+    if (reste.startsWith('"')) {
+      const fin = reste.lastIndexOf('"');
+      if (fin <= 0) throw new Error(`ligne ${i+1} : guillemet non fermé pour « ${cle} »`);
+      cible[cle] = desechapper(reste.slice(1, fin)); i++; continue;
+    }
+    throw new Error(`ligne ${i+1} : la valeur de « ${cle} » doit être entre guillemets`);
+  }
+  return doc;
+}
+
+function desechapper(v) {
+  return v.replace(/\\(["\\])/g, "$1").replace(/\\n/g, "\n");
+}
+
+function ecrireValeur(v) {
+  if (v.includes("\n")) {
+    const corps = v.replace(/\\/g, "\\\\").replace(/"""/g, '\\"\\"\\"').replace(/"$/, '\\"');
+    return '"""\n' + corps + '"""';
+  }
+  return JSON.stringify(v);
+}
+
+function ecrireToml(doc) {
+  const out = [];
+  if (doc.entete.length) {
+    out.push(doc.entete.join("\n").replace(/\n+$/, ""), "");
+  }
+  for (const fil of doc.fils) {
+    out.push("");
+    out.push("[[fils]]");
+    for (const cle of CLES_FIL) {
+      if (fil[cle] != null && fil[cle] !== "") {
+        out.push(`${cle.padEnd(12)} = ${ecrireValeur(fil[cle])}`);
+      }
+    }
+    for (const msg of fil.messages) {
+      out.push("");
+      out.push("[[fils.messages]]");
+      for (const cle of CLES_MSG) {
+        if (msg[cle] != null && msg[cle] !== "") {
+          out.push(`${cle.padEnd(7)} = ${ecrireValeur(msg[cle])}`);
+        }
+      }
+    }
+  }
+  return out.join("\n").replace(/^\n+/, "") + "\n";
+}
+
+/* ─── Vérifications, les mêmes que celles du bot ─────────────────────────── */
+
+function verifier(doc) {
+  const soucis = [];
+  const nomsVus = new Map(), rolesVus = new Map(), salonsVus = new Map();
+
+  if (!doc.fils.length) soucis.push("Le fichier ne décrit aucun fil.");
+
+  for (const fil of doc.fils) {
+    // Sans nom, le bot reprend celui du fil sur Discord : le fil se désigne
+    // alors par son salon.
+    const nomDonne = (fil.nom || "").trim();
+    const nom = nomDonne || `Fil ${(fil.salon || "").trim() || "sans salon"}`;
+    if (nomDonne) {
+      const cle = nomDonne.toLowerCase();
+      if (nomsVus.has(cle)) soucis.push(`Deux fils s'appellent « ${nomDonne} ».`);
+      nomsVus.set(cle, true);
+    }
+    const salonFil = (fil.salon || "").trim();
+    if (salonFil && salonsVus.has(salonFil)) soucis.push(`${nom} : ce salon est déjà utilisé par un autre fil.`);
+    salonsVus.set(salonFil, true);
+
+    if (!/^\d+$/.test((fil.salon || "").trim())) {
+      soucis.push(`${nom} : le salon doit être un identifiant Discord, entre guillemets.`);
+    } else if (/^(1{18}|2{18}|3{18}|4{18})$/.test(fil.salon.trim())) {
+      soucis.push(`${nom} : le salon est encore l'identifiant factice du modèle.`);
+    }
+    if (fil.couleur && !estCouleur(fil.couleur)) soucis.push(`${nom} : couleur « ${fil.couleur} » invalide, attendu #RRGGBB.`);
+    if (fil.illustration && !/^https?:\/\//.test(fil.illustration.trim())) {
+      soucis.push(`${nom} : l'illustration doit être une URL http(s).`);
+    }
+
+    const slugsVus = new Map();
+    for (const msg of fil.messages) {
+      const titre = (msg.titre || "").trim(), slug = (msg.slug || "").trim();
+      if (!slug) { soucis.push(`${nom} : le message « ${titre || "sans titre"} » n'a pas de slug.`); continue; }
+      if (!titre) soucis.push(`${nom} : le message « ${slug} » n'a pas de titre.`);
+      if (slugsVus.has(slug)) soucis.push(`${nom} : le slug « ${slug} » apparaît deux fois.`);
+      slugsVus.set(slug, true);
+      if (msg.couleur && !estCouleur(msg.couleur)) soucis.push(`${slug} : couleur « ${msg.couleur} » invalide.`);
+      const role = (msg.role || "").trim().replace(/^@/, "").toLowerCase();
+      if (role) {
+        if (rolesVus.has(role)) soucis.push(`Le rôle « ${role} » est réclamé par « ${rolesVus.get(role)} » et par « ${slug} ».`);
+        rolesVus.set(role, slug);
+      }
+    }
+  }
+  return soucis;
+}
+
+const estCouleur = v => /^#?[0-9a-fA-F]{6}$/.test(v.trim());
+const versCss = v => v && estCouleur(v) ? "#" + v.trim().replace(/^#/, "") : null;
+
+/* ─── Interface ─────────────────────────────────────────────────────────── */
+
+let doc = { entete:[], fils:[] };
+let filActif = 0;
+
+const $ = s => document.querySelector(s);
+const el = (t, p = {}) => Object.assign(document.createElement(t), p);
+
+function dessiner() {
+  // Une page pas encore commencée n'est pas un fichier en faute : on ne la
+  // signale pas en rouge.
+  const soucis = doc.fils.length ? verifier(doc) : [];
+  const zone = $("#erreurs");
+  zone.innerHTML = "";
+  if (soucis.length) {
+    const box = el("div", { className:"avis ko" });
+    box.append(el("b", { textContent:`${soucis.length} point·s à corriger avant l'import` }));
+    const ul = el("ul");
+    soucis.forEach(s => ul.append(el("li", { textContent:s })));
+    box.append(ul);
+    zone.append(box);
+  } else if (doc.fils.length) {
+    zone.append(el("div", { className:"avis ok", textContent:"Le fichier est prêt à être importé." }));
+  }
+
+  const total = doc.fils.reduce((n, f) => n + f.messages.length, 0);
+  $("#compte").textContent = `${doc.fils.length} fil·s, ${total} message·s`;
+
+  const onglets = $("#onglets");
+  onglets.innerHTML = "";
+  doc.fils.forEach((fil, i) => {
+    const b = el("button", { textContent:`${fil.nom || "nom repris de Discord"} (${fil.messages.length})` });
+    b.setAttribute("aria-selected", i === filActif);
+    b.onclick = () => { filActif = i; dessiner(); };
+    onglets.append(b);
+  });
+  const plus = el("button", { textContent:"+ fil", className:"sobre" });
+  plus.onclick = () => {
+    doc.fils.push({ nom:"Nouveau fil", salon:"", messages:[] });
+    filActif = doc.fils.length - 1; dessiner();
+  };
+  onglets.append(plus);
+
+  const contenu = $("#contenu");
+  contenu.innerHTML = "";
+
+  if (!doc.fils.length) {
+    contenu.append(etatVide());
+    return;
+  }
+  const fil = doc.fils[filActif];
+  if (!fil) return;
+
+  contenu.append(blocFil(fil));
+  fil.messages.forEach((msg, i) => contenu.append(blocMessage(fil, msg, i)));
+
+  const ajouter = el("button", { textContent:"+ message" });
+  ajouter.onclick = () => {
+    fil.messages.push({ slug:"nouveau-message", titre:"Nouveau message", texte:"" });
+    dessiner();
+  };
+  contenu.append(ajouter);
+}
+
+function etatVide() {
+  const bloc = el("div", { className:"vide" });
+  bloc.append(el("p", { textContent:
+    "Importez votre forum.toml pour le reprendre là où vous l'aviez laissé, ou partez d'un modèle vierge pour tout écrire depuis le début." }));
+  const actions = el("div", { className:"actions" });
+  const importer = el("button", { textContent:"Importer un .toml" });
+  importer.onclick = () => $("#fichier").click();
+  const modele = el("button", { className:"sobre", textContent:"Modèle vierge" });
+  modele.onclick = chargerModele;
+  actions.append(importer, modele);
+  bloc.append(actions);
+  return bloc;
+}
+
+/* Squelette des quatre fils du cahier des charges : des noms, des couleurs et
+   les deux rôles parents. Aucun nom de personne, aucune ville — c'est ce qui
+   permet de le livrer avec la page. */
+function chargerModele() {
+  doc = { entete:[], fils:[
+    { nom:"Projets",        salon:"", couleur:"#27AE60", messages:[] },
+    { nom:"Équipes",        salon:"", couleur:"#9B51E0", role_parent:"portail-équipe", messages:[] },
+    { nom:"Groupes locaux", salon:"", couleur:"#F2994A", role_parent:"groupe-local",   messages:[] },
+    { nom:"Compétences",    salon:"", couleur:"#2D9CDB", messages:[] },
+  ]};
+  filActif = 0;
+  $("#etat-chargement").textContent = " Modèle vierge chargé.";
+  dessiner();
+}
+
+function champ(objet, cle, etiquette, options = {}) {
+  const enveloppe = el("div", { className: options.plein ? "plein" : "" });
+  enveloppe.append(el("label", { textContent:etiquette }));
+  const entree = el(options.lignes ? "textarea" : "input");
+  entree.value = objet[cle] || "";
+  if (options.indice) entree.placeholder = options.indice;
+  if (options.lignes) entree.rows = options.lignes;
+  entree.oninput = () => {
+    objet[cle] = entree.value;
+    if (options.vif) rafraichirApercus();
+    else planifier();
+  };
+  enveloppe.append(entree);
+  return enveloppe;
+}
+
+let attente = null;
+function planifier() {
+  clearTimeout(attente);
+  attente = setTimeout(dessiner, 400);
+}
+
+function blocFil(fil) {
+  const bloc = el("div", { className:"bloc" });
+
+  const entete = el("div", { className:"bloc-titre" });
+  entete.append(el("h2", { textContent:"Réglages du fil" }));
+  const supprimer = el("button", { className:"danger", textContent:"supprimer ce fil" });
+  supprimer.onclick = () => {
+    const combien = fil.messages.length;
+    const detail = combien ? ` et ses ${combien} message·s` : "";
+    if (!confirm(`Retirer « ${fil.nom || "ce fil"} »${detail} du fichier ?`)) return;
+    doc.fils.splice(filActif, 1);
+    filActif = Math.max(0, Math.min(filActif, doc.fils.length - 1));
+    dessiner();
+  };
+  entete.append(supprimer);
+  bloc.append(entete);
+
+  const grille = el("div", { className:"grille" });
+  grille.append(
+    champ(fil, "nom", "Nom du fil", { indice:"vide : celui du fil sur Discord" }),
+    champ(fil, "salon", "Identifiant du fil Discord", { indice:"clic droit sur le fil > Copier l'identifiant" }),
+    champ(fil, "couleur", "Couleur des cartes", { indice:"#F2994A", vif:true }),
+    champ(fil, "role_parent", "Rôle parent", { indice:"groupe-local" }),
+    champ(fil, "illustration", "URL de l'illustration", { indice:"https://…" }),
+    champ(fil, "description", "Texte d'introduction du fil", { lignes:4, plein:true, indice:"vide si le fil a déjà son message d'ouverture" }),
+    champ(fil, "mp", "Message privé de bienvenue", { lignes:4, plein:true }),
+  );
+  bloc.append(grille);
+  return bloc;
+}
+
+function blocMessage(fil, msg, index) {
+  const bloc = el("div", { className:"msg" });
+
+  const gauche = el("div");
+  const entete = el("div", { className:"msg-titre" });
+  entete.append(el("span", { className:"rang", textContent:`Message ${index + 1}` }));
+
+  const haut = el("button", { className:"mini", textContent:"↑", title:"Monter" });
+  haut.onclick = () => { if (index > 0) { const [m] = fil.messages.splice(index, 1); fil.messages.splice(index - 1, 0, m); dessiner(); } };
+  const bas = el("button", { className:"mini", textContent:"↓", title:"Descendre" });
+  bas.onclick = () => { if (index < fil.messages.length - 1) { const [m] = fil.messages.splice(index, 1); fil.messages.splice(index + 1, 0, m); dessiner(); } };
+  const suppr = el("button", { className:"danger", textContent:"supprimer" });
+  suppr.onclick = () => {
+    if (confirm(`Retirer « ${msg.titre || msg.slug} » du fichier ?`)) { fil.messages.splice(index, 1); dessiner(); }
+  };
+  entete.append(haut, bas, suppr);
+  gauche.append(entete);
+
+  const grille = el("div", { className:"grille" });
+  grille.append(
+    champ(msg, "titre", "Titre", { vif:true }),
+    champ(msg, "slug", "Slug (identité stable)"),
+    champ(msg, "role", "Rôle accordé", { indice:"vide = message d'information", vif:true }),
+    champ(msg, "couleur", "Couleur de la carte", { indice:"#99AAB5 pour griser", vif:true }),
+    champ(msg, "texte", "Texte", { lignes:7, plein:true, vif:true }),
+  );
+  gauche.append(grille);
+
+  const droite = el("div");
+  droite.append(el("div", { className:"apercu", textContent:"Aperçu" }));
+  droite.append(apercu(fil, msg));
+  bloc.append(gauche, droite);
+  return bloc;
+}
+
+function apercu(fil, msg) {
+  const carte = el("div", { className:"embed" });
+  const couleur = versCss(msg.couleur) || versCss(fil.couleur);
+  if (couleur) carte.style.setProperty("--c", couleur);
+
+  carte.append(el("div", { className:"t", textContent:msg.titre || "(sans titre)" }));
+  if ((msg.texte || "").trim()) carte.append(el("div", { className:"d", textContent:msg.texte.trim() }));
+
+  const roles = [];
+  if ((msg.role || "").trim()) {
+    roles.push("@" + msg.role.trim().replace(/^@/, ""));
+    if ((fil.role_parent || "").trim()) roles.push("@" + fil.role_parent.trim().replace(/^@/, ""));
+  }
+  if (roles.length) {
+    carte.append(el("div", { className:"cle", textContent:roles.length > 1 ? "Rôles" : "Rôle" }));
+    const ligne = el("div");
+    roles.forEach((r, i) => {
+      if (i) ligne.append(document.createTextNode(" "));
+      ligne.append(el("span", { className:"role", textContent:r }));
+    });
+    carte.append(ligne);
+  }
+
+  const enveloppe = el("div");
+  enveloppe.append(carte);
+  // Un message sans rôle ne porte pas de réaction : c'est la règle du bot.
+  if (roles.length) enveloppe.append(el("div", { className:"reac", textContent:"🙋 1" }));
+  return enveloppe;
+}
+
+function rafraichirApercus() {
+  const fil = doc.fils[filActif];
+  if (!fil) return;
+  document.querySelectorAll(".msg").forEach((bloc, i) => {
+    const droite = bloc.lastElementChild;
+    droite.replaceChild(apercu(fil, fil.messages[i]), droite.lastElementChild);
+  });
+  planifier();
+}
+
+/* ─── Chargement et export ──────────────────────────────────────────────── */
+
+function charger(texte, origine) {
+  try {
+    doc = lireToml(texte);
+    filActif = 0;
+    $("#etat-chargement").textContent = ` Chargé depuis ${origine}.`;
+    dessiner();
+  } catch (err) {
+    $("#erreurs").innerHTML = "";
+    $("#erreurs").append(el("div", { className:"avis ko", textContent:`Lecture impossible : ${err.message}` }));
+  }
+}
+
+$("#btn-importer").onclick = () => $("#fichier").click();
+$("#fichier").onchange = async e => {
+  const f = e.target.files[0];
+  if (f) charger(await f.text(), f.name);
+  e.target.value = "";
+};
+
+$("#btn-modele").onclick = chargerModele;
+
+$("#btn-exporter").onclick = () => {
+  const blob = new Blob([ecrireToml(doc)], { type:"text/plain;charset=utf-8" });
+  const a = el("a", { href:URL.createObjectURL(blob), download:"forum.toml" });
+  document.body.append(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+};
+
+// Exposé pour la vérification automatique de l'aller-retour en intégration.
+window.__forum = { lireToml, ecrireToml, verifier, get doc() { return doc; } };
+
+// Aucun chargement automatique : la page reste vide tant qu'on ne lui donne rien.
+dessiner();
+</script>
+</html>

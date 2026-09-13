@@ -1,0 +1,11 @@
+/target/
+.env
+__pycache__/
+*.pyc
+/data/
+*.db
+*.db-wal
+*.db-shm
+.idea/
+.vscode/
+bot-roles-data/

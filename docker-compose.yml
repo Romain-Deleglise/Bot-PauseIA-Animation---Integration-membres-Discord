@@ -1,0 +1,30 @@
+# Déploiement sur le VPS. L'image vient du registry GitLab, elle n'est pas
+# construite ici : `docker compose pull && docker compose up -d`.
+#
+# Avant le premier démarrage, donnez le répertoire de données à l'utilisateur du
+# conteneur, sans quoi le bot ne pourra pas créer sa base :
+#
+#     mkdir -p ./data && sudo chown -R 65534:65534 ./data
+
+services:
+  bot-roles:
+    # Nom exact de l'image : il est affiché à la fin du job `build` du pipeline.
+    # Surchargeable sans toucher à ce fichier, avec BOT_IMAGE dans le .env.
+    image: ${BOT_IMAGE:-registry.kher.nl/pause-ia/bot-roles:latest}
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/data
+    # Le bot n'écoute sur aucun port et ne parle qu'à discord.com.
+    read_only: true
+    # SQLite peut avoir besoin d'un répertoire temporaire pour les tris ;
+    # la racine étant en lecture seule, on lui en fournit un en mémoire.
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
