@@ -199,22 +199,25 @@ description  = "Les équipes font tourner l'association au quotidien, et cela de
 mp           = """
 Salut 👋
 
-Bienvenue chez Pause IA, et merci d'avoir levé la main !
+Tu viens de dire que tu voulais t'investir dans une équipe. Merci, et bienvenue !
 
-Tu viens de recevoir le rôle du parcours d'intégration. La première étape est un échange de trente minutes avec Clémence, notre directrice exécutive : vous ferez connaissance et vous verrez ensemble où tu aurais le plus d'impact.
+En cette rentrée 2026, nous sommes en pleine structuration. Nous ferons de notre mieux pour t'accueillir dans de bonnes conditions, mais sois indulgent·e si la réponse tarde un peu.
 
-**Réserve ton créneau ici : https://calendly.com/clemence-pauseia/30min**
+**Un point de franchise avant tout le reste.** Une équipe demande environ cinq heures par semaine pour que ça fonctionne, pour toi comme pour nous. Si tu n'es pas sûr·e de pouvoir les dégager en ce moment, va plutôt voir le fil **Projets** : des missions concrètes, sans engagement de durée. La porte des équipes restera ouverte.
 
-En attendant, tu peux prendre de l'avance. Rien de tout cela n'est obligatoire avant l'échange, viens comme tu es.
+**Si tu te lances, la prochaine étape est un échange de trente minutes** avec Clémence, notre directrice exécutive. Vous ferez connaissance et vous verrez ensemble où tu aurais le plus d'impact.
 
-1. Lire le guide du candidat : https://pauseia.notion.site/devenir-benevole
-2. Remplir le formulaire bénévole, décrit dans ce guide
-3. Adhérer à l'association, ce qui est demandé pour s'engager en équipe : https://www.helloasso.com/associations/pause-ia/adhesions/formulaire-d-adhesion-a-pause-ia
-4. Te signaler dans le salon #portail
+Réserve ton créneau ici : https://calendly.com/clemence-pauseia/30min
 
-Et si tu veux savoir ce qui nous tient à cœur, notre charte des valeurs est ici : https://pauseia.fr/fr/charte-des-valeurs
+En attendant, deux choses à faire, et une à lire :
 
-Une question, un doute ? Écris dans #portail, quelqu'un te répondra. 🌱"""
+1. Adhérer à l'association, ce qui est demandé pour s'engager en équipe : https://pauseia.fr/rejoindre
+2. Remplir le formulaire bénévole, décrit dans le guide du candidat : https://pauseia.notion.site/devenir-benevole
+3. Lire notre charte des valeurs : https://pauseia.fr/fr/charte-des-valeurs
+
+Une question ? Le salon #portail est fait pour ça, quelqu'un te répondra. 🌱
+
+Si tu fais déjà partie d'une équipe, tu peux ignorer ce message."""
 
 [[fils.messages]]
 slug    = "communication"
