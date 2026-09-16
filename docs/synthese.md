@@ -13,8 +13,11 @@ fait comme ça. Le [guide](guide.md) détaille les commandes, le
   la réaction les reprend. Rien d'autre à faire pour le membre.
 - Il envoie un **message privé** d'accueil expliquant la suite : ce que le rôle
   ouvre, où aller, qui contacter.
-- Il **confirme en privé** les entrées et les sorties, sur les fils où l'on
-  rejoint un groupe d'humains.
+- Il **confirme en privé** chaque entrée et chaque sortie : « Tu as rejoint
+  Paris, rôle reçu : @gl-paris », et l'inverse au retrait. Une réaction
+  n'affiche rien à l'écran, et perdre un rôle par mégarde était silencieux.
+  Réglage par fil : actif sur Projets, Équipes et Groupes locaux, coupé sur
+  Compétences, où cocher dix cartes ferait dix messages.
 - Tout se pilote depuis Discord, en commandes `/forum …` : créer un fil, éditer
   le texte d'une carte, changer le message privé. Aucun redémarrage.
 - Le contenu initial se rédige dans un fichier `contenu/forum.toml`, versionné,
