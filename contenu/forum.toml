@@ -3,7 +3,7 @@
 salon        = "1548365905870721084"
 confirmations = true
 couleur      = "#27AE60"
-role_parent  = "portail-équipe"
+role_parent  = "projet"
 description  = "Des missions ouvertes pour contribuer à Pause IA sans engagement lourd, le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main sur un projet !
