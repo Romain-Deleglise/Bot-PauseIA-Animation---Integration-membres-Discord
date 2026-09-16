@@ -245,6 +245,7 @@ pub async fn creer(
             information: false,
             dm_text: None,
             grants_parent: true,
+            notify_channel_id: None,
             referent_id: None,
         },
     )

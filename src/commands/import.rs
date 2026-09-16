@@ -95,6 +95,9 @@ pub struct PostSpec {
     pub sans_role_parent: bool,
     /// `@pseudo` de la personne à prévenir quand une main se lève ici.
     pub referent: Option<String>,
+    /// Salon propre à cette carte, où annoncer ses mains levées. Il l'emporte
+    /// sur celui du fil : chaque projet a le sien.
+    pub salon_notifications: Option<String>,
 }
 
 /// Lit le fichier et vérifie tout ce qui peut l'être sans toucher à Discord.
@@ -613,6 +616,12 @@ async fn upsert_post(
         information: spec.information,
         dm_text: spec.mp.clone(),
         grants_parent: !spec.sans_role_parent,
+        notify_channel_id: spec
+            .salon_notifications
+            .as_deref()
+            .map(commands::parse_snowflake)
+            .transpose()?
+            .map(ids::to_db),
         referent_id: referent,
     };
 

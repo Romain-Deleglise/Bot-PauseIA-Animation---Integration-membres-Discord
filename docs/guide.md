@@ -72,7 +72,8 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 
 Un fil accepte aussi `salon_notifications` (l'identifiant du salon où annoncer
 ses mains levées) et `confirmations = true`. Un message accepte `referent`, le
-`@pseudo` de la personne mentionnée dans cette annonce.
+`@pseudo` de la personne mentionnée dans cette annonce, et son propre
+`salon_notifications`, qui l'emporte sur celui du fil.
 
 Dans le fichier de contenu, un message accepte deux champs à part : `mp`, son
 message privé propre, envoyé à sa place de celui du fil ; et

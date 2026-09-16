@@ -324,10 +324,15 @@ async fn announce(
     post: &PostRef,
     change: Change<'_>,
 ) {
-    let Some(channel_id) = data.notify_channel(post.category_id) else {
+    let Ok(Some(card)) = db::posts::by_id(&data.db, post.post_id).await else {
         return;
     };
-    let Ok(Some(card)) = db::posts::by_id(&data.db, post.post_id).await else {
+    // Le salon de la carte d'abord : chaque projet a le sien, et une annonce
+    // tombée dans un salon commun ne serait lue par personne.
+    let Some(channel_id) = card
+        .notify_channel_id
+        .or_else(|| data.notify_channel(post.category_id))
+    else {
         return;
     };
 

@@ -107,11 +107,14 @@ réglage par message, et les statuts avec.
 `posts.slug` est l'identité stable pour le réimport : `role_id` peut être `NULL`
 et le titre peut être corrigé, ni l'un ni l'autre ne peut servir de clé.
 
-Une carte peut enfin nommer un·e **référent·e** (`posts.referent_id`) et son fil
-un **salon d'annonce** (`categories.notify_channel_id`, migration `0005`). Sans
+Une carte peut enfin nommer un·e **référent·e** (`posts.referent_id`) et un
+**salon d'annonce** (`posts.notify_channel_id`, migration `0005`), son fil n'en
+offrant qu'un de recours (`categories.notify_channel_id`) — chaque projet a son
+salon, une équipe en a parfois plusieurs, et une annonce tombée dans un salon
+commun ne serait lue par personne. Sans
 eux, une main levée ne prévenait personne : le message privé annonçait qu'on
 prendrait contact, et la seule trace était la liste des réactions, que personne
-ne consulte. Le salon est réglé par fil parce que tous n'ont pas le même public.
+ne consulte.
 
 ### 2. Toute écriture est suivie de `Data::reload_caches`
 

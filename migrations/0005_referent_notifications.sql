@@ -12,6 +12,13 @@
 --    compétences cochées d'affilée n'intéressent personne.
 ALTER TABLE categories ADD COLUMN notify_channel_id INTEGER;
 
--- 2. La personne à mentionner dans cette annonce, propre à chaque carte : c'est
+-- 2. Le salon propre à une carte, qui l'emporte sur celui du fil. Chaque projet
+--    a le sien, une équipe en a parfois plusieurs : l'annonce doit tomber là où
+--    l'équipe concernée travaille, pas dans un salon commun que personne ne
+--    relit. Le réglage du fil sert alors de recours, pour les cartes qui n'ont
+--    pas de salon à elles.
+ALTER TABLE posts ADD COLUMN notify_channel_id INTEGER;
+
+-- 3. La personne à mentionner dans cette annonce, propre à chaque carte : c'est
 --    le ou la référente du projet, pas celle du fil.
 ALTER TABLE posts ADD COLUMN referent_id INTEGER;
