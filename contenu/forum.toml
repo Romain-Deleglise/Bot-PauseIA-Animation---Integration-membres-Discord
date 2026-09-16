@@ -4,15 +4,17 @@ salon        = "1548365905870721084"
 confirmations = true
 couleur      = "#27AE60"
 role_parent  = "projet"
-description  = "Des missions ouvertes pour contribuer à Pause IA sans engagement lourd, le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
+description  = "Des missions concrètes auxquelles contribuer quand tu peux, sans engagement de durée. C'est le meilleur endroit pour commencer. Lève la main 🙋 sur un projet qui t'intéresse, et son référent ou sa référente prendra contact avec toi."
 mp           = """
-👋 Bienvenue, et merci d'avoir levé la main sur un projet !
+👋 Bienvenue, et merci d'avoir levé la main !
 
-Tu as maintenant accès à l'espace des projets : le·la référent·e du projet t'y contactera pour te dire par où commencer. Les projets sont pensés comme des missions « bac à sable » : tu essaies, tu vois si ça te plaît, sans engagement lourd.
+Tu as maintenant accès au salon de ce projet. Son référent ou sa référente vient d'être prévenu·e et te dira par où commencer.
 
-Si tu veux comprendre l'ensemble des façons de contribuer, le guide des bénévoles est ici : https://pauseia.notion.site/guide-des-benevoles-tier-1
+Rien ne t'engage : tu essaies, tu vois si ça te plaît, et tu retires ta réaction si ce n'est pas le bon moment.
 
-Et si tu veux t'engager plus régulièrement, chaque semaine, va voir le fil **Équipes**.
+Pour découvrir toutes les façons de contribuer, notre guide des bénévoles est ici : https://pauseia.notion.site/guide-des-benevoles-tier-1
+
+Et si tu veux t'investir chaque semaine au sein d'une équipe, va voir le fil **Équipes**.
 
 À très vite ! 💙"""
 
@@ -40,13 +42,13 @@ sans_role_parent = true
 mp = """
 Salut 👋
 
-Merci de ton intérêt pour PauseAction !
+Voici le lien du groupe : https://chat.whatsapp.com/LThhghXc0Hk3sTwQMyy1wU
 
-Chaque semaine, nous proposons une action simple à faire en moins de cinq minutes : signer, partager ou commenter. Tout se passe sur notre groupe WhatsApp, que tu peux rejoindre ici : https://chat.whatsapp.com/LThhghXc0Hk3sTwQMyy1wU
+Chaque semaine, on y propose une action simple à faire en moins de cinq minutes : signer, partager, commenter. Rien d'autre, pas de discussion.
 
-Aucun engagement : tu participes quand tu peux, et tu pars quand tu veux.
+Tu participes quand tu peux, et tu pars quand tu veux.
 
-À très vite ! 💙"""
+Merci d'en être ! ⚡"""
 referent = "@clemence_coqcinelle"
 texte   = """
 Référent : @clemence_coqcinelle
@@ -165,13 +167,13 @@ titre   = "[En pause] Veille"
 # tient lieu de registre d'intérêt.
 sans_role_parent = true
 mp = """
-👋 Merci de ton intérêt pour la veille !
+👋 Merci de t'être signalé·e sur la veille.
 
-Ce projet est en pause pour le moment : nous ne savons pas encore s'il repartira, et sous quelle forme.
+Ce projet est en pause : nous ne savons pas encore s'il repartira, ni sous quelle forme. C'est pour ça que tu ne reçois aucun rôle.
 
-Ta main levée reste visible sur la carte, elle nous sert à mesurer l'intérêt. Si le projet redémarre, nous reviendrons vers celles et ceux qui se sont signalés.
+Ta main levée reste visible sur la carte, et c'est justement ce qui nous sert à mesurer l'intérêt. S'il redémarre, nous reviendrons vers toi.
 
-Merci ! 💙"""
+Merci de ta patience ! 🌱"""
 referent = "@jeannebazard"
 texte   = """
 Référente : @jeannebazard
@@ -191,28 +193,26 @@ confirmations = true
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
 salon_notifications = "1408569062241603614"
-description  = "Les équipes sont le cœur opérationnel de Pause IA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras un message privé avec les prochaines étapes et le lien pour un échange d'accueil."
+description  = "Les équipes font tourner l'association au quotidien, et cela demande environ cinq heures par semaine. On y entre après un parcours d'intégration qui commence par un échange de trente minutes. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras en privé le lien pour réserver ce créneau, et les étapes suivantes."
 mp           = """
 Salut 👋
 
-Bienvenue sur le serveur de Pause IA ! ⏸️
+Bienvenue chez Pause IA, et merci d'avoir levé la main !
 
-Tu viens de lever la main sur une équipe : tu as reçu le rôle du parcours d'intégration des bénévoles actifs, celles et ceux qui contribuent chaque semaine à Pause IA.
+Tu viens de recevoir le rôle du parcours d'intégration. La première étape est un échange de trente minutes avec Clémence, notre directrice exécutive : vous ferez connaissance et vous verrez ensemble où tu aurais le plus d'impact.
 
-Pour avancer, je t'encourage à réserver un créneau avec la directrice exécutive de Pause IA pour discuter de comment tu pourrais t'investir dans l'association : https://calendly.com/clemence-pauseia/30min 🙂
+**Réserve ton créneau ici : https://calendly.com/clemence-pauseia/30min**
 
-Pendant que tu attends ton créneau, tu peux prendre de l'avance sur le parcours d'intégration :
+En attendant, tu peux prendre de l'avance. Rien de tout cela n'est obligatoire avant l'échange, viens comme tu es.
 
-**1.** Lire le guide du candidat : https://pauseia.notion.site/devenir-benevole
-**2.** Remplir le formulaire bénévole, décrit dans ce guide
-**3.** Adhérer à l'association, demandé pour s'engager en équipe : https://www.helloasso.com/associations/pause-ia/adhesions/formulaire-d-adhesion-a-pause-ia
-**4.** Te signaler dans le salon #portail
+1. Lire le guide du candidat : https://pauseia.notion.site/devenir-benevole
+2. Remplir le formulaire bénévole, décrit dans ce guide
+3. Adhérer à l'association, ce qui est demandé pour s'engager en équipe : https://www.helloasso.com/associations/pause-ia/adhesions/formulaire-d-adhesion-a-pause-ia
+4. Te signaler dans le salon #portail
 
-Rien de tout cela n'est obligatoire avant l'échange : viens comme tu es, on fera le point ensemble.
+Et si tu veux savoir ce qui nous tient à cœur, notre charte des valeurs est ici : https://pauseia.fr/fr/charte-des-valeurs
 
-Notre charte des valeurs, si tu veux savoir ce qui nous tient à cœur : https://pauseia.fr/fr/charte-des-valeurs
-
-Merci, et bienvenue à Pause IA ! 🌱 N'hésite pas à envoyer un message sur Discord si tu rencontres une difficulté ! 😊"""
+Une question, un doute ? Écris dans #portail, quelqu'un te répondra. 🌱"""
 
 [[fils.messages]]
 slug    = "communication"
@@ -273,18 +273,18 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 salon        = "1548366084967760004"
 confirmations = true
 couleur      = "#F2994A"
-description  = "Agir près de chez toi, avec les membres de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es… Lève la main 🙋 sur ton groupe, tu peux en choisir plusieurs. Les autres façons de contribuer sont décrites dans le guide des bénévoles : https://pauseia.notion.site/guide-des-benevoles-tier-1"
+description  = "Agir près de chez toi, avec les bénévoles de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es, stands. Lève la main 🙋 sur ton groupe pour rejoindre son salon, et sur plusieurs si tu partages ton temps entre deux villes. Les autres façons de contribuer sont décrites dans notre guide des bénévoles : https://pauseia.notion.site/guide-des-benevoles-tier-1"
 role_parent  = "groupe-local"
 mp           = """
-👋 Bienvenue, et merci d'avoir levé la main sur un groupe local !
+👋 Bienvenue dans ton groupe local !
 
-Tu as maintenant accès aux salons des groupes locaux : présente-toi dans celui de ta ville, le·la référent·e t'indiquera les prochaines actions près de chez toi (tractage, fresque de l'IA, rencontres d'élu·es…).
+Tu as maintenant accès à son salon. Présente-toi en deux lignes : son référent ou sa référente t'indiquera les prochaines actions près de chez toi, tractage, fresque de l'IA ou rencontre avec des élu·es.
 
-Tu peux lever la main sur plusieurs groupes si tu bouges entre plusieurs villes.
+Tu bouges entre deux villes ? Lève la main sur les deux groupes, tu garderas l'accès aux salons communs tant que tu appartiens à l'un d'eux.
 
 Pour découvrir les autres façons de contribuer : https://pauseia.notion.site/guide-des-benevoles-tier-1
 
-À très vite ! 💙"""
+Bonnes actions ! 📍"""
 
 [[fils.messages]]
 slug    = "bordeaux"
@@ -410,15 +410,15 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 # Compétences
 salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
-description  = "Dis-nous ce que tu sais faire : les équipes te contacteront quand un besoin correspond. Lève la main 🙋 sur autant de compétences que tu veux, et retire ta réaction à tout moment. Pour t'engager plus régulièrement, va voir les fils **Projets** (missions ponctuelles) et **Équipes** (contribution hebdomadaire) : https://pauseia.notion.site/guide-des-benevoles-tier-1"
+description  = "Dis-nous ce que tu sais faire, et les équipes viendront te chercher quand un besoin correspondra. Lève la main 🙋 sur autant de compétences que tu veux : ici, rien ne t'engage et rien ne te sera demandé tant que tu n'auras pas dit oui. Pour contribuer dès maintenant, va plutôt voir les fils **Projets** et **Équipes**."
 mp           = """
-👋 Merci d'avoir signalé tes compétences !
+👋 Merci, c'est noté !
 
-Elles sont désormais visibles pour les équipes : quand un besoin correspond, on te contactera directement ici. Tu peux lever la main sur autant de compétences que tu veux, et retirer ta réaction à tout moment.
+Nos équipes savent maintenant qu'elles peuvent compter sur toi, et l'une d'elles t'écrira ici le jour où un besoin correspondra. Cela peut prendre quelques jours comme quelques mois : rien ne t'oblige à dire oui.
 
-Si tu veux t'engager plus régulièrement, va voir les fils **Projets** (missions ponctuelles) et **Équipes** (contribution hebdomadaire).
+Tu préfères ne pas attendre ? Le fil **Projets** liste des missions à rejoindre tout de suite, et le fil **Équipes** ouvre la porte d'un engagement régulier.
 
-À très vite ! 💙"""
+À bientôt ! 🛠️"""
 
 [[fils.messages]]
 slug    = "aide-creation"
