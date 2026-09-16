@@ -198,11 +198,64 @@ async fn send_welcome_dm(
     .await;
 
     if let Err(err) = sent {
+        if is_permanent(&err) {
+            // Réessayer à chaque réaction du fil ne ferait qu'empiler des appels
+            // voués au même refus : la réservation reste posée. Le membre garde
+            // son rôle, et les liens du message privé figurent aussi dans la
+            // description du fil, qu'il voit sans messages privés.
+            tracing::info!(
+                %user_id,
+                %err,
+                "membre injoignable en message privé, réservation conservée"
+            );
+            return;
+        }
         tracing::warn!(%user_id, %err, "message privé non délivré, réservation libérée");
-        // Le membre a peut-être fermé ses messages privés : on libère pour que
-        // la prochaine réaction réessaie.
+        // Panne réseau ou indisponibilité de Discord : la prochaine réaction
+        // dans ce fil retentera l'envoi.
         if let Err(err) = db::dm::release(&data.db, member_id, category_id).await {
             tracing::error!(%err, "libération de la réservation impossible");
         }
+    }
+}
+
+/// L'envoi est-il condamné, par opposition à une panne passagère ?
+fn is_permanent(err: &serenity::Error) -> bool {
+    match err {
+        serenity::Error::Http(err) => err.status_code().is_some_and(refuses_for_good),
+        _ => false,
+    }
+}
+
+/// Un refus de Discord lui-même vaudra encore demain : messages privés fermés
+/// (50007), bot bloqué, compte supprimé. Une limite de débit, elle, se retente,
+/// comme tout ce qui vient du réseau ou d'une panne de Discord (5xx).
+fn refuses_for_good(status: serenity::StatusCode) -> bool {
+    status.is_client_error() && status != serenity::StatusCode::TOO_MANY_REQUESTS
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn closed_direct_messages_are_never_retried() {
+        assert!(refuses_for_good(serenity::StatusCode::FORBIDDEN));
+    }
+
+    #[test]
+    fn a_rate_limit_is_worth_retrying() {
+        assert!(!refuses_for_good(serenity::StatusCode::TOO_MANY_REQUESTS));
+    }
+
+    #[test]
+    fn an_outage_at_discord_is_worth_retrying() {
+        assert!(!refuses_for_good(serenity::StatusCode::BAD_GATEWAY));
+    }
+
+    #[test]
+    fn a_network_failure_is_worth_retrying() {
+        let err = serenity::Error::Other("connexion interrompue");
+        assert!(!is_permanent(&err));
     }
 }

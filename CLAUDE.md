@@ -131,8 +131,14 @@ règle du rôle parent n'aurait pas de réponse unique.
 Serenity traite les réactions en parallèle : deux clics rapprochés liraient tous
 deux une absence de ligne et enverraient chacun leur message. `db::dm::claim`
 s'appuie donc sur l'atomicité d'un `INSERT OR IGNORE` et sur `rows_affected`.
-En cas d'échec d'envoi, la réservation est libérée pour que la prochaine
-réaction réessaie ; le rôle, lui, est accordé dans tous les cas.
+En cas d'échec d'envoi, la réservation n'est libérée que si l'échec est
+passager — réseau, limite de débit, panne de Discord. Un refus de Discord
+lui-même (4xx : messages privés fermés, bot bloqué, compte supprimé) vaudra
+encore demain : la réservation reste posée, sans quoi chaque réaction du fil
+rejouerait le même appel perdu. Le rôle, lui, est accordé dans tous les cas, et
+les liens du message privé figurent aussi dans la description du fil : une part
+des membres ferme les messages privés de serveur, et rien ne permet de les
+joindre autrement.
 
 ### 6. La clé d'un emoji ignore son nom
 
