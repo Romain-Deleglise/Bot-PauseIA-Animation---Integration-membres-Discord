@@ -11,6 +11,8 @@ Tu as maintenant accès à l'espace des projets : le·la référent·e du projet
 
 Si tu veux comprendre l'ensemble des façons de contribuer, le guide des bénévoles est ici : https://pauseia.notion.site/guide-des-benevoles-tier-1
 
+Et si tu veux t'engager plus régulièrement, chaque semaine, va voir le fil **Équipes**.
+
 À très vite ! 💙"""
 
 [[fils.messages]]
@@ -132,17 +134,17 @@ couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
 description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration : lève la main 🙋 sur une équipe pour démarrer ce parcours — tu recevras un message avec les prochaines étapes et un échange d'accueil."
 mp           = """
-👋 Bienvenue chez PauseIA, et merci d'avoir levé la main !
+Salut 👋
 
-Rejoindre une équipe (Tier 2, ~5 h/semaine) passe par un court parcours d'intégration :
+Bienvenue sur le serveur de Pause IA ! ⏸️
 
-**1.** Un échange de 30 min avec Clémence pour faire connaissance et t'orienter → https://calendly.com/clemence-pauseia/30min
-**2.** Tu rejoins ensuite l'espace #portail, avec le guide d'intégration : https://pauseia.notion.site/devenir-benevole
-**3.** Environ deux mois dans l'équipe « Onboarding » pour te familiariser avec nos outils et nos rituels, puis tu choisis ton équipe.
+Tu viens de lever la main sur une équipe : tu as reçu le rôle du parcours d'intégration des bénévoles actifs, celles et ceux qui contribuent chaque semaine à Pause IA.
 
-L'adhésion à l'association est demandée pour l'engagement en équipe.
+Pour avancer, je t'encourage à réserver un créneau avec la directrice exécutive de Pause IA pour discuter de comment tu pourrais t'investir dans l'association : https://calendly.com/clemence-pauseia/30min 🙂
 
-À très vite ! 💙"""
+Le guide d'intégration est ici : https://pauseia.notion.site/devenir-benevole
+
+Merci, et bienvenue à Pause IA ! 🌱 N'hésite pas à envoyer un message sur Discord si tu rencontres une difficulté ! 😊"""
 
 [[fils.messages]]
 slug    = "communication"
@@ -310,13 +312,13 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 # Compétences
 salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
-description  = "Dis-nous ce que tu sais faire : les équipes te contacteront quand un besoin correspond. Lève la main 🙋 sur autant de compétences que tu veux, et retire ta réaction à tout moment. Pour t'engager plus régulièrement, le guide des bénévoles explique les différents niveaux : https://pauseia.notion.site/guide-des-benevoles-tier-1"
+description  = "Dis-nous ce que tu sais faire : les équipes te contacteront quand un besoin correspond. Lève la main 🙋 sur autant de compétences que tu veux, et retire ta réaction à tout moment. Pour t'engager plus régulièrement, va voir les fils **Projets** (missions ponctuelles) et **Équipes** (contribution hebdomadaire) : https://pauseia.notion.site/guide-des-benevoles-tier-1"
 mp           = """
 👋 Merci d'avoir signalé tes compétences !
 
 Elles sont désormais visibles pour les équipes : quand un besoin correspond, on te contactera directement ici. Tu peux lever la main sur autant de compétences que tu veux, et retirer ta réaction à tout moment.
 
-Si tu veux t'engager plus régulièrement, le guide des bénévoles explique les différents niveaux : https://pauseia.notion.site/guide-des-benevoles-tier-1
+Si tu veux t'engager plus régulièrement, va voir les fils **Projets** (missions ponctuelles) et **Équipes** (contribution hebdomadaire).
 
 À très vite ! 💙"""
 
