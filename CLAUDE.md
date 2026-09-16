@@ -223,8 +223,9 @@ CDC demande de pouvoir éditer un message en quelques secondes
 depuis Discord. L'import ne supprime donc jamais rien, il signale.
 
 Un test (`commands::import::tests::the_shipped_content_file_is_valid`) charge le
-fichier livré et vérifie qu'il décrit bien quatre fils et 38 messages : une
-coquille dans le contenu échoue en CI, pas en production.
+fichier livré et vérifie qu'il décrit bien quatre fils et 37 messages, et que
+chaque fil porte une description et un message privé d'accueil : une coquille
+dans le contenu échoue en CI, pas en production.
 
 ## Vérifier
 
