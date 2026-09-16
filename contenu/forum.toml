@@ -8,13 +8,13 @@ description  = "Des missions concrètes auxquelles contribuer quand tu peux, san
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main !
 
-Tu as maintenant accès au salon de ce projet. Son référent ou sa référente vient d'être prévenu·e et te dira par où commencer.
+Tu as maintenant accès au salon de ce projet, et son référent ou sa référente vient d'être prévenu·e.
+
+**Passe y dire bonjour en deux lignes : qui tu es, et ce que tu aurais envie de faire.** C'est tout ce qu'on te demande pour l'instant.
 
 Rien ne t'engage : tu essaies, tu vois si ça te plaît, et tu retires ta réaction si ce n'est pas le bon moment.
 
-Pour découvrir toutes les façons de contribuer, notre guide des bénévoles est ici : https://pauseia.notion.site/guide-des-benevoles-tier-1
-
-Et si tu veux t'investir chaque semaine au sein d'une équipe, va voir le fil **Équipes**.
+Envie de comprendre le reste ? Notre guide des bénévoles fait le tour : https://pauseia.notion.site/guide-des-benevoles-tier-1
 
 À très vite ! 💙"""
 
@@ -278,11 +278,11 @@ role_parent  = "groupe-local"
 mp           = """
 👋 Bienvenue dans ton groupe local !
 
-Tu as maintenant accès à son salon. Présente-toi en deux lignes : son référent ou sa référente t'indiquera les prochaines actions près de chez toi, tractage, fresque de l'IA ou rencontre avec des élu·es.
+Tu as maintenant accès à son salon, et son référent ou sa référente vient d'être prévenu·e.
 
-Tu bouges entre deux villes ? Lève la main sur les deux groupes, tu garderas l'accès aux salons communs tant que tu appartiens à l'un d'eux.
+**Passe y dire bonjour, et dis d'où tu es exactement.** On te donnera les prochaines actions près de chez toi : tractage, fresque de l'IA, rencontre avec des élu·es.
 
-Pour découvrir les autres façons de contribuer : https://pauseia.notion.site/guide-des-benevoles-tier-1
+Tu partages ton temps entre deux villes ? Lève la main sur les deux groupes.
 
 Bonnes actions ! 📍"""
 
@@ -414,9 +414,9 @@ description  = "Dis-nous ce que tu sais faire, et les équipes viendront te cher
 mp           = """
 👋 Merci, c'est noté !
 
-Nos équipes savent maintenant qu'elles peuvent compter sur toi, et l'une d'elles t'écrira ici le jour où un besoin correspondra. Cela peut prendre quelques jours comme quelques mois : rien ne t'oblige à dire oui.
+**Tu n'as rien d'autre à faire : nos équipes viendront te chercher.** L'une d'elles t'écrira ici le jour où un besoin correspondra à ce que tu sais faire. Cela peut prendre quelques jours comme quelques mois, et rien ne t'obligera à dire oui.
 
-Tu préfères ne pas attendre ? Le fil **Projets** liste des missions à rejoindre tout de suite, et le fil **Équipes** ouvre la porte d'un engagement régulier.
+Tu préfères ne pas attendre ? Le fil **Projets** liste des missions à rejoindre dès aujourd'hui.
 
 À bientôt ! 🛠️"""
 
