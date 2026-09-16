@@ -23,17 +23,21 @@ pub struct Post {
     pub slug: String,
     pub title: String,
     pub body: String,
-    /// `None` = message d'information : aucune réaction n'est posée.
+    /// `None` = pas de rôle nominatif. Le message peut tout de même accorder le
+    /// rôle parent de son fil, sauf s'il est marqué `information`.
     pub role_id: Option<i64>,
     /// Couleur propre au message, qui prime sur celle du fil.
     pub colour: Option<i64>,
     pub message_id: Option<i64>,
     pub position: i64,
+    /// Message d'information : aucune réaction, n'accorde rien, même dans un fil
+    /// à rôle parent.
+    pub information: bool,
 }
 
 pub async fn all(pool: &SqlitePool) -> sqlx::Result<Vec<Post>> {
     sqlx::query_as::<_, Post>(
-        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position
+        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position, information
            FROM posts ORDER BY category_id, position",
     )
     .fetch_all(pool)
@@ -42,7 +46,7 @@ pub async fn all(pool: &SqlitePool) -> sqlx::Result<Vec<Post>> {
 
 pub async fn by_id(pool: &SqlitePool, id: i64) -> sqlx::Result<Option<Post>> {
     sqlx::query_as::<_, Post>(
-        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position
+        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position, information
            FROM posts WHERE id = ?",
     )
     .bind(id)
@@ -56,7 +60,7 @@ pub async fn by_slug(
     slug: &str,
 ) -> sqlx::Result<Option<Post>> {
     sqlx::query_as::<_, Post>(
-        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position
+        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position, information
            FROM posts WHERE category_id = ? AND slug = ?",
     )
     .bind(category_id)
@@ -67,7 +71,7 @@ pub async fn by_slug(
 
 pub async fn by_role(pool: &SqlitePool, role_id: i64) -> sqlx::Result<Option<Post>> {
     sqlx::query_as::<_, Post>(
-        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position
+        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position, information
            FROM posts WHERE role_id = ?",
     )
     .bind(role_id)
@@ -78,7 +82,7 @@ pub async fn by_role(pool: &SqlitePool, role_id: i64) -> sqlx::Result<Option<Pos
 /// Messages d'un fil, dans l'ordre d'affichage voulu.
 pub async fn by_category(pool: &SqlitePool, category_id: i64) -> sqlx::Result<Vec<Post>> {
     sqlx::query_as::<_, Post>(
-        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position
+        "SELECT id, category_id, slug, title, body, role_id, colour, message_id, position, information
            FROM posts WHERE category_id = ? ORDER BY position, id",
     )
     .bind(category_id)
@@ -97,9 +101,9 @@ pub async fn next_position(pool: &SqlitePool, category_id: i64) -> sqlx::Result<
 
 pub async fn insert(pool: &SqlitePool, post: &Post) -> sqlx::Result<Post> {
     sqlx::query_as::<_, Post>(
-        "INSERT INTO posts (category_id, slug, title, body, role_id, colour, message_id, position)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-         RETURNING id, category_id, slug, title, body, role_id, colour, message_id, position",
+        "INSERT INTO posts (category_id, slug, title, body, role_id, colour, message_id, position, information)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+         RETURNING id, category_id, slug, title, body, role_id, colour, message_id, position, information",
     )
     .bind(post.category_id)
     .bind(&post.slug)
@@ -109,6 +113,7 @@ pub async fn insert(pool: &SqlitePool, post: &Post) -> sqlx::Result<Post> {
     .bind(post.colour)
     .bind(post.message_id)
     .bind(post.position)
+    .bind(post.information)
     .fetch_one(pool)
     .await
 }
@@ -117,7 +122,7 @@ pub async fn update(pool: &SqlitePool, post: &Post) -> sqlx::Result<()> {
     sqlx::query(
         "UPDATE posts
             SET category_id = ?, slug = ?, title = ?, body = ?,
-                role_id = ?, colour = ?, message_id = ?, position = ?
+                role_id = ?, colour = ?, message_id = ?, position = ?, information = ?
           WHERE id = ?",
     )
     .bind(post.category_id)
@@ -128,6 +133,7 @@ pub async fn update(pool: &SqlitePool, post: &Post) -> sqlx::Result<()> {
     .bind(post.colour)
     .bind(post.message_id)
     .bind(post.position)
+    .bind(post.information)
     .bind(post.id)
     .execute(pool)
     .await
@@ -177,6 +183,7 @@ pub(crate) fn fixture(category_id: i64, slug: &str, role_id: Option<i64>) -> Pos
         colour: None,
         message_id: None,
         position: 0,
+        information: false,
     }
 }
 

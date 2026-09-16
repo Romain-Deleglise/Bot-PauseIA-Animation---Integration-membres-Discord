@@ -71,12 +71,17 @@ impl ThreadSpec {
 pub struct PostSpec {
     pub slug: String,
     pub titre: String,
-    /// Nom du rôle accordé. Absent = message d'information, sans réaction.
+    /// Nom du rôle nominatif accordé. Absent : le message accorde le rôle parent
+    /// du fil s'il y en a un ; sinon il n'accorde rien.
     pub role: Option<String>,
     /// Couleur propre au message, qui prime sur celle du fil.
     pub couleur: Option<String>,
     #[serde(default)]
     pub texte: String,
+    /// Message d'information : aucune réaction, n'accorde rien, même dans un fil
+    /// à rôle parent. Prime sur `role`.
+    #[serde(default)]
+    pub information: bool,
 }
 
 /// Lit le fichier et vérifie tout ce qui peut l'être sans toucher à Discord.
@@ -472,9 +477,14 @@ async fn upsert_post(
     roles: &mut HashMap<String, i64>,
     report: &mut Report,
 ) -> Result<(), Error> {
-    let role_id = match &spec.role {
-        Some(name) => Some(role_by_name(ctx, name, roles, report).await?),
-        None => None,
+    // Un message d'information n'accorde rien : on ne crée même pas de rôle.
+    let role_id = if spec.information {
+        None
+    } else {
+        match &spec.role {
+            Some(name) => Some(role_by_name(ctx, name, roles, report).await?),
+            None => None,
+        }
     };
     let (body, unknown) = mentions::link_handles(spec.texte.trim(), members);
     for handle in unknown {
@@ -497,6 +507,7 @@ async fn upsert_post(
             .transpose()?,
         message_id: existing.as_ref().and_then(|post| post.message_id),
         position,
+        information: spec.information,
     };
 
     match existing {

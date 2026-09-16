@@ -2,11 +2,12 @@
 # Projets
 salon        = "1548365905870721084"
 couleur      = "#27AE60"
+role_parent  = "portail-équipe"
+description  = "Des missions ouvertes pour contribuer à PauseIA sans engagement lourd — le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
 
 [[fils.messages]]
 slug    = "fresque-ia"
 titre   = "Fresque de l'IA"
-role    = "fresque-ia"
 texte   = """
 Référent : @doweee1
 
@@ -18,7 +19,6 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "pauseaction"
 titre   = "PauseAction"
-role    = "pauseaction"
 texte   = """
 Référent : @clemence_coqcinelle
 
@@ -30,7 +30,7 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "idees-recues"
 titre   = "Idées reçues"
-role    = "idées-reçues"
+information = true
 texte   = """
 Référentes : @jeannebazard @lady_mircalla
 
@@ -41,7 +41,6 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "entraide-plaidoyer"
 titre   = "Entraide plaidoyer"
-role    = "entraide-plaidoyer"
 texte   = """
 Référent : @zedioum
 
@@ -52,7 +51,6 @@ Coordonné par l'équipe *plaidoyer* de l'association. Vous pouvez d'ailleurs re
 [[fils.messages]]
 slug    = "onboarding"
 titre   = "Accueil et orientation"
-role    = "onboarding"
 texte   = """
 Référent : @gadow2_0
 
@@ -64,7 +62,6 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "animation-discord"
 titre   = "[En structuration] Animation Discord"
-role    = "animation-discord"
 texte   = """
 Référent : @gyrodiot
 
@@ -79,7 +76,6 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "rencontres-pauseia"
 titre   = "Organisation des rencontres PauseIA"
-role    = "rencontres-pauseia"
 texte   = """
 Référente : @clemence_coqcinelle
 
@@ -90,7 +86,6 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "partenariats-influenceurs"
 titre   = "[En structuration] Partenariats avec des influenceurs"
-role    = "partenariats-influenceurs"
 texte   = """
 Référent : @flavien0525
 
@@ -100,7 +95,6 @@ Identifier et solliciter des streamers et youtubeurs pour inviter Maxime Fournes
 [[fils.messages]]
 slug    = "illustration"
 titre   = "[À venir] Illustration humaine (PauseIArt)"
-role    = "illustration"
 texte   = """
 Rejoignez ce projet si vous avez envie de produire des illustrations humaines pour les réseaux sociaux et la communication de Pause IA.
 Cela comprend aussi la création de tracts, de visuels originaux pour les groupes locaux et même de goodies pour notre boutique.
@@ -110,7 +104,6 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "jeu-pauseia"
 titre   = "[À venir] Jeu vidéo et jeu de rôle"
-role    = "jeu-pauseia"
 texte   = """
 Référent : @dyson4282. Il a développé un jeu multijoueur super, n'hésitez pas à lui demander le lien.
 
@@ -119,7 +112,6 @@ Concevoir des jeux vidéo et jeux de rôle au service de la sensibilisation. Plu
 [[fils.messages]]
 slug    = "relation-associations"
 titre   = "[À venir] Relations associations"
-role    = "relation-associations"
 texte   = """
 Prendre contact avec différentes associations dont la mission est proche de celle de PauseIA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour créer des liens."""
 
@@ -130,11 +122,11 @@ Prendre contact avec différentes associations dont la mission est proche de cel
 salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
+description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration : lève la main 🙋 sur une équipe pour démarrer ce parcours — tu recevras un message avec les prochaines étapes et un échange d'accueil."
 
 [[fils.messages]]
 slug    = "communication"
 titre   = "Communication"
-role    = "communication"
 texte   = """
 Référente : @jeannebazard
 
@@ -145,7 +137,6 @@ Un nouvel employé va bientôt rejoindre cette équipe."""
 [[fils.messages]]
 slug    = "plaidoyer"
 titre   = "Plaidoyer"
-role    = "plaidoyer"
 texte   = """
 Référent : @zedioum
 
@@ -154,7 +145,6 @@ Porter la position de PauseIA auprès des institutions et des élus. Exemples : 
 [[fils.messages]]
 slug    = "tech"
 titre   = "Tech"
-role    = "tech"
 texte   = """
 Référent : @.romain73
 
@@ -163,7 +153,6 @@ L'équipe assure le support technique sur Notion, Discord et le site internet, a
 [[fils.messages]]
 slug    = "initiatives-locales"
 titre   = "Initiatives locales"
-role    = "initiatives"
 texte   = """
 Référent : @rambip
 
@@ -172,7 +161,6 @@ Organiser les temps forts et mobiliser les membres autour des actions de terrain
 [[fils.messages]]
 slug    = "financement-partenariats"
 titre   = "Financement & Partenariats"
-role    = "financement"
 texte   = """
 Référent : @.romain73
 

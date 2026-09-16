@@ -10,6 +10,7 @@
 pub mod categories;
 pub mod dm;
 pub mod posts;
+pub mod reactions;
 
 use anyhow::Context as _;
 use sqlx::SqlitePool;

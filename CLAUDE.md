@@ -67,8 +67,22 @@ version précédente.
 ### 1. Un message porte son identité, pas son rôle
 
 `posts.title` est le titre affiché, indépendant du nom du rôle : « Fresque de
-l'IA » n'est pas `@fresque-ia`. Un message peut n'avoir **aucun** rôle — c'est
-alors un message d'information, sans réaction ni mention de rôle sur sa carte.
+l'IA » n'est pas `@fresque-ia`.
+
+Un message sans `role_id` **dans un fil à `parent_role_id`** accorde tout de même
+ce rôle parent : la réaction 🙋 est posée et le donne. Un vrai message
+d'information porte le marqueur explicite `posts.information` (colonne ajoutée par
+la migration `0002`) : aucune réaction, il n'accorde rien, même dans un fil à
+rôle parent. Un message sans rôle **et** sans parent reste informatif de fait.
+Conséquence : `state::PostRef.role_id` est un `Option`, et l'index du chemin
+chaud (`post_by_message`) contient toute carte qui accorde quelque chose (rôle
+nominatif **ou** parent), hors messages `information`.
+
+Comme un message sans rôle ne laisse aucune trace dans les rôles portés, la
+justification du rôle parent au retrait d'une réaction combine deux sources : un
+autre rôle nominatif du fil encore porté (`rules::parent_still_justified`, pur),
+**ou** une autre main levée du fil enregistrée dans la table `reactions`
+(`db::reactions`, alimentée à chaque réaction sur un message sans rôle).
 
 Le second rôle n'appartient pas au message : c'est `categories.parent_role_id`,
 le même pour tous les messages du fil. L'équipe a explicitement écarté un

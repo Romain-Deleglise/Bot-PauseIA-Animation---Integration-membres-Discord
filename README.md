@@ -211,12 +211,19 @@ mp           = "Bienvenue dans votre groupe local !"
 [[fils.messages]]
 slug  = "paris"        # identité stable, ne pas changer après un import
 titre = "Paris"
-role  = "gl-paris"     # créé s'il n'existe pas ; absent = message d'information
+role  = "gl-paris"     # créé s'il n'existe pas ; absent = pas de rôle nominatif
 couleur = "#99AAB5"    # facultatif, prime sur celle du fil : grise la carte
 texte = """
 Référent : @pseudo_discord
 Un groupe très actif : tractage, manifestations…"""
 ```
+
+Un message **sans `role`** dans un fil qui déclare un `role_parent` accorde tout
+de même ce rôle parent : la main levée 🙋 est posée et donne le rôle parent. Pour
+un vrai message d'**information** (aucune réaction, n'accorde rien, même dans un
+fil à rôle parent), ajouter `information = true` ; ce marqueur prime sur `role`.
+Un message sans `role` dans un fil **sans** rôle parent reste, lui, un simple
+message d'information.
 
 Un `@pseudo` dans un texte devient une mention cliquable si la personne est membre du serveur ; les pseudos introuvables restent en texte et sont signalés dans le compte rendu. Pour un fil créé à la main, `description` s'omet : son message d'ouverture sert d'introduction.
 

@@ -32,10 +32,7 @@ pub async fn on_add(
 
     let held = member_roles(ctx, guild_id, user_id, reaction.member.as_ref()).await?;
 
-    for role_id in [Some(post.role_id), post.parent_role_id]
-        .into_iter()
-        .flatten()
-    {
+    for role_id in [post.role_id, post.parent_role_id].into_iter().flatten() {
         if held.contains(&role_id) {
             continue;
         }
@@ -43,6 +40,13 @@ pub async fn on_add(
         ctx.http
             .add_member_role(guild_id, user_id, ids::role(role_id), Some(REASON_ADD))
             .await?;
+    }
+
+    // Une main levée sur un message sans rôle nominatif ne se retrouve pas dans
+    // les rôles portés : on la mémorise pour savoir, à son retrait, s'il reste
+    // une autre réaction du fil justifiant le rôle parent.
+    if post.role_id.is_none() {
+        db::reactions::add(&data.db, ids::to_db(user_id.get()), post.post_id).await?;
     }
 
     // Le message privé vient après les rôles : il est un supplément, et son
@@ -62,28 +66,47 @@ pub async fn on_remove(
 
     // L'événement de retrait ne porte pas le membre : il faut le lire.
     let held = member_roles(ctx, guild_id, user_id, None).await?;
-    if held.contains(&post.role_id) {
-        tracing::info!(%user_id, role_id = post.role_id, "retrait du rôle sur retrait de réaction");
+    let member_id = ids::to_db(user_id.get());
+
+    if let Some(role_id) = post.role_id
+        && held.contains(&role_id)
+    {
+        tracing::info!(%user_id, role_id, "retrait du rôle sur retrait de réaction");
         ctx.http
-            .remove_member_role(
-                guild_id,
-                user_id,
-                ids::role(post.role_id),
-                Some(REASON_REMOVE),
-            )
+            .remove_member_role(guild_id, user_id, ids::role(role_id), Some(REASON_REMOVE))
             .await?;
     }
 
-    // Le rôle parent n'est repris que si plus rien ne le justifie : un membre
-    // inscrit à Paris et à Lyon qui quitte Paris reste dans un groupe local.
+    // Oublier la main levée sur un message sans rôle, avant de réévaluer le parent.
+    if post.role_id.is_none() {
+        db::reactions::remove(&data.db, member_id, post.post_id).await?;
+    }
+
+    // Le rôle parent n'est repris que si plus rien ne le justifie, à deux
+    // titres : un autre rôle nominatif du fil encore porté (Paris/Lyon), ou une
+    // autre main levée du fil sur un message sans rôle.
     if let Some(parent) = post.parent_role_id
         && held.contains(&parent)
-        && !rules::parent_still_justified(&data.granting_roles(parent), &held, post.role_id)
     {
-        tracing::info!(%user_id, role_id = parent, "retrait du rôle parent, plus rien ne le justifie");
-        ctx.http
-            .remove_member_role(guild_id, user_id, ids::role(parent), Some(REASON_PARENT))
-            .await?;
+        // Sans rôle nominatif, aucun rôle à exclure : `0` n'est jamais un rôle.
+        let by_role = rules::parent_still_justified(
+            &data.granting_roles(parent),
+            &held,
+            post.role_id.unwrap_or(0),
+        );
+        let by_reaction = db::reactions::parent_still_justified(
+            &data.db,
+            member_id,
+            post.category_id,
+            post.post_id,
+        )
+        .await?;
+        if !by_role && !by_reaction {
+            tracing::info!(%user_id, role_id = parent, "retrait du rôle parent, plus rien ne le justifie");
+            ctx.http
+                .remove_member_role(guild_id, user_id, ids::role(parent), Some(REASON_PARENT))
+                .await?;
+        }
     }
 
     Ok(())
