@@ -192,6 +192,7 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 # Groupes locaux
 salon        = "1548366084967760004"
 couleur      = "#F2994A"
+description  = "Agir près de chez toi, avec les membres de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es… Lève la main 🙋 sur ton groupe — tu peux en choisir plusieurs. Les autres façons de contribuer sont décrites dans le guide des bénévoles : https://pauseia.notion.site/guide-des-benevoles-tier-1"
 role_parent  = "groupe-local"
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main sur un groupe local !
@@ -309,6 +310,7 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 # Compétences
 salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
+description  = "Dis-nous ce que tu sais faire : les équipes te contacteront quand un besoin correspond. Lève la main 🙋 sur autant de compétences que tu veux, et retire ta réaction à tout moment. Pour t'engager plus régulièrement, le guide des bénévoles explique les différents niveaux : https://pauseia.notion.site/guide-des-benevoles-tier-1"
 mp           = """
 👋 Merci d'avoir signalé tes compétences !
 

@@ -4,7 +4,7 @@
 //! désormais un simple fichier SQLite sans interface, ces commandes et l'import
 //! du fichier de contenu sont les seuls moyens de configurer le bot.
 
-use crate::commands::{self, CLEAR_SENTINEL};
+use crate::commands::{self, CLEAR_SENTINEL, MAX_DM_CHARS};
 use crate::db;
 use crate::db::categories::Category;
 use crate::discord::channel;
@@ -277,6 +277,19 @@ pub async fn mp(
             return Ok(());
         }
     };
+
+    // Même limite qu'à l'import : au-delà, Discord refuse l'envoi et l'échec
+    // ne se voit que dans les journaux du bot, longtemps après la saisie.
+    if let Some(text) = &text
+        && text.chars().count() > MAX_DM_CHARS
+    {
+        ctx.say(format!(
+            "Message privé non enregistré : {} caractères, maximum {MAX_DM_CHARS}. Discord refuserait de l'envoyer.",
+            text.chars().count()
+        ))
+        .await?;
+        return Ok(());
+    }
 
     db::categories::update(
         &ctx.data().db,

@@ -12,7 +12,7 @@
 //! Passé l'amorçage, c'est Discord qui fait foi : le CDC demande de pouvoir
 //! éditer un message en quelques secondes depuis le serveur.
 
-use crate::commands::{self, threads::autocomplete_thread};
+use crate::commands::{self, MAX_DM_CHARS, threads::autocomplete_thread};
 use crate::db;
 use crate::db::categories::Category;
 use crate::db::posts::Post;
@@ -26,9 +26,6 @@ use std::collections::{HashMap, HashSet};
 
 /// Taille maximale acceptée pour le fichier de contenu.
 const MAX_FILE_BYTES: u32 = 512 * 1024;
-
-/// Longueur maximale d'un message Discord, donc d'un message privé d'accueil.
-const MAX_DM_CHARS: usize = 2_000;
 
 #[derive(Debug, Deserialize)]
 pub struct Content {
@@ -652,11 +649,19 @@ texte = "Levez la main pour rejoindre un projet."
         assert_eq!(messages, 37, "le contenu du forum décrit 37 messages");
 
         // Le MP est la seule explication du parcours que reçoit un membre qui
-        // lève la main : aucun fil ne doit rester muet.
+        // lève la main : aucun fil ne doit rester muet. La description tient la
+        // même explication sur le fil, pour qui refuse les messages privés.
         for fil in &content.fils {
             assert!(
                 fil.mp.as_deref().is_some_and(|mp| !mp.trim().is_empty()),
                 "le fil `{}` n'a pas de message privé d'accueil",
+                fil.label()
+            );
+            assert!(
+                fil.description
+                    .as_deref()
+                    .is_some_and(|texte| !texte.trim().is_empty()),
+                "le fil `{}` n'a pas de description",
                 fil.label()
             );
         }

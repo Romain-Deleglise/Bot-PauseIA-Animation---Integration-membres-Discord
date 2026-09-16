@@ -16,6 +16,9 @@ use std::collections::HashMap;
 /// Valeur qui, passée à un paramètre facultatif, efface le champ existant.
 pub const CLEAR_SENTINEL: &str = "-";
 
+/// Longueur maximale d'un message Discord, donc d'un message privé d'accueil.
+pub const MAX_DM_CHARS: usize = 2_000;
+
 /// Commandes à enregistrer. `/forum importer` n'est proposé que si
 /// `ENABLE_IMPORT` le permet : il ne sert en principe qu'à l'amorçage.
 pub fn all(enable_import: bool) -> Vec<poise::Command<Data, Error>> {
