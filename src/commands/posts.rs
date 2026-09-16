@@ -462,12 +462,35 @@ pub async fn liste(
         let lines: Vec<String> = posts
             .iter()
             .map(|post| {
-                let roles = match (post.role_id, category.parent_role_id) {
-                    (None, _) => "information".to_owned(),
-                    (Some(role), None) => format!("<@&{role}>"),
-                    (Some(role), Some(parent)) => format!("<@&{role}> + <@&{parent}>"),
+                // Sans rôle nominatif, une carte accorde quand même le rôle
+                // parent de son fil : dire « information » serait faux.
+                let granted: Vec<String> = [
+                    post.role_id,
+                    category.parent_role_id.filter(|_| post.grants_parent),
+                ]
+                .into_iter()
+                .flatten()
+                .map(|role_id| format!("<@&{role_id}>"))
+                .collect();
+                let has_dm = post
+                    .dm_text
+                    .as_deref()
+                    .is_some_and(|text| !text.trim().is_empty());
+                let effect = if post.information {
+                    "information, aucune réaction".to_owned()
+                } else if !granted.is_empty() {
+                    granted.join(" + ")
+                } else if has_dm {
+                    "message privé seul, aucun rôle".to_owned()
+                } else {
+                    "n'accorde rien, aucune réaction".to_owned()
                 };
-                format!("  {}. **{}** — {roles}", post.position, post.title)
+                // Le slug est ce qui relie la carte au fichier de contenu :
+                // sans lui, un réimport crée un doublon au lieu de la retrouver.
+                format!(
+                    "  {}. **{}** `{}` — {effect}",
+                    post.position, post.title, post.slug
+                )
             })
             .collect();
 
