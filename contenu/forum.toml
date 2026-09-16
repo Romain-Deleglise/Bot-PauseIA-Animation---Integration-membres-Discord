@@ -3,6 +3,7 @@
 salon        = "1548365905870721084"
 couleur      = "#27AE60"
 role_parent  = "portail-équipe"
+description  = "Des missions ouvertes pour contribuer à PauseIA sans engagement lourd — le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
 
 [[fils.messages]]
 slug    = "fresque-ia"
@@ -121,11 +122,11 @@ Prendre contact avec différentes associations dont la mission est proche de cel
 salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
+description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration : lève la main 🙋 sur une équipe pour démarrer ce parcours — tu recevras un message avec les prochaines étapes et un échange d'accueil."
 
 [[fils.messages]]
 slug    = "communication"
 titre   = "Communication"
-role    = "communication"
 texte   = """
 Référente : @jeannebazard
 
@@ -136,7 +137,6 @@ Un nouvel employé va bientôt rejoindre cette équipe."""
 [[fils.messages]]
 slug    = "plaidoyer"
 titre   = "Plaidoyer"
-role    = "plaidoyer"
 texte   = """
 Référent : @zedioum
 
@@ -145,7 +145,6 @@ Porter la position de PauseIA auprès des institutions et des élus. Exemples : 
 [[fils.messages]]
 slug    = "tech"
 titre   = "Tech"
-role    = "tech"
 texte   = """
 Référent : @.romain73
 
@@ -154,7 +153,6 @@ L'équipe assure le support technique sur Notion, Discord et le site internet, a
 [[fils.messages]]
 slug    = "initiatives-locales"
 titre   = "Initiatives locales"
-role    = "initiatives"
 texte   = """
 Référent : @rambip
 
@@ -163,7 +161,6 @@ Organiser les temps forts et mobiliser les membres autour des actions de terrain
 [[fils.messages]]
 slug    = "financement-partenariats"
 titre   = "Financement & Partenariats"
-role    = "financement"
 texte   = """
 Référent : @.romain73
 
