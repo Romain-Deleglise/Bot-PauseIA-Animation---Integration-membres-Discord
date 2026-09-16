@@ -70,6 +70,12 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 | `/forum importer` | Importe un fichier `forum.toml`. Rejouable, ne supprime rien. Masquée si `ENABLE_IMPORT=false`. |
 | `/forum republier` | Republie un fil dans l'ordre. **Remet toutes les réactions à zéro.** |
 
+Dans le fichier de contenu, un message accepte deux champs à part : `mp`, son
+message privé propre, envoyé à sa place de celui du fil ; et
+`sans_role_parent = true`, qui le fait renoncer au rôle parent de son fil. Les
+deux ensemble décrivent une carte qui ne donne rien et se contente de répondre
+en privé.
+
 ## 4. À savoir
 
 - **Rôle parent** : accordé par chaque carte d'un fil, repris seulement quand la personne n'a plus aucune carte de ce fil.

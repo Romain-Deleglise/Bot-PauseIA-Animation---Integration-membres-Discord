@@ -74,6 +74,22 @@ ce rôle parent : la réaction 🙋 est posée et le donne. Un vrai message
 d'information porte le marqueur explicite `posts.information` (colonne ajoutée par
 la migration `0002`) : aucune réaction, il n'accorde rien, même dans un fil à
 rôle parent. Un message sans rôle **et** sans parent reste informatif de fait.
+
+Une carte peut aussi **renoncer** au rôle parent de son fil (`posts.grants_parent`,
+migration `0003`) et porter son **propre** message privé (`posts.dm_text`). C'est
+l'exception née de PauseAction : l'engagement le plus léger, dans un fil dont
+toute carte accorde le rôle des bénévoles actifs. Elle porte la main levée,
+n'accorde rien, et envoie en privé le lien qu'on ne veut pas afficher
+publiquement. Ce renoncement ne choisit pas un rôle, il abandonne le seul que la
+carte recevrait : la décision d'équipe qui interdit un réglage de rôle par
+message tient toujours.
+
+Conséquences : une carte est indexée si elle accorde un rôle **ou** si elle a son
+propre message privé ; `state::PostRef.parent_role_id` vaut `None` quand la carte
+y renonce, ce qui neutralise d'un coup l'attribution et la reprise ; et une main
+levée n'est enregistrée dans `reactions` que si elle justifie réellement un rôle
+parent, sans quoi PauseAction maintiendrait `@portail-équipe` sur le dos des
+autres cartes du fil.
 Conséquence : `state::PostRef.role_id` est un `Option`, et l'index du chemin
 chaud (`post_by_message`) contient toute carte qui accorde quelque chose (rôle
 nominatif **ou** parent), hors messages `information`.
@@ -131,6 +147,8 @@ règle du rôle parent n'aurait pas de réponse unique.
 Serenity traite les réactions en parallèle : deux clics rapprochés liraient tous
 deux une absence de ligne et enverraient chacun leur message. `db::dm::claim`
 s'appuie donc sur l'atomicité d'un `INSERT OR IGNORE` et sur `rows_affected`.
+Une carte qui a son propre message privé se réserve à part, dans `dm_post_sent` :
+partager la ligne du fil ferait que le premier parti empêcherait l'autre.
 En cas d'échec d'envoi, la réservation n'est libérée que si l'échec est
 passager — réseau, limite de débit, panne de Discord. Un refus de Discord
 lui-même (4xx : messages privés fermés, bot bloqué, compte supprimé) vaudra

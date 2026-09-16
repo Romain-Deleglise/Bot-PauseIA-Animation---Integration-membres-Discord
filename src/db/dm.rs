@@ -32,6 +32,29 @@ pub async fn release(pool: &SqlitePool, member_id: i64, category_id: i64) -> sql
         .map(|_| ())
 }
 
+/// Même réservation, pour la carte qui porte son propre message privé.
+///
+/// Sa réservation est distincte de celle du fil : les deux messages sont deux
+/// envois différents, et partager la ligne reviendrait à ce que le premier
+/// parti empêche l'autre.
+pub async fn claim_post(pool: &SqlitePool, member_id: i64, post_id: i64) -> sqlx::Result<bool> {
+    sqlx::query("INSERT OR IGNORE INTO dm_post_sent (member_id, post_id) VALUES (?, ?)")
+        .bind(member_id)
+        .bind(post_id)
+        .execute(pool)
+        .await
+        .map(|result| result.rows_affected() == 1)
+}
+
+pub async fn release_post(pool: &SqlitePool, member_id: i64, post_id: i64) -> sqlx::Result<()> {
+    sqlx::query("DELETE FROM dm_post_sent WHERE member_id = ? AND post_id = ?")
+        .bind(member_id)
+        .bind(post_id)
+        .execute(pool)
+        .await
+        .map(|_| ())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,5 +117,43 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(remaining, 0);
+    }
+
+    #[tokio::test]
+    async fn a_card_sends_its_message_once_per_member() {
+        let (pool, category) = seeded().await;
+        let post = db::posts::insert(
+            &pool,
+            &db::posts::Post {
+                dm_text: Some("Voici le lien du groupe".into()),
+                ..db::posts::fixture(category, "pauseaction", None)
+            },
+        )
+        .await
+        .unwrap();
+
+        assert!(claim_post(&pool, 7, post.id).await.unwrap());
+        // Retirer puis remettre la réaction ne doit rien renvoyer : la
+        // réservation ne s'efface qu'en cas d'échec d'envoi.
+        assert!(!claim_post(&pool, 7, post.id).await.unwrap());
+        assert!(claim_post(&pool, 8, post.id).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn a_card_reservation_is_not_the_one_of_its_thread() {
+        let (pool, category) = seeded().await;
+        let post = db::posts::insert(
+            &pool,
+            &db::posts::Post {
+                dm_text: Some("Voici le lien du groupe".into()),
+                ..db::posts::fixture(category, "pauseaction", None)
+            },
+        )
+        .await
+        .unwrap();
+
+        assert!(claim(&pool, 7, category).await.unwrap());
+        // Le message du fil est parti ; celui de la carte reste dû.
+        assert!(claim_post(&pool, 7, post.id).await.unwrap());
     }
 }

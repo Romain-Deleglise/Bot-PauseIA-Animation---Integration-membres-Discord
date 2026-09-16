@@ -66,10 +66,10 @@ pub async fn publish(
         .await
         .with_context(|| format!("publication de la carte `{}`", post.title))?;
 
-    // La réaction est posée dès que la carte accorde quelque chose : son rôle
-    // nominatif, ou seulement le rôle parent du fil. Un message d'information
-    // n'en porte pas, comme l'exige le CDC (« pas d'emoji visible »).
-    if !post.information && (post.role_id.is_some() || category.parent_role_id.is_some()) {
+    // La réaction est posée dès que la carte a quelque chose à donner : un
+    // rôle, ou son propre message privé. Un message d'information n'en porte
+    // pas, comme l'exige le CDC (« pas d'emoji visible »).
+    if embed::carries_a_reaction(category, post) {
         channel
             .create_reaction(
                 http,

@@ -44,14 +44,15 @@ pub async fn on_add(
 
     // Une main levée sur un message sans rôle nominatif ne se retrouve pas dans
     // les rôles portés : on la mémorise pour savoir, à son retrait, s'il reste
-    // une autre réaction du fil justifiant le rôle parent.
-    if post.role_id.is_none() {
+    // une autre réaction du fil justifiant le rôle parent. Une carte qui
+    // renonce au parent n'en justifie évidemment aucun.
+    if post.role_id.is_none() && post.parent_role_id.is_some() {
         db::reactions::add(&data.db, ids::to_db(user_id.get()), post.post_id).await?;
     }
 
     // Le message privé vient après les rôles : il est un supplément, et son
     // échec ne doit jamais priver quelqu'un de son accès.
-    send_welcome_dm(ctx, data, user_id, post.category_id).await;
+    send_welcome_dm(ctx, data, user_id, &post).await;
     Ok(())
 }
 
@@ -78,7 +79,7 @@ pub async fn on_remove(
     }
 
     // Oublier la main levée sur un message sans rôle, avant de réévaluer le parent.
-    if post.role_id.is_none() {
+    if post.role_id.is_none() && post.parent_role_id.is_some() {
         db::reactions::remove(&data.db, member_id, post.post_id).await?;
     }
 
@@ -161,16 +162,25 @@ async fn send_welcome_dm(
     ctx: &serenity::Context,
     data: &Data,
     user_id: serenity::UserId,
-    category_id: i64,
+    post: &PostRef,
 ) {
-    if !data.sends_dm(category_id) {
+    // Le texte de la carte prime sur celui du fil : une carte qui dépareille
+    // dans son fil a rarement le même accueil à donner.
+    let own_dm = post.sends_own_dm;
+    if !own_dm && !data.sends_dm(post.category_id) {
         return;
     }
     let member_id = ids::to_db(user_id.get());
 
     // Réserver avant d'envoyer : deux réactions rapprochées sont traitées en
-    // parallèle et liraient toutes deux une absence de ligne.
-    match db::dm::claim(&data.db, member_id, category_id).await {
+    // parallèle et liraient toutes deux une absence de ligne. La réservation
+    // d'une carte est distincte de celle de son fil.
+    let claimed = if own_dm {
+        db::dm::claim_post(&data.db, member_id, post.post_id).await
+    } else {
+        db::dm::claim(&data.db, member_id, post.category_id).await
+    };
+    match claimed {
         Ok(false) => return,
         Ok(true) => {}
         Err(err) => {
@@ -179,12 +189,23 @@ async fn send_welcome_dm(
         }
     }
 
-    let text = match db::categories::by_id(&data.db, category_id).await {
-        Ok(Some(category)) => category.dm_text.unwrap_or_default(),
-        Ok(None) => return,
-        Err(err) => {
-            tracing::error!(%err, "lecture du texte du message privé impossible");
-            return;
+    let text = if own_dm {
+        match db::posts::by_id(&data.db, post.post_id).await {
+            Ok(Some(found)) => found.dm_text.unwrap_or_default(),
+            Ok(None) => return,
+            Err(err) => {
+                tracing::error!(%err, "lecture du message privé de la carte impossible");
+                return;
+            }
+        }
+    } else {
+        match db::categories::by_id(&data.db, post.category_id).await {
+            Ok(Some(category)) => category.dm_text.unwrap_or_default(),
+            Ok(None) => return,
+            Err(err) => {
+                tracing::error!(%err, "lecture du texte du message privé impossible");
+                return;
+            }
         }
     };
 
@@ -213,7 +234,12 @@ async fn send_welcome_dm(
         tracing::warn!(%user_id, %err, "message privé non délivré, réservation libérée");
         // Panne réseau ou indisponibilité de Discord : la prochaine réaction
         // dans ce fil retentera l'envoi.
-        if let Err(err) = db::dm::release(&data.db, member_id, category_id).await {
+        let released = if own_dm {
+            db::dm::release_post(&data.db, member_id, post.post_id).await
+        } else {
+            db::dm::release(&data.db, member_id, post.category_id).await
+        };
+        if let Err(err) = released {
             tracing::error!(%err, "libération de la réservation impossible");
         }
     }

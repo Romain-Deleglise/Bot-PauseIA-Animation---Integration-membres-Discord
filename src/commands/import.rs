@@ -82,6 +82,12 @@ pub struct PostSpec {
     /// à rôle parent. Prime sur `role`.
     #[serde(default)]
     pub information: bool,
+    /// Message privé propre à cette carte, qui prime sur celui du fil.
+    pub mp: Option<String>,
+    /// Renonce au rôle parent du fil. La carte porte toujours une main levée,
+    /// mais n'accorde rien : réservé au message qui dépareille dans son fil.
+    #[serde(default)]
+    pub sans_role_parent: bool,
 }
 
 /// Lit le fichier et vérifie tout ce qui peut l'être sans toucher à Discord.
@@ -543,6 +549,8 @@ async fn upsert_post(
         message_id: existing.as_ref().and_then(|post| post.message_id),
         position,
         information: spec.information,
+        dm_text: spec.mp.clone(),
+        grants_parent: !spec.sans_role_parent,
     };
 
     match existing {

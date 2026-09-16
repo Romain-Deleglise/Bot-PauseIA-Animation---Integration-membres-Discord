@@ -243,6 +243,8 @@ pub async fn creer(
                 None => db::posts::next_position(&ctx.data().db, category.id).await?,
             },
             information: false,
+            dm_text: None,
+            grants_parent: true,
         },
     )
     .await?;

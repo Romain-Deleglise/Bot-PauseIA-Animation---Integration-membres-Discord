@@ -39,8 +39,11 @@ pub struct PostRef {
     /// Rôle nominatif du message. `None` = le message n'accorde que le rôle
     /// parent de son fil (main levée quand même).
     pub role_id: Option<i64>,
-    /// Rôle parent du fil, accordé en plus de celui du message.
+    /// Rôle parent du fil, accordé en plus de celui du message. `None` aussi
+    /// quand la carte y renonce : rien à accorder, rien à reprendre.
     pub parent_role_id: Option<i64>,
+    /// La carte a son propre message privé, qui prime sur celui du fil.
+    pub sends_own_dm: bool,
 }
 
 pub struct Data {
@@ -87,10 +90,21 @@ impl Data {
         for post in &posts {
             let parent_role_id = parent_of.get(&post.category_id).copied().flatten();
 
+            // Une carte qui renonce au rôle parent n'en accorde aucun, quoi
+            // qu'en dise son fil.
+            let parent_role_id = parent_role_id.filter(|_| post.grants_parent);
+            let sends_own_dm = post
+                .dm_text
+                .as_deref()
+                .is_some_and(|text| !text.trim().is_empty());
+
             // Un message d'information n'accorde rien et ne porte pas de
-            // réaction : il n'a pas à figurer dans l'index du chemin chaud.
-            // Un message n'accordant ni rôle nominatif ni rôle parent non plus.
-            if post.information || (post.role_id.is_none() && parent_role_id.is_none()) {
+            // réaction : il n'a pas à figurer dans l'index du chemin chaud. Un
+            // message qui n'accorde aucun rôle non plus — sauf s'il a son
+            // propre message privé, car alors la main levée sert à le demander.
+            if post.information
+                || (post.role_id.is_none() && parent_role_id.is_none() && !sends_own_dm)
+            {
                 continue;
             }
 
@@ -108,6 +122,7 @@ impl Data {
                         category_id: post.category_id,
                         role_id: post.role_id,
                         parent_role_id,
+                        sends_own_dm,
                     },
                 );
             }
@@ -202,6 +217,7 @@ mod tests {
                 category_id: category.id,
                 role_id: Some(10),
                 parent_role_id: Some(999),
+                sends_own_dm: false,
             })
         );
         assert_eq!(data.granting_roles(999), vec![10]);
@@ -238,6 +254,7 @@ mod tests {
                 category_id: category.id,
                 role_id: None,
                 parent_role_id: Some(999),
+                sends_own_dm: false,
             })
         );
     }
@@ -267,6 +284,44 @@ mod tests {
 
         // Marqué information : aucune réaction, rien à déclencher.
         assert_eq!(data_with(pool).await.post_for_message(5000), None);
+    }
+
+    #[tokio::test]
+    async fn a_card_that_only_sends_a_message_carries_a_hand_without_a_role() {
+        let pool = db::connect_in_memory().await;
+        let category = categories::insert(
+            &pool,
+            &categories::Category {
+                parent_role_id: Some(999),
+                ..categories::fixture("Projets", 100)
+            },
+        )
+        .await
+        .unwrap();
+        let post = posts::insert(
+            &pool,
+            &posts::Post {
+                message_id: Some(5000),
+                dm_text: Some("Voici le lien du groupe".into()),
+                grants_parent: false,
+                ..posts::fixture(category.id, "pauseaction", None)
+            },
+        )
+        .await
+        .unwrap();
+
+        // Indexée pour que la main levée déclenche son message privé, mais sans
+        // le rôle parent du fil : elle y a renoncé.
+        assert_eq!(
+            data_with(pool).await.post_for_message(5000),
+            Some(PostRef {
+                post_id: post.id,
+                category_id: category.id,
+                role_id: None,
+                parent_role_id: None,
+                sends_own_dm: true,
+            })
+        );
     }
 
     #[tokio::test]

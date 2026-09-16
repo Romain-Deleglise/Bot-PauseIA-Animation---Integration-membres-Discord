@@ -16,6 +16,29 @@ use poise::serenity_prelude as serenity;
 pub const TITLE_LIMIT: usize = 256;
 pub const DESCRIPTION_LIMIT: usize = 4096;
 
+/// La carte accorde-t-elle un rôle ? Elle porte alors la main levée, et
+/// annonce ce qu'elle donne.
+///
+/// Une carte peut porter la main levée sans rien accorder : celle qui renonce
+/// au rôle parent de son fil pour n'envoyer qu'un message privé. Elle reste
+/// muette sur les rôles, faute d'en donner.
+pub fn grants_a_role(category: &Category, post: &Post) -> bool {
+    !post.information
+        && (post.role_id.is_some() || (post.grants_parent && category.parent_role_id.is_some()))
+}
+
+/// La carte porte-t-elle la main levée ? Un message d'information n'en porte
+/// jamais ; les autres l'affichent dès qu'il y a quelque chose à obtenir, rôle
+/// ou message privé.
+pub fn carries_a_reaction(category: &Category, post: &Post) -> bool {
+    grants_a_role(category, post)
+        || (!post.information
+            && post
+                .dm_text
+                .as_deref()
+                .is_some_and(|text| !text.trim().is_empty()))
+}
+
 pub fn card(category: &Category, post: &Post) -> serenity::CreateEmbed {
     let mut embed = serenity::CreateEmbed::new().title(truncate(&post.title, TITLE_LIMIT));
 
@@ -33,14 +56,17 @@ pub fn card(category: &Category, post: &Post) -> serenity::CreateEmbed {
     // Une carte annonce les rôles qu'elle accorde : le sien, et/ou le rôle
     // parent du fil. Un message d'information n'accorde rien et ne porte aucune
     // réaction : sa carte reste muette sur les rôles.
-    if !post.information && (post.role_id.is_some() || category.parent_role_id.is_some()) {
+    if grants_a_role(category, post) {
         // Les mentions ne se rendent pas dans un pied d'embed, seulement dans
         // un champ : c'est donc un champ, non aligné, pour qu'il ait sa ligne.
-        let granted: Vec<String> = [post.role_id, category.parent_role_id]
-            .into_iter()
-            .flatten()
-            .map(|role_id| format!("<@&{role_id}>"))
-            .collect();
+        let granted: Vec<String> = [
+            post.role_id,
+            category.parent_role_id.filter(|_| post.grants_parent),
+        ]
+        .into_iter()
+        .flatten()
+        .map(|role_id| format!("<@&{role_id}>"))
+        .collect();
         let label = if granted.len() > 1 { "Rôles" } else { "Rôle" };
         embed = embed.field(label, granted.join(" "), false);
     }
@@ -99,6 +125,31 @@ mod tests {
     fn newlines_are_restored() {
         assert_eq!(format_description("une\\ndeux"), "une\ndeux");
         assert_eq!(format_description("sans"), "sans");
+    }
+
+    #[test]
+    fn a_card_renouncing_the_parent_role_promises_nothing() {
+        let thread = thread(Some(999));
+        let card = Post {
+            grants_parent: false,
+            dm_text: Some("Voici le lien du groupe".into()),
+            ..message("PauseAction", "Cinq minutes quand tu peux.", None)
+        };
+
+        assert!(!grants_a_role(&thread, &card));
+        // Elle porte quand même la main levée : c'est ainsi qu'on demande le
+        // message privé.
+        assert!(carries_a_reaction(&thread, &card));
+    }
+
+    #[test]
+    fn an_information_card_stays_silent_even_with_a_message() {
+        let card = Post {
+            information: true,
+            dm_text: Some("jamais envoyé".into()),
+            ..message("Idées reçues", "", None)
+        };
+        assert!(!carries_a_reaction(&thread(Some(999)), &card));
     }
 
     #[test]

@@ -3,7 +3,7 @@
 salon        = "1548365905870721084"
 couleur      = "#27AE60"
 role_parent  = "portail-équipe"
-description  = "Des missions ouvertes pour contribuer à PauseIA sans engagement lourd — le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
+description  = "Des missions ouvertes pour contribuer à PauseIA sans engagement lourd, le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main sur un projet !
 
@@ -29,18 +29,28 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "pauseaction"
 titre   = "PauseAction"
-# Carte d'information : PauseAction est l'engagement le plus léger, alors que
-# toute carte de ce fil accorde @portail-équipe, le rôle du parcours des
-# bénévoles actifs. Faute d'un fil sans rôle parent, mieux vaut ne rien
-# accorder que d'accorder le mauvais rôle.
-information = true
+# PauseAction est l'engagement le plus léger, alors que toute carte de ce fil
+# accorde @portail-équipe, le rôle des bénévoles actifs. Elle y renonce donc, et
+# envoie le lien du groupe en privé : sur la carte, il serait ouvert à tout
+# visiteur du serveur.
+sans_role_parent = true
+mp = """
+Salut 👋
+
+Merci de ton intérêt pour PauseAction !
+
+Chaque semaine, nous proposons une action simple à faire en moins de cinq minutes : signer, partager ou commenter. Tout se passe sur notre groupe WhatsApp, que tu peux rejoindre ici : https://chat.whatsapp.com/LThhghXc0Hk3sTwQMyy1wU
+
+Aucun engagement : tu participes quand tu peux, et tu pars quand tu veux.
+
+À très vite ! 💙"""
 texte   = """
 Référent : @clemence_coqcinelle
 
 Chaque semaine, nous trouvons une action simple, signer, partager ou commenter, réalisable en moins de cinq minutes, sur notre groupe WhatsApp.
 Nous avons grandement besoin d'un nouveau référent pour ce projet!
 
-Pour rejoindre le groupe, réponds à la question « PauseAction » à ton arrivée sur le serveur, ou demande le lien à un·e membre de l'équipe.
+Lève la main 🙋 pour recevoir le lien du groupe en message privé.
 
 Coordonné par l'équipe *communication*."""
 
@@ -139,7 +149,7 @@ Prendre contact avec différentes associations dont la mission est proche de cel
 salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
-description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration : lève la main 🙋 sur une équipe pour démarrer ce parcours — tu recevras un message avec les prochaines étapes et un échange d'accueil."
+description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras un message privé avec les prochaines étapes et le lien pour un échange d'accueil."
 mp           = """
 Salut 👋
 
@@ -201,7 +211,7 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 # Groupes locaux
 salon        = "1548366084967760004"
 couleur      = "#F2994A"
-description  = "Agir près de chez toi, avec les membres de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es… Lève la main 🙋 sur ton groupe — tu peux en choisir plusieurs. Les autres façons de contribuer sont décrites dans le guide des bénévoles : https://pauseia.notion.site/guide-des-benevoles-tier-1"
+description  = "Agir près de chez toi, avec les membres de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es… Lève la main 🙋 sur ton groupe, tu peux en choisir plusieurs. Les autres façons de contribuer sont décrites dans le guide des bénévoles : https://pauseia.notion.site/guide-des-benevoles-tier-1"
 role_parent  = "groupe-local"
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main sur un groupe local !
