@@ -12,11 +12,11 @@
 //! Passé l'amorçage, c'est Discord qui fait foi : le CDC demande de pouvoir
 //! éditer un message en quelques secondes depuis le serveur.
 
-use crate::commands::{self, MAX_DM_CHARS, threads::autocomplete_thread};
+use crate::commands::{self, threads::autocomplete_thread};
 use crate::db;
 use crate::db::categories::Category;
 use crate::db::posts::Post;
-use crate::discord::channel;
+use crate::discord::{channel, embed};
 use crate::ids;
 use crate::mentions;
 use crate::state::{Context, Error};
@@ -122,15 +122,21 @@ pub fn parse(text: &str) -> anyhow::Result<Content> {
                 .map_err(|err| anyhow::anyhow!("fil `{label}` : illustration, {err}"))?;
         }
 
-        // Un message privé trop long est refusé par Discord au moment de
-        // l'envoi, où l'échec ne se voit que dans les journaux du bot.
-        if let Some(text) = &thread.mp
-            && text.chars().count() > MAX_DM_CHARS
+        // Message privé et introduction partent tels quels, sans embed : au-delà
+        // de la limite, Discord refuse l'envoi et le fil reste sans introduction.
+        if let Some(excess) = thread
+            .mp
+            .as_deref()
+            .and_then(commands::too_long_for_a_message)
         {
-            anyhow::bail!(
-                "fil `{label}` : le message privé fait {} caractères, maximum {MAX_DM_CHARS}",
-                text.chars().count()
-            );
+            anyhow::bail!("fil `{label}` : le message privé fait {excess}");
+        }
+        if let Some(excess) = thread
+            .description
+            .as_deref()
+            .and_then(commands::too_long_for_a_message)
+        {
+            anyhow::bail!("fil `{label}` : l'introduction fait {excess}");
         }
 
         let mut seen_slugs = HashSet::new();
@@ -145,6 +151,24 @@ pub fn parse(text: &str) -> anyhow::Result<Content> {
                 anyhow::bail!(
                     "fil `{label}` : le message `{}` n'a pas de titre",
                     post.slug
+                );
+            }
+            // Au-delà, la carte est tronquée à la publication, sans un mot :
+            // la coupe se découvre en lisant le forum.
+            if post.titre.chars().count() > embed::TITLE_LIMIT {
+                anyhow::bail!(
+                    "fil `{label}` : le titre du message `{}` fait {} caractères, maximum {}",
+                    post.slug,
+                    post.titre.chars().count(),
+                    embed::TITLE_LIMIT
+                );
+            }
+            if post.texte.chars().count() > embed::DESCRIPTION_LIMIT {
+                anyhow::bail!(
+                    "fil `{label}` : le texte du message `{}` fait {} caractères, maximum {}",
+                    post.slug,
+                    post.texte.chars().count(),
+                    embed::DESCRIPTION_LIMIT
                 );
             }
             if let Some(colour) = &post.couleur {
@@ -664,14 +688,43 @@ texte = "Levez la main pour rejoindre un projet."
                 "le fil `{}` n'a pas de description",
                 fil.label()
             );
+
+            for message in &fil.messages {
+                assert!(
+                    message.titre.chars().count() <= embed::TITLE_LIMIT,
+                    "le titre de `{}` serait tronqué à la publication",
+                    message.slug
+                );
+            }
         }
+    }
+
+    /// Un fil minimal, avec un champ d'en-tête à éprouver.
+    fn thread_with(field: &str, value: &str) -> String {
+        format!("[[fils]]\nnom = \"Projets\"\nsalon = \"1\"\n{field} = \"\"\"{value}\"\"\"\n")
     }
 
     #[test]
     fn a_direct_message_longer_than_discord_allows_is_refused() {
-        let mp = "a".repeat(MAX_DM_CHARS + 1);
-        let text = format!("[[fils]]\nnom = \"Projets\"\nsalon = \"1\"\nmp = \"{mp}\"\n");
+        let text = thread_with("mp", &"a".repeat(commands::MAX_MESSAGE_CHARS + 1));
         let err = parse(&text).expect_err("un message privé trop long doit être refusé");
         assert!(err.to_string().contains("message privé"), "{err}");
+    }
+
+    #[test]
+    fn an_introduction_longer_than_discord_allows_is_refused() {
+        let text = thread_with("description", &"a".repeat(commands::MAX_MESSAGE_CHARS + 1));
+        let err = parse(&text).expect_err("une introduction trop longue doit être refusée");
+        assert!(err.to_string().contains("introduction"), "{err}");
+    }
+
+    #[test]
+    fn a_card_that_discord_would_truncate_is_refused() {
+        let long = "a".repeat(embed::DESCRIPTION_LIMIT + 1);
+        let text = format!(
+            "[[fils]]\nnom = \"Projets\"\nsalon = \"1\"\n\n[[fils.messages]]\nslug = \"x\"\ntitre = \"X\"\ntexte = \"\"\"{long}\"\"\"\n"
+        );
+        let err = parse(&text).expect_err("un texte de carte trop long doit être refusé");
+        assert!(err.to_string().contains("texte du message"), "{err}");
     }
 }

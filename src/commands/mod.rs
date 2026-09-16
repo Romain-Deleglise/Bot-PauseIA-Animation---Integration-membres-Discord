@@ -16,8 +16,21 @@ use std::collections::HashMap;
 /// Valeur qui, passée à un paramètre facultatif, efface le champ existant.
 pub const CLEAR_SENTINEL: &str = "-";
 
-/// Longueur maximale d'un message Discord, donc d'un message privé d'accueil.
-pub const MAX_DM_CHARS: usize = 2_000;
+/// Longueur maximale d'un message Discord. Elle vaut pour le message privé
+/// d'accueil comme pour l'introduction d'un fil : tous deux partent tels quels,
+/// sans embed, et Discord rejette l'envoi au-delà.
+pub const MAX_MESSAGE_CHARS: usize = 2_000;
+
+/// Dit de combien un texte dépasse ce qu'un message Discord accepte.
+///
+/// Refuser à la saisie vaut mieux qu'un échec à la publication : celui-ci
+/// arrive des jours plus tard, loin de son auteur, et ne laisse qu'une ligne
+/// dans les journaux du bot.
+pub fn too_long_for_a_message(text: &str) -> Option<String> {
+    let length = text.chars().count();
+    (length > MAX_MESSAGE_CHARS)
+        .then(|| format!("{length} caractères, maximum {MAX_MESSAGE_CHARS}"))
+}
 
 /// Commandes à enregistrer. `/forum importer` n'est proposé que si
 /// `ENABLE_IMPORT` le permet : il ne sert en principe qu'à l'amorçage.

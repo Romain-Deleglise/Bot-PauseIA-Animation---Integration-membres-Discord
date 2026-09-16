@@ -4,7 +4,7 @@
 //! désormais un simple fichier SQLite sans interface, ces commandes et l'import
 //! du fichier de contenu sont les seuls moyens de configurer le bot.
 
-use crate::commands::{self, CLEAR_SENTINEL, MAX_DM_CHARS};
+use crate::commands::{self, CLEAR_SENTINEL};
 use crate::db;
 use crate::db::categories::Category;
 use crate::discord::channel;
@@ -75,6 +75,17 @@ pub async fn creer(
         ctx.say(format!(
             "<#{}> accueille déjà le fil **{}**.",
             salon.id, existing.name
+        ))
+        .await?;
+        return Ok(());
+    }
+
+    if let Some(excess) = description
+        .as_deref()
+        .and_then(commands::too_long_for_a_message)
+    {
+        ctx.say(format!(
+            "Introduction trop longue : {excess}. Elle est publiée telle quelle, Discord la refuserait."
         ))
         .await?;
         return Ok(());
@@ -158,6 +169,17 @@ pub async fn modifier(
         ctx.say(format!(
             "Le salon visé accueille déjà le fil **{}**.",
             clash.name
+        ))
+        .await?;
+        return Ok(());
+    }
+
+    if let Some(excess) = description
+        .as_deref()
+        .and_then(commands::too_long_for_a_message)
+    {
+        ctx.say(format!(
+            "Introduction trop longue : {excess}. Elle est publiée telle quelle, Discord la refuserait."
         ))
         .await?;
         return Ok(());
@@ -278,14 +300,9 @@ pub async fn mp(
         }
     };
 
-    // Même limite qu'à l'import : au-delà, Discord refuse l'envoi et l'échec
-    // ne se voit que dans les journaux du bot, longtemps après la saisie.
-    if let Some(text) = &text
-        && text.chars().count() > MAX_DM_CHARS
-    {
+    if let Some(excess) = text.as_deref().and_then(commands::too_long_for_a_message) {
         ctx.say(format!(
-            "Message privé non enregistré : {} caractères, maximum {MAX_DM_CHARS}. Discord refuserait de l'envoyer.",
-            text.chars().count()
+            "Message privé non enregistré : {excess}. Discord refuserait de l'envoyer."
         ))
         .await?;
         return Ok(());

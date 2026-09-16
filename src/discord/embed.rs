@@ -13,8 +13,8 @@ use poise::serenity_prelude as serenity;
 
 /// Discord tronque les titres au-delà de 256 caractères et rejette les
 /// descriptions au-delà de 4096.
-const TITLE_LIMIT: usize = 256;
-const DESCRIPTION_LIMIT: usize = 4096;
+pub const TITLE_LIMIT: usize = 256;
+pub const DESCRIPTION_LIMIT: usize = 4096;
 
 pub fn card(category: &Category, post: &Post) -> serenity::CreateEmbed {
     let mut embed = serenity::CreateEmbed::new().title(truncate(&post.title, TITLE_LIMIT));
