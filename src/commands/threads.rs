@@ -101,6 +101,7 @@ pub async fn creer(
         parent_role_id: role_parent.map(|role| ids::to_db(role.id.get())),
         dm_text: None,
         confirmations: false,
+        notify_channel_id: None,
     };
     db::categories::insert(&ctx.data().db, &category).await?;
     ctx.data().reload_caches().await?;

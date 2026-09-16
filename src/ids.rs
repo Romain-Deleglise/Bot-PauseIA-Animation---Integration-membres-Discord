@@ -22,6 +22,10 @@ pub const fn message(id: i64) -> serenity::MessageId {
     serenity::MessageId::new(id as u64)
 }
 
+pub const fn user(id: i64) -> serenity::UserId {
+    serenity::UserId::new(id as u64)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

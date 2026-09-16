@@ -50,6 +50,8 @@ pub struct ThreadSpec {
     /// Confirmer en privé chaque entrée et chaque sortie de ce fil.
     #[serde(default)]
     pub confirmations: bool,
+    /// Salon où annoncer les mains levées, en chaîne comme tout snowflake.
+    pub salon_notifications: Option<String>,
     #[serde(default)]
     pub messages: Vec<PostSpec>,
 }
@@ -91,6 +93,8 @@ pub struct PostSpec {
     /// mais n'accorde rien : réservé au message qui dépareille dans son fil.
     #[serde(default)]
     pub sans_role_parent: bool,
+    /// `@pseudo` de la personne à prévenir quand une main se lève ici.
+    pub referent: Option<String>,
 }
 
 /// Lit le fichier et vérifie tout ce qui peut l'être sans toucher à Discord.
@@ -510,6 +514,12 @@ async fn upsert_thread(
         parent_role_id: parent,
         dm_text: spec.mp.clone(),
         confirmations: spec.confirmations,
+        notify_channel_id: spec
+            .salon_notifications
+            .as_deref()
+            .map(commands::parse_snowflake)
+            .transpose()?
+            .map(ids::to_db),
     };
 
     // Le salon d'abord : le nom repris de Discord peut avoir changé depuis le
@@ -565,6 +575,26 @@ async fn upsert_post(
             report.unknown_handles.push(handle);
         }
     }
+    // Le référent est noté `@pseudo` comme dans les textes : il se résout sur la
+    // liste des membres, et son absence se signale plutôt que d'échouer.
+    let referent = match spec
+        .referent
+        .as_deref()
+        .map(|handle| handle.trim_start_matches('@'))
+    {
+        Some(handle) => match members.get(&handle.to_lowercase()) {
+            Some(id) => Some(ids::to_db(*id)),
+            None => {
+                let handle = handle.to_owned();
+                if !report.unknown_handles.contains(&handle) {
+                    report.unknown_handles.push(handle);
+                }
+                None
+            }
+        },
+        None => None,
+    };
+
     let existing = db::posts::by_slug(&ctx.data().db, category.id, spec.slug.trim()).await?;
     let post = Post {
         id: existing.as_ref().map(|post| post.id).unwrap_or(0),
@@ -583,6 +613,7 @@ async fn upsert_post(
         information: spec.information,
         dm_text: spec.mp.clone(),
         grants_parent: !spec.sans_role_parent,
+        referent_id: referent,
     };
 
     match existing {

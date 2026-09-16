@@ -61,6 +61,8 @@ struct Caches {
     dm_categories: HashSet<i64>,
     /// Fils qui confirment en privé chaque entrée et chaque sortie.
     confirming_categories: HashSet<i64>,
+    /// Fil → salon où annoncer ses mains levées.
+    notify_channels: HashMap<i64, i64>,
     /// Rôle parent → tous les rôles de message qui l'accordent, c'est-à-dire
     /// ceux des messages des fils qui le déclarent.
     parent_grants: HashMap<i64, Vec<i64>>,
@@ -146,6 +148,14 @@ impl Data {
                 .filter(|category| category.confirmations)
                 .map(|category| category.id)
                 .collect(),
+            notify_channels: categories
+                .iter()
+                .filter_map(|category| {
+                    category
+                        .notify_channel_id
+                        .map(|channel| (category.id, channel))
+                })
+                .collect(),
             post_by_message,
             parent_grants,
         };
@@ -162,6 +172,10 @@ impl Data {
 
     pub fn confirms_changes(&self, category_id: i64) -> bool {
         self.read().confirming_categories.contains(&category_id)
+    }
+
+    pub fn notify_channel(&self, category_id: i64) -> Option<i64> {
+        self.read().notify_channels.get(&category_id).copied()
     }
 
     /// Tous les rôles de message qui accordent ce rôle parent.
@@ -353,6 +367,27 @@ mod tests {
 
         // Réagir dessus ne doit rien déclencher : le message n'accorde rien.
         assert_eq!(data_with(pool).await.post_for_message(5000), None);
+    }
+
+    #[tokio::test]
+    async fn a_thread_announces_only_where_it_was_told_to() {
+        let pool = db::connect_in_memory().await;
+        let silent = categories::insert(&pool, &categories::fixture("Compétences", 100))
+            .await
+            .unwrap();
+        let watched = categories::insert(
+            &pool,
+            &categories::Category {
+                notify_channel_id: Some(4242),
+                ..categories::fixture("Équipes", 200)
+            },
+        )
+        .await
+        .unwrap();
+
+        let data = data_with(pool).await;
+        assert_eq!(data.notify_channel(silent.id), None);
+        assert_eq!(data.notify_channel(watched.id), Some(4242));
     }
 
     #[tokio::test]

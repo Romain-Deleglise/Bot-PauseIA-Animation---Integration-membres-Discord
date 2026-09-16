@@ -70,6 +70,10 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 | `/forum importer` | Importe un fichier `forum.toml`. Rejouable, ne supprime rien. Masquée si `ENABLE_IMPORT=false`. |
 | `/forum republier` | Republie un fil dans l'ordre. **Remet toutes les réactions à zéro.** |
 
+Un fil accepte aussi `salon_notifications` (l'identifiant du salon où annoncer
+ses mains levées) et `confirmations = true`. Un message accepte `referent`, le
+`@pseudo` de la personne mentionnée dans cette annonce.
+
 Dans le fichier de contenu, un message accepte deux champs à part : `mp`, son
 message privé propre, envoyé à sa place de celui du fil ; et
 `sans_role_parent = true`, qui le fait renoncer au rôle parent de son fil. Les

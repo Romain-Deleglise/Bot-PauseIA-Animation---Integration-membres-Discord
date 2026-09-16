@@ -61,6 +61,7 @@ pub async fn on_add(
     if !welcomed {
         confirm_change(ctx, data, user_id, &post, Change::Joined(&granted)).await;
     }
+    announce(ctx, data, user_id, &post, Change::Joined(&granted)).await;
     Ok(())
 }
 
@@ -124,6 +125,7 @@ pub async fn on_remove(
     // Un rôle repris sans un mot est la première source d'incompréhension :
     // le membre voit des salons disparaître sans savoir pourquoi.
     confirm_change(ctx, data, user_id, &post, Change::Left(&taken)).await;
+    announce(ctx, data, user_id, &post, Change::Left(&taken)).await;
     Ok(())
 }
 
@@ -308,6 +310,60 @@ async fn confirm_change(
         // Sans réservation ni reprise : une confirmation manquée n'empêche rien,
         // et le rôle, lui, a bien changé.
         tracing::info!(%user_id, %err, "confirmation non délivrée");
+    }
+}
+
+/// Annonce le mouvement dans le salon du fil, et mentionne le·la référent·e.
+///
+/// Sans elle, personne n'apprend qu'une main s'est levée : le message privé
+/// promet qu'on prendra contact, et rien ne prévient qui que ce soit.
+async fn announce(
+    ctx: &serenity::Context,
+    data: &Data,
+    user_id: serenity::UserId,
+    post: &PostRef,
+    change: Change<'_>,
+) {
+    let Some(channel_id) = data.notify_channel(post.category_id) else {
+        return;
+    };
+    let Ok(Some(card)) = db::posts::by_id(&data.db, post.post_id).await else {
+        return;
+    };
+
+    // Le·la référente d'abord : c'est la personne qui doit agir.
+    let referent = card
+        .referent_id
+        .map(|id| format!(" — <@{id}>"))
+        .unwrap_or_default();
+    let text = match change {
+        Change::Joined(_) => format!(
+            "🙋 <@{user_id}> a levé la main sur **{}**{referent}",
+            card.title
+        ),
+        Change::Left(_) => format!("↩️ <@{user_id}> a retiré sa main de **{}**", card.title),
+    };
+
+    // Mentionner sans notifier tout le serveur : seuls le membre et le·la
+    // référente sont des mentions légitimes ici.
+    let allowed = serenity::CreateAllowedMentions::new()
+        .users(
+            [Some(user_id), card.referent_id.map(ids::user)]
+                .into_iter()
+                .flatten()
+                .collect::<Vec<_>>(),
+        )
+        .everyone(false);
+    let sent = ids::channel(channel_id)
+        .send_message(
+            &ctx.http,
+            serenity::CreateMessage::new()
+                .content(text)
+                .allowed_mentions(allowed),
+        )
+        .await;
+    if let Err(err) = sent {
+        tracing::warn!(%err, channel_id, "annonce non publiée");
     }
 }
 

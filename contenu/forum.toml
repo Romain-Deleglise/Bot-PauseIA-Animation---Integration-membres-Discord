@@ -19,6 +19,7 @@ Et si tu veux t'engager plus régulièrement, chaque semaine, va voir le fil **�
 [[fils.messages]]
 slug    = "fresque-ia"
 titre   = "Fresque de l'IA"
+referent = "@doweee1"
 texte   = """
 Référent : @doweee1
 
@@ -45,6 +46,7 @@ Chaque semaine, nous proposons une action simple à faire en moins de cinq minut
 Aucun engagement : tu participes quand tu peux, et tu pars quand tu veux.
 
 À très vite ! 💙"""
+referent = "@clemence_coqcinelle"
 texte   = """
 Référent : @clemence_coqcinelle
 
@@ -59,6 +61,7 @@ Coordonné par l'équipe *communication*."""
 slug    = "idees-recues"
 titre   = "Idées reçues"
 information = true
+referent = "@jeannebazard"
 texte   = """
 Référentes : @jeannebazard @lady_mircalla
 
@@ -69,6 +72,7 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "entraide-plaidoyer"
 titre   = "Entraide plaidoyer"
+referent = "@zedioum"
 texte   = """
 Référent : @zedioum
 
@@ -79,6 +83,7 @@ Coordonné par l'équipe *plaidoyer* de l'association. Vous pouvez d'ailleurs re
 [[fils.messages]]
 slug    = "onboarding"
 titre   = "Accueil et orientation"
+referent = "@gadow2_0"
 texte   = """
 Référent : @gadow2_0
 
@@ -90,6 +95,7 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "animation-discord"
 titre   = "[En structuration] Animation Discord"
+referent = "@gyrodiot"
 texte   = """
 Référent : @gyrodiot
 
@@ -104,6 +110,7 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "rencontres-pauseia"
 titre   = "Organisation des rencontres Pause IA"
+referent = "@clemence_coqcinelle"
 texte   = """
 Référente : @clemence_coqcinelle
 
@@ -114,6 +121,7 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "partenariats-influenceurs"
 titre   = "[En structuration] Partenariats avec des influenceurs"
+referent = "@flavien0525"
 texte   = """
 Référent : @flavien0525
 
@@ -132,6 +140,7 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "jeu-pauseia"
 titre   = "[À venir] Jeu vidéo et jeu de rôle"
+referent = "@dyson4282."
 texte   = """
 Référent : @dyson4282. Il a développé un jeu multijoueur super, n'hésitez pas à lui demander le lien.
 
@@ -158,6 +167,7 @@ Ce projet est en pause pour le moment : nous ne savons pas encore s'il repartira
 Ta main levée reste visible sur la carte, elle nous sert à mesurer l'intérêt. Si le projet redémarre, nous reviendrons vers celles et ceux qui se sont signalés.
 
 Merci ! 💙"""
+referent = "@jeannebazard"
 texte   = """
 Référente : @jeannebazard
 
@@ -201,6 +211,7 @@ Merci, et bienvenue à Pause IA ! 🌱 N'hésite pas à envoyer un message sur D
 [[fils.messages]]
 slug    = "communication"
 titre   = "Communication"
+referent = "@jeannebazard"
 texte   = """
 Référente : @jeannebazard
 
@@ -211,6 +222,7 @@ Un nouvel employé va bientôt rejoindre cette équipe."""
 [[fils.messages]]
 slug    = "plaidoyer"
 titre   = "Plaidoyer"
+referent = "@zedioum"
 texte   = """
 Référent : @zedioum
 
@@ -219,6 +231,7 @@ Porter la position de Pause IA auprès des institutions et des élus. Exemples :
 [[fils.messages]]
 slug    = "tech"
 titre   = "Tech"
+referent = "@.romain73"
 texte   = """
 Référent : @.romain73
 
@@ -227,6 +240,7 @@ L'équipe assure le support technique sur Notion, Discord et le site internet, a
 [[fils.messages]]
 slug    = "initiatives-locales"
 titre   = "Initiatives locales"
+referent = "@rambip"
 texte   = """
 Référent : @rambip
 
@@ -235,6 +249,7 @@ Organiser les temps forts et mobiliser les membres autour des actions de terrain
 [[fils.messages]]
 slug    = "financement-partenariats"
 titre   = "Financement & Partenariats"
+referent = "@.romain73"
 texte   = """
 Référent : @.romain73
 
@@ -264,6 +279,7 @@ Pour découvrir les autres façons de contribuer : https://pauseia.notion.site/g
 slug    = "bordeaux"
 titre   = "Bordeaux"
 role    = "gl-bordeaux"
+referent = "@olivierloisel"
 texte   = """
 Référent : @olivierloisel
 
@@ -283,6 +299,7 @@ Groupe inactif, mais n'hésitez pas si vous voulez le relancer !"""
 slug    = "dordogne"
 titre   = "Dordogne"
 role    = "gl-dordogne"
+referent = "@clemence_coqcinelle"
 texte   = """
 Référente : @clemence_coqcinelle
 
@@ -292,6 +309,7 @@ Groupe sur le département, car nous sommes dans différentes villes (Périgueux
 slug    = "grenoble"
 titre   = "Grenoble"
 role    = "gl-grenoble"
+referent = "@nothing.45"
 texte   = """
 Référent : @nothing.45
 
@@ -301,6 +319,7 @@ Groupe créé début 2026, on a été autrefois nombreux (5) et on a fait plein 
 slug    = "lille"
 titre   = "Lille"
 role    = "gl-lille"
+referent = "@anmacha"
 texte   = """
 Référents : @anmacha @pogzo
 
@@ -310,6 +329,7 @@ Ils ne sont que trois, mais ils se sont rencontrés et sont très motivés ! En 
 slug    = "lyon"
 titre   = "Lyon"
 role    = "gl-lyon"
+referent = "@bayes8"
 texte   = """
 Référents : @bayes8 @jeannebazard
 
@@ -336,6 +356,7 @@ Groupe inactif (une seule personne présente), mais n'hésitez pas si vous voule
 slug    = "paris"
 titre   = "Paris"
 role    = "gl-paris"
+referent = "@martinkunev"
 texte   = """
 Référent : @martinkunev
 
@@ -345,6 +366,7 @@ Un groupe très actif : tractage, manifestations, organisation de conférences�
 slug    = "poitiers"
 titre   = "Poitiers"
 role    = "gl-poitiers"
+referent = "@Armelle86"
 texte   = """
 Référente : @Armelle86
 
@@ -354,6 +376,7 @@ Ce groupe n'a pas encore eu l'occasion d'organiser des événements locaux, mais
 slug    = "toulouse"
 titre   = "Toulouse"
 role    = "gl-toulouse"
+referent = "@bizouche"
 texte   = """
 Référents : @bizouche @totoss0901 @Eloise_b_
 
