@@ -29,11 +29,18 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "pauseaction"
 titre   = "PauseAction"
+# Carte d'information : PauseAction est l'engagement le plus léger, alors que
+# toute carte de ce fil accorde @portail-équipe, le rôle du parcours des
+# bénévoles actifs. Faute d'un fil sans rôle parent, mieux vaut ne rien
+# accorder que d'accorder le mauvais rôle.
+information = true
 texte   = """
 Référent : @clemence_coqcinelle
 
 Chaque semaine, nous trouvons une action simple, signer, partager ou commenter, réalisable en moins de cinq minutes, sur notre groupe WhatsApp.
 Nous avons grandement besoin d'un nouveau référent pour ce projet!
+
+Pour rejoindre le groupe, réponds à la question « PauseAction » à ton arrivée sur le serveur, ou demande le lien à un·e membre de l'équipe.
 
 Coordonné par l'équipe *communication*."""
 
