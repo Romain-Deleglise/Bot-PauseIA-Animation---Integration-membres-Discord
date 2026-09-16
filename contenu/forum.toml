@@ -4,6 +4,14 @@ salon        = "1548365905870721084"
 couleur      = "#27AE60"
 role_parent  = "portail-équipe"
 description  = "Des missions ouvertes pour contribuer à PauseIA sans engagement lourd — le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
+mp           = """
+👋 Bienvenue, et merci d'avoir levé la main sur un projet !
+
+Tu as maintenant accès à l'espace des projets : le·la référent·e du projet t'y contactera pour te dire par où commencer. Les projets sont pensés comme des missions « bac à sable » : tu essaies, tu vois si ça te plaît, sans engagement lourd.
+
+Si tu veux comprendre l'ensemble des façons de contribuer, le guide des bénévoles est ici : https://pauseia.notion.site/guide-des-benevoles-tier-1
+
+À très vite ! 💙"""
 
 [[fils.messages]]
 slug    = "fresque-ia"
@@ -123,6 +131,18 @@ salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
 description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration : lève la main 🙋 sur une équipe pour démarrer ce parcours — tu recevras un message avec les prochaines étapes et un échange d'accueil."
+mp           = """
+👋 Bienvenue chez PauseIA, et merci d'avoir levé la main !
+
+Rejoindre une équipe (Tier 2, ~5 h/semaine) passe par un court parcours d'intégration :
+
+**1.** Un échange de 30 min avec Clémence pour faire connaissance et t'orienter → https://calendly.com/clemence-pauseia/30min
+**2.** Tu rejoins ensuite l'espace #portail, avec le guide d'intégration : https://pauseia.notion.site/devenir-benevole
+**3.** Environ deux mois dans l'équipe « Onboarding » pour te familiariser avec nos outils et nos rituels, puis tu choisis ton équipe.
+
+L'adhésion à l'association est demandée pour l'engagement en équipe.
+
+À très vite ! 💙"""
 
 [[fils.messages]]
 slug    = "communication"
@@ -173,6 +193,16 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 salon        = "1548366084967760004"
 couleur      = "#F2994A"
 role_parent  = "groupe-local"
+mp           = """
+👋 Bienvenue, et merci d'avoir levé la main sur un groupe local !
+
+Tu as maintenant accès aux salons des groupes locaux : présente-toi dans celui de ta ville, le·la référent·e t'indiquera les prochaines actions près de chez toi (tractage, fresque de l'IA, rencontres d'élu·es…).
+
+Tu peux lever la main sur plusieurs groupes si tu bouges entre plusieurs villes.
+
+Pour découvrir les autres façons de contribuer : https://pauseia.notion.site/guide-des-benevoles-tier-1
+
+À très vite ! 💙"""
 
 [[fils.messages]]
 slug    = "bordeaux"
@@ -279,6 +309,14 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 # Compétences
 salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
+mp           = """
+👋 Merci d'avoir signalé tes compétences !
+
+Elles sont désormais visibles pour les équipes : quand un besoin correspond, on te contactera directement ici. Tu peux lever la main sur autant de compétences que tu veux, et retirer ta réaction à tout moment.
+
+Si tu veux t'engager plus régulièrement, le guide des bénévoles explique les différents niveaux : https://pauseia.notion.site/guide-des-benevoles-tier-1
+
+À très vite ! 💙"""
 
 [[fils.messages]]
 slug    = "aide-creation"

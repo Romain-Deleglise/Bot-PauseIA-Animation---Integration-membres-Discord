@@ -27,6 +27,9 @@ use std::collections::{HashMap, HashSet};
 /// Taille maximale acceptée pour le fichier de contenu.
 const MAX_FILE_BYTES: u32 = 512 * 1024;
 
+/// Longueur maximale d'un message Discord, donc d'un message privé d'accueil.
+const MAX_DM_CHARS: usize = 2_000;
+
 #[derive(Debug, Deserialize)]
 pub struct Content {
     #[serde(default)]
@@ -120,6 +123,17 @@ pub fn parse(text: &str) -> anyhow::Result<Content> {
         if let Some(url) = &thread.illustration {
             commands::parse_url(url)
                 .map_err(|err| anyhow::anyhow!("fil `{label}` : illustration, {err}"))?;
+        }
+
+        // Un message privé trop long est refusé par Discord au moment de
+        // l'envoi, où l'échec ne se voit que dans les journaux du bot.
+        if let Some(text) = &thread.mp
+            && text.chars().count() > MAX_DM_CHARS
+        {
+            anyhow::bail!(
+                "fil `{label}` : le message privé fait {} caractères, maximum {MAX_DM_CHARS}",
+                text.chars().count()
+            );
         }
 
         let mut seen_slugs = HashSet::new();
@@ -636,5 +650,23 @@ texte = "Levez la main pour rejoindre un projet."
         assert_eq!(content.fils.len(), 4, "le CDC décrit quatre fils");
         let messages: usize = content.fils.iter().map(|fil| fil.messages.len()).sum();
         assert_eq!(messages, 37, "le contenu du forum décrit 37 messages");
+
+        // Le MP est la seule explication du parcours que reçoit un membre qui
+        // lève la main : aucun fil ne doit rester muet.
+        for fil in &content.fils {
+            assert!(
+                fil.mp.as_deref().is_some_and(|mp| !mp.trim().is_empty()),
+                "le fil `{}` n'a pas de message privé d'accueil",
+                fil.label()
+            );
+        }
+    }
+
+    #[test]
+    fn a_direct_message_longer_than_discord_allows_is_refused() {
+        let mp = "a".repeat(MAX_DM_CHARS + 1);
+        let text = format!("[[fils]]\nnom = \"Projets\"\nsalon = \"1\"\nmp = \"{mp}\"\n");
+        let err = parse(&text).expect_err("un message privé trop long doit être refusé");
+        assert!(err.to_string().contains("message privé"), "{err}");
     }
 }
