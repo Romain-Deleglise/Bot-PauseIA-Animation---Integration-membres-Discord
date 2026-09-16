@@ -59,13 +59,18 @@ pub fn card(category: &Category, post: &Post) -> serenity::CreateEmbed {
     if carries_a_reaction(category, post) {
         // Les mentions ne se rendent pas dans un pied d'embed, seulement dans
         // un champ : c'est donc un champ, non aligné, pour qu'il ait sa ligne.
-        embed = embed.field("En levant la main 🙋", promise(category, post), false);
+        embed = embed.field("En levant la main 🙋", promise(category, post), true);
     }
 
     embed
 }
 
-/// Ce que la carte promet, en français plutôt qu'en noms de rôles.
+/// Ce que la carte donne, en une ligne.
+///
+/// Une seule ligne, et non trois : le fil compte une douzaine de cartes, et ce
+/// qui se répète à l'identique sous chacune n'est lu qu'une fois. Que la
+/// réaction déclenche un message privé, que le rôle se reprenne en retirant sa
+/// main, cela s'apprend en le faisant.
 fn promise(category: &Category, post: &Post) -> String {
     let granted: Vec<String> = [
         post.role_id,
@@ -76,41 +81,12 @@ fn promise(category: &Category, post: &Post) -> String {
     .map(|role_id| format!("<@&{role_id}>"))
     .collect();
 
-    let mut lines = Vec::new();
-    match granted.len() {
-        0 => {}
-        1 => lines.push(format!(
-            "Tu reçois le rôle {}, et l'accès aux salons qui vont avec.",
-            granted[0]
-        )),
-        _ => lines.push(format!(
-            "Tu reçois les rôles {}, et l'accès aux salons qui vont avec.",
-            granted.join(" et ")
-        )),
-    }
-    if sends_a_message(category, post) {
-        lines.push("Un message privé t'explique la suite.".to_owned());
-    }
-    // Retirer sa réaction reprend le rôle sans un mot : mieux vaut l'avoir lu
-    // avant de cliquer qu'après.
     if granted.is_empty() {
-        lines.push("Aucun rôle à la clé : tout se passe en message privé.".to_owned());
-    } else {
-        lines.push(
-            "Tu changes d'avis ? Retire ta réaction, le rôle est repris aussitôt.".to_owned(),
-        );
+        // Une carte qui n'accorde rien porte quand même la main levée : sans un
+        // mot, la réaction paraîtrait sans effet.
+        return "un message privé, aucun rôle".to_owned();
     }
-    lines.join("\n")
-}
-
-/// Une réaction sur cette carte déclenche-t-elle un message privé ? Celui de la
-/// carte s'il existe, celui du fil sinon.
-fn sends_a_message(category: &Category, post: &Post) -> bool {
-    let filled = |text: &Option<String>| {
-        text.as_deref()
-            .is_some_and(|content| !content.trim().is_empty())
-    };
-    filled(&post.dm_text) || filled(&category.dm_text)
+    granted.join(" + ")
 }
 
 /// Discord compte en points de code ; couper sur des octets casserait un
@@ -216,9 +192,7 @@ mod tests {
         let fields = json["fields"].as_array().unwrap();
         assert_eq!(fields.len(), 1);
         assert_eq!(fields[0]["name"], "En levant la main 🙋");
-        let promise = fields[0]["value"].as_str().unwrap();
-        assert!(promise.contains("<@&10> et <@&999>"), "{promise}");
-        assert!(promise.contains("Retire ta réaction"), "{promise}");
+        assert_eq!(fields[0]["value"], "<@&10> + <@&999>");
     }
 
     #[test]
@@ -226,12 +200,7 @@ mod tests {
         let json = rendered(&thread(None), &message("Paris", "", Some(10)));
         let fields = json["fields"].as_array().unwrap();
 
-        assert!(
-            fields[0]["value"]
-                .as_str()
-                .unwrap()
-                .contains("le rôle <@&10>,")
-        );
+        assert_eq!(fields[0]["value"], "<@&10>");
     }
 
     #[test]
@@ -241,12 +210,7 @@ mod tests {
         let json = rendered(&thread(Some(999)), &message("Fresque", "Un projet", None));
         let fields = json["fields"].as_array().unwrap();
 
-        assert!(
-            fields[0]["value"]
-                .as_str()
-                .unwrap()
-                .contains("le rôle <@&999>,")
-        );
+        assert_eq!(fields[0]["value"], "<@&999>");
     }
 
     #[test]

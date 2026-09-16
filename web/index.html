@@ -522,20 +522,14 @@ function apercu(fil, msg) {
     carte.append(el("div", { className:"cle", textContent:"En levant la main 🙋" }));
     const ligne = el("div");
     if (roles.length) {
-      ligne.append(document.createTextNode(
-        roles.length > 1 ? "Tu reçois les rôles " : "Tu reçois le rôle "));
       roles.forEach((r, i) => {
-        if (i) ligne.append(document.createTextNode(" et "));
+        if (i) ligne.append(document.createTextNode(" + "));
         ligne.append(el("span", { className:"role", textContent:r }));
       });
-      ligne.append(document.createTextNode(", qui t'ouvre" + (roles.length > 1 ? "nt" : "")
-        + " les salons correspondants."));
+    } else {
+      ligne.append(document.createTextNode("un message privé, aucun rôle"));
     }
     carte.append(ligne);
-    if (prive) carte.append(el("div", { textContent:"Tu reçois un message privé qui explique la suite." }));
-    carte.append(el("div", { textContent: roles.length
-      ? "Tu changes d'avis ? Retire ta réaction, le rôle est repris aussitôt."
-      : "Aucun rôle ne t'est attribué." }));
   }
 
   const enveloppe = el("div");
