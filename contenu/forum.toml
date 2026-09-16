@@ -3,7 +3,7 @@
 salon        = "1548365905870721084"
 couleur      = "#27AE60"
 role_parent  = "portail-équipe"
-description  = "Des missions ouvertes pour contribuer à PauseIA sans engagement lourd, le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
+description  = "Des missions ouvertes pour contribuer à Pause IA sans engagement lourd, le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main sur un projet !
 
@@ -71,7 +71,7 @@ titre   = "Entraide plaidoyer"
 texte   = """
 Référent : @zedioum
 
-Porter la position de PauseIA auprès des institutions et des élus. Dans ce projet, vous aurez accès à des ressources et des formations pour participer au plaidoyer de l'association dans votre département.
+Porter la position de Pause IA auprès des institutions et des élus. Dans ce projet, vous aurez accès à des ressources et des formations pour participer au plaidoyer de l'association dans votre département.
 
 Coordonné par l'équipe *plaidoyer* de l'association. Vous pouvez d'ailleurs rejoindre cette équipe si vous êtes très motivé."""
 
@@ -102,7 +102,7 @@ Coordonné par le bureau."""
 
 [[fils.messages]]
 slug    = "rencontres-pauseia"
-titre   = "Organisation des rencontres PauseIA"
+titre   = "Organisation des rencontres Pause IA"
 texte   = """
 Référente : @clemence_coqcinelle
 
@@ -140,7 +140,7 @@ Concevoir des jeux vidéo et jeux de rôle au service de la sensibilisation. Plu
 slug    = "relation-associations"
 titre   = "[À venir] Relations associations"
 texte   = """
-Prendre contact avec différentes associations dont la mission est proche de celle de PauseIA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour créer des liens."""
+Prendre contact avec différentes associations dont la mission est proche de celle de Pause IA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour créer des liens."""
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -149,7 +149,7 @@ Prendre contact avec différentes associations dont la mission est proche de cel
 salon        = "1548365691038732368"
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
-description  = "Les équipes sont le cœur opérationnel de PauseIA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras un message privé avec les prochaines étapes et le lien pour un échange d'accueil."
+description  = "Les équipes sont le cœur opérationnel de Pause IA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras un message privé avec les prochaines étapes et le lien pour un échange d'accueil."
 mp           = """
 Salut 👋
 
@@ -179,7 +179,7 @@ titre   = "Plaidoyer"
 texte   = """
 Référent : @zedioum
 
-Porter la position de PauseIA auprès des institutions et des élus. Exemples : rédiger une prise de position, écrire aux élus, rencontrer un député…"""
+Porter la position de Pause IA auprès des institutions et des élus. Exemples : rédiger une prise de position, écrire aux élus, rencontrer un député…"""
 
 [[fils.messages]]
 slug    = "tech"
@@ -277,7 +277,7 @@ role    = "gl-lyon"
 texte   = """
 Référents : @bayes8 @jeannebazard
 
-Plusieurs membres très impliqués dans PauseIA sont présents dans ce groupe, mais pas encore de fonctionnement bien défini pour le groupe local."""
+Plusieurs membres très impliqués dans Pause IA sont présents dans ce groupe, mais pas encore de fonctionnement bien défini pour le groupe local."""
 
 [[fils.messages]]
 slug    = "marseille"
