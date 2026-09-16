@@ -19,6 +19,7 @@ Et si tu veux t'engager plus régulièrement, chaque semaine, va voir le fil **�
 [[fils.messages]]
 slug    = "fresque-ia"
 titre   = "Fresque de l'IA"
+salon_notifications = "1509918375286018219"
 referent = "@doweee1"
 texte   = """
 Référent : @doweee1
@@ -72,6 +73,7 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "entraide-plaidoyer"
 titre   = "Entraide plaidoyer"
+salon_notifications = "1412367909975752736"
 referent = "@zedioum"
 texte   = """
 Référent : @zedioum
@@ -83,6 +85,7 @@ Coordonné par l'équipe *plaidoyer* de l'association. Vous pouvez d'ailleurs re
 [[fils.messages]]
 slug    = "onboarding"
 titre   = "Accueil et orientation"
+salon_notifications = "1522182103616327690"
 referent = "@gadow2_0"
 texte   = """
 Référent : @gadow2_0
@@ -121,6 +124,7 @@ Coordonné par le bureau."""
 [[fils.messages]]
 slug    = "partenariats-influenceurs"
 titre   = "[En structuration] Partenariats avec des influenceurs"
+salon_notifications = "1542614204522037499"
 referent = "@flavien0525"
 texte   = """
 Référent : @flavien0525
@@ -131,6 +135,7 @@ Identifier et solliciter des streamers et youtubeurs pour inviter Maxime Fournes
 [[fils.messages]]
 slug    = "illustration"
 titre   = "[À venir] Illustration humaine (PauseIArt)"
+salon_notifications = "1547989852191203528"
 texte   = """
 Rejoignez ce projet si vous avez envie de produire des illustrations humaines pour les réseaux sociaux et la communication de Pause IA.
 Cela comprend aussi la création de tracts, de visuels originaux pour les groupes locaux et même de goodies pour notre boutique.
@@ -185,6 +190,7 @@ salon        = "1548365691038732368"
 confirmations = true
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
+salon_notifications = "1408569062241603614"
 description  = "Les équipes sont le cœur opérationnel de Pause IA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras un message privé avec les prochaines étapes et le lien pour un échange d'accueil."
 mp           = """
 Salut 👋
@@ -211,6 +217,7 @@ Merci, et bienvenue à Pause IA ! 🌱 N'hésite pas à envoyer un message sur D
 [[fils.messages]]
 slug    = "communication"
 titre   = "Communication"
+salon_notifications = "1512427322874134620"
 referent = "@jeannebazard"
 texte   = """
 Référente : @jeannebazard
@@ -222,6 +229,7 @@ Un nouvel employé va bientôt rejoindre cette équipe."""
 [[fils.messages]]
 slug    = "plaidoyer"
 titre   = "Plaidoyer"
+salon_notifications = "1408563420311195742"
 referent = "@zedioum"
 texte   = """
 Référent : @zedioum
@@ -231,6 +239,7 @@ Porter la position de Pause IA auprès des institutions et des élus. Exemples :
 [[fils.messages]]
 slug    = "tech"
 titre   = "Tech"
+salon_notifications = "1364173403325599804"
 referent = "@.romain73"
 texte   = """
 Référent : @.romain73
@@ -240,6 +249,7 @@ L'équipe assure le support technique sur Notion, Discord et le site internet, a
 [[fils.messages]]
 slug    = "initiatives-locales"
 titre   = "Initiatives locales"
+salon_notifications = "1408567188822032489"
 referent = "@rambip"
 texte   = """
 Référent : @rambip
@@ -249,6 +259,7 @@ Organiser les temps forts et mobiliser les membres autour des actions de terrain
 [[fils.messages]]
 slug    = "financement-partenariats"
 titre   = "Financement & Partenariats"
+salon_notifications = "1408563697022140561"
 referent = "@.romain73"
 texte   = """
 Référent : @.romain73
@@ -278,6 +289,7 @@ Pour découvrir les autres façons de contribuer : https://pauseia.notion.site/g
 [[fils.messages]]
 slug    = "bordeaux"
 titre   = "Bordeaux"
+salon_notifications = "1491009393750315029"
 role    = "gl-bordeaux"
 referent = "@olivierloisel"
 texte   = """
@@ -288,6 +300,7 @@ Pour l'instant en sous-effectif (un membre actif, deux membres potentiels). Mais
 [[fils.messages]]
 slug    = "colmar"
 titre   = "[Inactif] Colmar"
+salon_notifications = "1471108273661804565"
 role    = "gl-colmar"
 couleur = "#99AAB5"
 texte   = """
@@ -298,6 +311,7 @@ Groupe inactif, mais n'hésitez pas si vous voulez le relancer !"""
 [[fils.messages]]
 slug    = "dordogne"
 titre   = "Dordogne"
+salon_notifications = "1471109518258864273"
 role    = "gl-dordogne"
 referent = "@clemence_coqcinelle"
 texte   = """
@@ -308,6 +322,7 @@ Groupe sur le département, car nous sommes dans différentes villes (Périgueux
 [[fils.messages]]
 slug    = "grenoble"
 titre   = "Grenoble"
+salon_notifications = "1471108419778908251"
 role    = "gl-grenoble"
 referent = "@nothing.45"
 texte   = """
@@ -318,6 +333,7 @@ Groupe créé début 2026, on a été autrefois nombreux (5) et on a fait plein 
 [[fils.messages]]
 slug    = "lille"
 titre   = "Lille"
+salon_notifications = "1511019665084911616"
 role    = "gl-lille"
 referent = "@anmacha"
 texte   = """
@@ -328,6 +344,7 @@ Ils ne sont que trois, mais ils se sont rencontrés et sont très motivés ! En 
 [[fils.messages]]
 slug    = "lyon"
 titre   = "Lyon"
+salon_notifications = "1471109615881293946"
 role    = "gl-lyon"
 referent = "@bayes8"
 texte   = """
@@ -338,6 +355,7 @@ Plusieurs membres très impliqués dans Pause IA sont présents dans ce groupe, 
 [[fils.messages]]
 slug    = "marseille"
 titre   = "Marseille"
+salon_notifications = "1539403280478765056"
 role    = "gl-marseille"
 texte   = """
 Groupe en pleine construction. Vous pouvez contacter @11mishka11."""
@@ -345,6 +363,7 @@ Groupe en pleine construction. Vous pouvez contacter @11mishka11."""
 [[fils.messages]]
 slug    = "melun"
 titre   = "[Inactif] Melun"
+salon_notifications = "1471109926267916434"
 role    = "gl-melun"
 couleur = "#99AAB5"
 texte   = """
@@ -355,6 +374,7 @@ Groupe inactif (une seule personne présente), mais n'hésitez pas si vous voule
 [[fils.messages]]
 slug    = "paris"
 titre   = "Paris"
+salon_notifications = "1471108628982272188"
 role    = "gl-paris"
 referent = "@martinkunev"
 texte   = """
@@ -365,6 +385,7 @@ Un groupe très actif : tractage, manifestations, organisation de conférences�
 [[fils.messages]]
 slug    = "poitiers"
 titre   = "Poitiers"
+salon_notifications = "1471111591381565545"
 role    = "gl-poitiers"
 referent = "@Armelle86"
 texte   = """
@@ -375,6 +396,7 @@ Ce groupe n'a pas encore eu l'occasion d'organiser des événements locaux, mais
 [[fils.messages]]
 slug    = "toulouse"
 titre   = "Toulouse"
+salon_notifications = "1478744200907325663"
 role    = "gl-toulouse"
 referent = "@bizouche"
 texte   = """
