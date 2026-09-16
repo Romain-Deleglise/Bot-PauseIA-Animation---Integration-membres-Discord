@@ -19,6 +19,8 @@ pub struct Category {
     pub parent_role_id: Option<i64>,
     /// Message privé envoyé à la première réaction dans ce fil.
     pub dm_text: Option<String>,
+    /// Confirmer en privé chaque entrée et chaque sortie de ce fil.
+    pub confirmations: bool,
 }
 
 /// Clé de recherche et d'unicité d'un nom de fil.
@@ -32,7 +34,7 @@ pub fn name_key(name: &str) -> String {
 pub async fn list(pool: &SqlitePool) -> sqlx::Result<Vec<Category>> {
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
-                parent_role_id, dm_text
+                parent_role_id, dm_text, confirmations
            FROM categories ORDER BY name",
     )
     .fetch_all(pool)
@@ -42,7 +44,7 @@ pub async fn list(pool: &SqlitePool) -> sqlx::Result<Vec<Category>> {
 pub async fn by_id(pool: &SqlitePool, id: i64) -> sqlx::Result<Option<Category>> {
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
-                parent_role_id, dm_text
+                parent_role_id, dm_text, confirmations
            FROM categories WHERE id = ?",
     )
     .bind(id)
@@ -55,7 +57,7 @@ pub async fn by_id(pool: &SqlitePool, id: i64) -> sqlx::Result<Option<Category>>
 pub async fn by_name(pool: &SqlitePool, name: &str) -> sqlx::Result<Option<Category>> {
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
-                parent_role_id, dm_text
+                parent_role_id, dm_text, confirmations
            FROM categories WHERE name_key = ?",
     )
     .bind(name_key(name))
@@ -66,7 +68,7 @@ pub async fn by_name(pool: &SqlitePool, name: &str) -> sqlx::Result<Option<Categ
 pub async fn by_channel(pool: &SqlitePool, channel_id: i64) -> sqlx::Result<Option<Category>> {
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
-                parent_role_id, dm_text
+                parent_role_id, dm_text, confirmations
            FROM categories WHERE channel_id = ?",
     )
     .bind(channel_id)
@@ -77,10 +79,10 @@ pub async fn by_channel(pool: &SqlitePool, channel_id: i64) -> sqlx::Result<Opti
 pub async fn insert(pool: &SqlitePool, category: &Category) -> sqlx::Result<Category> {
     sqlx::query_as::<_, Category>(
         "INSERT INTO categories (name, name_key, channel_id, header_image_url, header_text,
-                                 colour, parent_role_id, dm_text)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                 colour, parent_role_id, dm_text, confirmations)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
          RETURNING id, name, channel_id, header_image_url, header_text, colour,
-                   parent_role_id, dm_text",
+                   parent_role_id, dm_text, confirmations",
     )
     .bind(&category.name)
     .bind(name_key(&category.name))
@@ -90,6 +92,7 @@ pub async fn insert(pool: &SqlitePool, category: &Category) -> sqlx::Result<Cate
     .bind(category.colour)
     .bind(category.parent_role_id)
     .bind(&category.dm_text)
+    .bind(category.confirmations)
     .fetch_one(pool)
     .await
 }
@@ -100,7 +103,8 @@ pub async fn update(pool: &SqlitePool, category: &Category) -> sqlx::Result<()> 
     sqlx::query(
         "UPDATE categories
             SET name = ?, name_key = ?, channel_id = ?, header_image_url = ?,
-                header_text = ?, colour = ?, parent_role_id = ?, dm_text = ?
+                header_text = ?, colour = ?, parent_role_id = ?, dm_text = ?,
+                confirmations = ?
           WHERE id = ?",
     )
     .bind(&category.name)
@@ -111,6 +115,7 @@ pub async fn update(pool: &SqlitePool, category: &Category) -> sqlx::Result<()> 
     .bind(category.colour)
     .bind(category.parent_role_id)
     .bind(&category.dm_text)
+    .bind(category.confirmations)
     .bind(category.id)
     .execute(pool)
     .await
@@ -138,6 +143,7 @@ pub(crate) fn fixture(name: &str, channel_id: i64) -> Category {
         colour: None,
         parent_role_id: None,
         dm_text: None,
+        confirmations: false,
     }
 }
 

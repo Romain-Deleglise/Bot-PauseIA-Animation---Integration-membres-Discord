@@ -32,7 +32,9 @@ pub async fn on_add(
 
     let held = member_roles(ctx, guild_id, user_id, reaction.member.as_ref()).await?;
 
+    let mut granted = Vec::new();
     for role_id in [post.role_id, post.parent_role_id].into_iter().flatten() {
+        granted.push(role_id);
         if held.contains(&role_id) {
             continue;
         }
@@ -52,7 +54,13 @@ pub async fn on_add(
 
     // Le message privé vient après les rôles : il est un supplément, et son
     // échec ne doit jamais priver quelqu'un de son accès.
-    send_welcome_dm(ctx, data, user_id, &post).await;
+    let welcomed = send_welcome_dm(ctx, data, user_id, &post).await;
+
+    // Pas deux messages d'affilée : le mot de bienvenue dit déjà où l'on vient
+    // d'arriver, la confirmation ferait doublon.
+    if !welcomed {
+        confirm_change(ctx, data, user_id, &post, Change::Joined(&granted)).await;
+    }
     Ok(())
 }
 
@@ -69,6 +77,7 @@ pub async fn on_remove(
     let held = member_roles(ctx, guild_id, user_id, None).await?;
     let member_id = ids::to_db(user_id.get());
 
+    let mut taken = Vec::new();
     if let Some(role_id) = post.role_id
         && held.contains(&role_id)
     {
@@ -76,6 +85,7 @@ pub async fn on_remove(
         ctx.http
             .remove_member_role(guild_id, user_id, ids::role(role_id), Some(REASON_REMOVE))
             .await?;
+        taken.push(role_id);
     }
 
     // Oublier la main levée sur un message sans rôle, avant de réévaluer le parent.
@@ -107,9 +117,13 @@ pub async fn on_remove(
             ctx.http
                 .remove_member_role(guild_id, user_id, ids::role(parent), Some(REASON_PARENT))
                 .await?;
+            taken.push(parent);
         }
     }
 
+    // Un rôle repris sans un mot est la première source d'incompréhension :
+    // le membre voit des salons disparaître sans savoir pourquoi.
+    confirm_change(ctx, data, user_id, &post, Change::Left(&taken)).await;
     Ok(())
 }
 
@@ -156,19 +170,20 @@ async fn member_roles(
 
 /// Envoie le message privé du fil, une seule fois par membre et par fil.
 ///
-/// Ne remonte jamais d'erreur : un membre qui a fermé ses messages privés ne
-/// doit pas faire échouer l'attribution de son rôle.
+/// Rend `true` si un message est effectivement parti. Ne remonte jamais
+/// d'erreur : un membre qui a fermé ses messages privés ne doit pas faire
+/// échouer l'attribution de son rôle.
 async fn send_welcome_dm(
     ctx: &serenity::Context,
     data: &Data,
     user_id: serenity::UserId,
     post: &PostRef,
-) {
+) -> bool {
     // Le texte de la carte prime sur celui du fil : une carte qui dépareille
     // dans son fil a rarement le même accueil à donner.
     let own_dm = post.sends_own_dm;
     if !own_dm && !data.sends_dm(post.category_id) {
-        return;
+        return false;
     }
     let member_id = ids::to_db(user_id.get());
 
@@ -181,42 +196,35 @@ async fn send_welcome_dm(
         db::dm::claim(&data.db, member_id, post.category_id).await
     };
     match claimed {
-        Ok(false) => return,
+        Ok(false) => return false,
         Ok(true) => {}
         Err(err) => {
             tracing::error!(%err, "réservation du message privé impossible");
-            return;
+            return false;
         }
     }
 
     let text = if own_dm {
         match db::posts::by_id(&data.db, post.post_id).await {
             Ok(Some(found)) => found.dm_text.unwrap_or_default(),
-            Ok(None) => return,
+            Ok(None) => return false,
             Err(err) => {
                 tracing::error!(%err, "lecture du message privé de la carte impossible");
-                return;
+                return false;
             }
         }
     } else {
         match db::categories::by_id(&data.db, post.category_id).await {
             Ok(Some(category)) => category.dm_text.unwrap_or_default(),
-            Ok(None) => return,
+            Ok(None) => return false,
             Err(err) => {
                 tracing::error!(%err, "lecture du texte du message privé impossible");
-                return;
+                return false;
             }
         }
     };
 
-    let sent = async {
-        user_id
-            .create_dm_channel(&ctx.http)
-            .await?
-            .send_message(&ctx.http, serenity::CreateMessage::new().content(&text))
-            .await
-    }
-    .await;
+    let sent = send_dm(ctx, user_id, &text).await;
 
     if let Err(err) = sent {
         if is_permanent(&err) {
@@ -229,7 +237,7 @@ async fn send_welcome_dm(
                 %err,
                 "membre injoignable en message privé, réservation conservée"
             );
-            return;
+            return false;
         }
         tracing::warn!(%user_id, %err, "message privé non délivré, réservation libérée");
         // Panne réseau ou indisponibilité de Discord : la prochaine réaction
@@ -242,7 +250,77 @@ async fn send_welcome_dm(
         if let Err(err) = released {
             tracing::error!(%err, "libération de la réservation impossible");
         }
+        return false;
     }
+    true
+}
+
+/// Ce qu'une réaction vient de changer, pour le dire au membre.
+enum Change<'a> {
+    Joined(&'a [i64]),
+    Left(&'a [i64]),
+}
+
+/// Confirme en privé une entrée ou une sortie, quand le fil le demande.
+///
+/// Discord ne rend une réponse éphémère qu'à une interaction : une réaction
+/// n'en est pas une, et le membre n'a donc aucun retour à l'écran. Sans ce
+/// message, quitter une équipe par un clic malheureux ferait disparaître des
+/// salons sans une explication.
+async fn confirm_change(
+    ctx: &serenity::Context,
+    data: &Data,
+    user_id: serenity::UserId,
+    post: &PostRef,
+    change: Change<'_>,
+) {
+    if !data.confirms_changes(post.category_id) {
+        return;
+    }
+    let roles = match change {
+        Change::Joined(roles) | Change::Left(roles) => roles,
+    };
+    // Rien n'a bougé : une réaction sur une carte qui n'accorde rien, ou un
+    // rôle parent encore justifié par un autre groupe du fil.
+    if roles.is_empty() {
+        return;
+    }
+    let title = match db::posts::by_id(&data.db, post.post_id).await {
+        Ok(Some(found)) => found.title,
+        _ => return,
+    };
+    let mentions = roles
+        .iter()
+        .map(|role_id| format!("<@&{role_id}>"))
+        .collect::<Vec<_>>()
+        .join(" et ");
+
+    let text = match change {
+        Change::Joined(_) => format!(
+            "🙋 Tu as rejoint **{title}**.\n\nRôle reçu : {mentions}\n\nPour repartir, il suffit de retirer ta réaction sur la carte : le rôle sera repris."
+        ),
+        Change::Left(_) => format!(
+            "Tu as quitté **{title}**.\n\nRôle retiré : {mentions}\n\nTu peux revenir quand tu veux en levant la main à nouveau sur la carte."
+        ),
+    };
+
+    if let Err(err) = send_dm(ctx, user_id, &text).await {
+        // Sans réservation ni reprise : une confirmation manquée n'empêche rien,
+        // et le rôle, lui, a bien changé.
+        tracing::info!(%user_id, %err, "confirmation non délivrée");
+    }
+}
+
+async fn send_dm(
+    ctx: &serenity::Context,
+    user_id: serenity::UserId,
+    text: &str,
+) -> serenity::Result<serenity::Message> {
+    user_id
+        .create_dm_channel(&ctx.http)
+        .await?
+        .send_message(&ctx.http, serenity::CreateMessage::new().content(text))
+        .await
 }
 
 /// L'envoi est-il condamné, par opposition à une panne passagère ?

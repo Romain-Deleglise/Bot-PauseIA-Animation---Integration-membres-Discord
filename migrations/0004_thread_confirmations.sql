@@ -1,0 +1,12 @@
+-- Confirmer en privé l'entrée et la sortie, fil par fil.
+--
+-- Une réaction ne permet aucune réponse à l'écran : Discord ne rend une réponse
+-- éphémère qu'à une interaction, c'est-à-dire à un bouton. Lever la main ou la
+-- baisser ne dit donc rien au membre, et perdre un rôle par erreur est
+-- silencieux. Le message privé est le seul retour possible sans renoncer à la
+-- réaction 🙋 que demande le CDC.
+--
+-- Réglage par fil, et non global : dix compétences cochées d'affilée feraient
+-- dix messages. Les fils qui comptent sont ceux où l'on rejoint un groupe
+-- d'humains.
+ALTER TABLE categories ADD COLUMN confirmations INTEGER NOT NULL DEFAULT 0;

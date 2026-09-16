@@ -1,6 +1,7 @@
 [[fils]]
 # Projets
 salon        = "1548365905870721084"
+confirmations = true
 couleur      = "#27AE60"
 role_parent  = "portail-équipe"
 description  = "Des missions ouvertes pour contribuer à Pause IA sans engagement lourd, le premier pas idéal. Lève la main 🙋 sur un projet qui t'intéresse pour le rejoindre."
@@ -147,6 +148,7 @@ Prendre contact avec différentes associations dont la mission est proche de cel
 [[fils]]
 # Équipes
 salon        = "1548365691038732368"
+confirmations = true
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
 description  = "Les équipes sont le cœur opérationnel de Pause IA (engagement plus soutenu, ~5 h/semaine). On y entre après un court parcours d'intégration. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras un message privé avec les prochaines étapes et le lien pour un échange d'accueil."
@@ -159,7 +161,14 @@ Tu viens de lever la main sur une équipe : tu as reçu le rôle du parcours d'i
 
 Pour avancer, je t'encourage à réserver un créneau avec la directrice exécutive de Pause IA pour discuter de comment tu pourrais t'investir dans l'association : https://calendly.com/clemence-pauseia/30min 🙂
 
-Le guide d'intégration est ici : https://pauseia.notion.site/devenir-benevole
+Pendant que tu attends ton créneau, tu peux prendre de l'avance sur le parcours d'intégration :
+
+**1.** Lire le guide du candidat : https://pauseia.notion.site/devenir-benevole
+**2.** Remplir le formulaire bénévole, décrit dans ce guide
+**3.** Adhérer à l'association, demandé pour s'engager en équipe : https://www.helloasso.com/associations/pause-ia/adhesions/formulaire-d-adhesion-a-pause-ia
+**4.** Te signaler dans le salon #portail
+
+Rien de tout cela n'est obligatoire avant l'échange : viens comme tu es, on fera le point ensemble.
 
 Merci, et bienvenue à Pause IA ! 🌱 N'hésite pas à envoyer un message sur Discord si tu rencontres une difficulté ! 😊"""
 
@@ -210,6 +219,7 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 [[fils]]
 # Groupes locaux
 salon        = "1548366084967760004"
+confirmations = true
 couleur      = "#F2994A"
 description  = "Agir près de chez toi, avec les membres de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es… Lève la main 🙋 sur ton groupe, tu peux en choisir plusieurs. Les autres façons de contribuer sont décrites dans le guide des bénévoles : https://pauseia.notion.site/guide-des-benevoles-tier-1"
 role_parent  = "groupe-local"

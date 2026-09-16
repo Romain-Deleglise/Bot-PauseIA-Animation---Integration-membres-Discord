@@ -59,6 +59,8 @@ struct Caches {
     post_by_message: HashMap<i64, PostRef>,
     /// Fils qui envoient un message privé à la première réaction.
     dm_categories: HashSet<i64>,
+    /// Fils qui confirment en privé chaque entrée et chaque sortie.
+    confirming_categories: HashSet<i64>,
     /// Rôle parent → tous les rôles de message qui l'accordent, c'est-à-dire
     /// ceux des messages des fils qui le déclarent.
     parent_grants: HashMap<i64, Vec<i64>>,
@@ -139,6 +141,11 @@ impl Data {
                 })
                 .map(|category| category.id)
                 .collect(),
+            confirming_categories: categories
+                .iter()
+                .filter(|category| category.confirmations)
+                .map(|category| category.id)
+                .collect(),
             post_by_message,
             parent_grants,
         };
@@ -151,6 +158,10 @@ impl Data {
 
     pub fn sends_dm(&self, category_id: i64) -> bool {
         self.read().dm_categories.contains(&category_id)
+    }
+
+    pub fn confirms_changes(&self, category_id: i64) -> bool {
+        self.read().confirming_categories.contains(&category_id)
     }
 
     /// Tous les rôles de message qui accordent ce rôle parent.
@@ -342,6 +353,27 @@ mod tests {
 
         // Réagir dessus ne doit rien déclencher : le message n'accorde rien.
         assert_eq!(data_with(pool).await.post_for_message(5000), None);
+    }
+
+    #[tokio::test]
+    async fn a_thread_confirms_only_when_it_asks_to() {
+        let pool = db::connect_in_memory().await;
+        let silent = categories::insert(&pool, &categories::fixture("Compétences", 100))
+            .await
+            .unwrap();
+        let talkative = categories::insert(
+            &pool,
+            &categories::Category {
+                confirmations: true,
+                ..categories::fixture("Équipes", 200)
+            },
+        )
+        .await
+        .unwrap();
+
+        let data = data_with(pool).await;
+        assert!(!data.confirms_changes(silent.id));
+        assert!(data.confirms_changes(talkative.id));
     }
 
     #[tokio::test]

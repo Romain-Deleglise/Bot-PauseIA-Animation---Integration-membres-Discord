@@ -53,25 +53,62 @@ pub fn card(category: &Category, post: &Post) -> serenity::CreateEmbed {
         embed = embed.description(truncate(&post.body, DESCRIPTION_LIMIT));
     }
 
-    // Une carte annonce les rôles qu'elle accorde : le sien, et/ou le rôle
-    // parent du fil. Un message d'information n'accorde rien et ne porte aucune
-    // réaction : sa carte reste muette sur les rôles.
-    if grants_a_role(category, post) {
+    // Une carte dit ce qui arrive quand on lève la main. Le nom du rôle ne
+    // suffit pas : « @portail-équipe » ne veut rien dire pour qui arrive, et le
+    // message privé qui l'explique n'arrive qu'après le clic.
+    if carries_a_reaction(category, post) {
         // Les mentions ne se rendent pas dans un pied d'embed, seulement dans
         // un champ : c'est donc un champ, non aligné, pour qu'il ait sa ligne.
-        let granted: Vec<String> = [
-            post.role_id,
-            category.parent_role_id.filter(|_| post.grants_parent),
-        ]
-        .into_iter()
-        .flatten()
-        .map(|role_id| format!("<@&{role_id}>"))
-        .collect();
-        let label = if granted.len() > 1 { "Rôles" } else { "Rôle" };
-        embed = embed.field(label, granted.join(" "), false);
+        embed = embed.field("En levant la main 🙋", promise(category, post), false);
     }
 
     embed
+}
+
+/// Ce que la carte promet, en français plutôt qu'en noms de rôles.
+fn promise(category: &Category, post: &Post) -> String {
+    let granted: Vec<String> = [
+        post.role_id,
+        category.parent_role_id.filter(|_| post.grants_parent),
+    ]
+    .into_iter()
+    .flatten()
+    .map(|role_id| format!("<@&{role_id}>"))
+    .collect();
+
+    let mut lines = Vec::new();
+    match granted.len() {
+        0 => {}
+        1 => lines.push(format!(
+            "Tu reçois le rôle {}, qui t'ouvre les salons correspondants.",
+            granted[0]
+        )),
+        _ => lines.push(format!(
+            "Tu reçois les rôles {}, qui t'ouvrent les salons correspondants.",
+            granted.join(" et ")
+        )),
+    }
+    if sends_a_message(category, post) {
+        lines.push("Tu reçois un message privé qui explique la suite.".to_owned());
+    }
+    // Retirer sa réaction reprend le rôle sans un mot : mieux vaut l'avoir lu
+    // avant de cliquer qu'après.
+    if granted.is_empty() {
+        lines.push("Aucun rôle ne t'est attribué.".to_owned());
+    } else {
+        lines.push("Retire la réaction pour rendre ce que tu as reçu.".to_owned());
+    }
+    lines.join("\n")
+}
+
+/// Une réaction sur cette carte déclenche-t-elle un message privé ? Celui de la
+/// carte s'il existe, celui du fil sinon.
+fn sends_a_message(category: &Category, post: &Post) -> bool {
+    let filled = |text: &Option<String>| {
+        text.as_deref()
+            .is_some_and(|content| !content.trim().is_empty())
+    };
+    filled(&post.dm_text) || filled(&category.dm_text)
 }
 
 /// Discord compte en points de code ; couper sur des octets casserait un
@@ -176,8 +213,10 @@ mod tests {
 
         let fields = json["fields"].as_array().unwrap();
         assert_eq!(fields.len(), 1);
-        assert_eq!(fields[0]["name"], "Rôles");
-        assert_eq!(fields[0]["value"], "<@&10> <@&999>");
+        assert_eq!(fields[0]["name"], "En levant la main 🙋");
+        let promise = fields[0]["value"].as_str().unwrap();
+        assert!(promise.contains("<@&10> et <@&999>"), "{promise}");
+        assert!(promise.contains("Retire la réaction"), "{promise}");
     }
 
     #[test]
@@ -185,8 +224,12 @@ mod tests {
         let json = rendered(&thread(None), &message("Paris", "", Some(10)));
         let fields = json["fields"].as_array().unwrap();
 
-        assert_eq!(fields[0]["name"], "Rôle");
-        assert_eq!(fields[0]["value"], "<@&10>");
+        assert!(
+            fields[0]["value"]
+                .as_str()
+                .unwrap()
+                .contains("le rôle <@&10>,")
+        );
     }
 
     #[test]
@@ -196,8 +239,12 @@ mod tests {
         let json = rendered(&thread(Some(999)), &message("Fresque", "Un projet", None));
         let fields = json["fields"].as_array().unwrap();
 
-        assert_eq!(fields[0]["name"], "Rôle");
-        assert_eq!(fields[0]["value"], "<@&999>");
+        assert!(
+            fields[0]["value"]
+                .as_str()
+                .unwrap()
+                .contains("le rôle <@&999>,")
+        );
     }
 
     #[test]

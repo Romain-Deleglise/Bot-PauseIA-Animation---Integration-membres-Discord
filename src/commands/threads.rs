@@ -100,6 +100,7 @@ pub async fn creer(
         colour: couleur.as_deref().map(commands::parse_colour).transpose()?,
         parent_role_id: role_parent.map(|role| ids::to_db(role.id.get())),
         dm_text: None,
+        confirmations: false,
     };
     db::categories::insert(&ctx.data().db, &category).await?;
     ctx.data().reload_caches().await?;

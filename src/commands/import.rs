@@ -47,6 +47,9 @@ pub struct ThreadSpec {
     /// Nom du rôle parent, accordé en plus du sien par chaque message du fil.
     pub role_parent: Option<String>,
     pub mp: Option<String>,
+    /// Confirmer en privé chaque entrée et chaque sortie de ce fil.
+    #[serde(default)]
+    pub confirmations: bool,
     #[serde(default)]
     pub messages: Vec<PostSpec>,
 }
@@ -317,12 +320,21 @@ pub async fn importer(
 }
 
 /// Réécrire les fils pour rétablir l'ordre d'affichage.
+///
+/// Republier efface et repose chaque carte : les réactions des membres
+/// disparaissent avec les anciens messages. Les rôles déjà accordés restent,
+/// mais plus rien ne les justifie ensuite, et un membre qui retire une réaction
+/// reposée ne perdra pas un rôle qu'aucune ligne ne relie plus à lui. D'où la
+/// confirmation, comme pour `/forum fil supprimer`.
 #[poise::command(slash_command)]
 pub async fn republier(
     ctx: Context<'_>,
     #[description = "Fil à republier. Défaut : tous"]
     #[autocomplete = "autocomplete_thread"]
     fil: Option<String>,
+    #[description = "Confirmer : les réactions des membres seront effacées"] confirmer: Option<
+        bool,
+    >,
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
@@ -338,6 +350,25 @@ pub async fn republier(
     };
     if categories.is_empty() {
         ctx.say("Aucun fil à republier.").await?;
+        return Ok(());
+    }
+
+    if confirmer != Some(true) {
+        let mut posts = 0;
+        for category in &categories {
+            posts += db::posts::by_category(&ctx.data().db, category.id)
+                .await?
+                .len();
+        }
+        let names = categories
+            .iter()
+            .map(|category| format!("**{}**", category.name))
+            .collect::<Vec<_>>()
+            .join(", ");
+        ctx.say(format!(
+            "Republier {names} effacera puis reposera {posts} carte·s, et avec elles **toutes les mains levées** de ce·s fil·s. Les membres gardent les rôles déjà reçus, mais devront lever la main à nouveau pour que le bot en tienne compte.\n\nÀ n'utiliser que pour réordonner ou pour afficher une nouvelle introduction. Pour corriger un texte, `/forum message éditer` garde les réactions.\n\nRelancez avec `confirmer: True`."
+        ))
+        .await?;
         return Ok(());
     }
 
@@ -478,6 +509,7 @@ async fn upsert_thread(
             .transpose()?,
         parent_role_id: parent,
         dm_text: spec.mp.clone(),
+        confirmations: spec.confirmations,
     };
 
     // Le salon d'abord : le nom repris de Discord peut avoir changé depuis le
