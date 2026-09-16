@@ -64,3 +64,18 @@ cd /opt/volunteer-apps/apps/bot-roles
 deploy/backup-db.sh                       # data/bot.db -> backups/
 DB=/chemin/bot.db DEST=/backups KEEP_DAYS=30 deploy/backup-db.sh
 ```
+
+## `check-links.sh` — les liens du contenu répondent-ils encore ?
+
+```bash
+deploy/check-links.sh              # vérifie contenu/forum.toml
+DRY_RUN=1 deploy/check-links.sh    # liste les liens sans rien appeler
+```
+
+Un lien mort dans un message privé ne se voit pas : le bot l'envoie, le membre
+tombe sur une erreur, et personne ne l'apprend. Le script échoue sur un 404 ou
+un 410 ; un refus d'accès (403, 405, 429) est signalé sans faire échouer, car
+Calendly, WhatsApp et Discord filtrent les requêtes automatisées.
+
+La CI le rejoue chaque lundi (`.github/workflows/liens.yml`) : un lien ne meurt
+pas au moment où l'on modifie le dépôt, il meurt entre deux commits.

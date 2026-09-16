@@ -1,0 +1,30 @@
+# Vérifie chaque semaine que les liens du contenu du forum répondent encore.
+#
+# Ces liens partent en message privé à chaque nouvelle main levée : le guide des
+# bénévoles, le créneau de Clémence, l'adhésion. Une page Notion renommée ou
+# dépubliée ne casse rien de visible — elle envoie simplement les nouveaux
+# arrivants sur une erreur, et personne ne l'apprend.
+#
+# D'où le rendez-vous hebdomadaire : un lien ne meurt pas au moment où on
+# modifie le dépôt, il meurt entre deux commits.
+
+name: Liens
+
+on:
+  schedule:
+    # Lundi 8 h UTC : la semaine commence par un forum dont les liens répondent.
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: ["contenu/**", "deploy/check-links.sh", ".github/workflows/liens.yml"]
+  pull_request:
+    paths: ["contenu/**", "deploy/check-links.sh", ".github/workflows/liens.yml"]
+
+jobs:
+  liens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier les liens du contenu
+        run: deploy/check-links.sh
