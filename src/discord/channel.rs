@@ -66,7 +66,10 @@ pub async fn publish(
         .await
         .with_context(|| format!("publication de la carte `{}`", post.title))?;
 
-    if post.role_id.is_some() {
+    // La réaction est posée dès que la carte accorde quelque chose : son rôle
+    // nominatif, ou seulement le rôle parent du fil. Un message d'information
+    // n'en porte pas, comme l'exige le CDC (« pas d'emoji visible »).
+    if !post.information && (post.role_id.is_some() || category.parent_role_id.is_some()) {
         channel
             .create_reaction(
                 http,

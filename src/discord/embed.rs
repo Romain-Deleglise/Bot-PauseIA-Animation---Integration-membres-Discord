@@ -30,9 +30,10 @@ pub fn card(category: &Category, post: &Post) -> serenity::CreateEmbed {
         embed = embed.description(truncate(&post.body, DESCRIPTION_LIMIT));
     }
 
-    // Un message d'information n'accorde rien et ne porte aucune réaction :
-    // annoncer le rôle parent du fil sur sa carte serait une promesse en l'air.
-    if post.role_id.is_some() {
+    // Une carte annonce les rôles qu'elle accorde : le sien, et/ou le rôle
+    // parent du fil. Un message d'information n'accorde rien et ne porte aucune
+    // réaction : sa carte reste muette sur les rôles.
+    if !post.information && (post.role_id.is_some() || category.parent_role_id.is_some()) {
         // Les mentions ne se rendent pas dans un pied d'embed, seulement dans
         // un champ : c'est donc un champ, non aligné, pour qu'il ait sa ligne.
         let granted: Vec<String> = [post.role_id, category.parent_role_id]
@@ -138,11 +139,25 @@ mod tests {
     }
 
     #[test]
+    fn a_message_without_role_shows_the_parent_role_of_its_thread() {
+        // Sans rôle nominatif mais dans un fil à rôle parent, la carte accorde
+        // ce parent : elle doit l'annoncer.
+        let json = rendered(&thread(Some(999)), &message("Fresque", "Un projet", None));
+        let fields = json["fields"].as_array().unwrap();
+
+        assert_eq!(fields[0]["name"], "Rôle");
+        assert_eq!(fields[0]["value"], "<@&999>");
+    }
+
+    #[test]
     fn an_information_message_shows_no_role_at_all() {
-        // Sans rôle, la carte ne porte pas non plus de réaction : rien à annoncer.
+        // Marqué information : rien à annoncer, même dans un fil à rôle parent.
         let json = rendered(
             &thread(Some(999)),
-            &message("Bienvenue", "Levez la main", None),
+            &Post {
+                information: true,
+                ..message("Bienvenue", "Levez la main", None)
+            },
         );
 
         assert!(json.get("fields").is_none() || json["fields"].as_array().unwrap().is_empty());

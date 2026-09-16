@@ -242,6 +242,7 @@ pub async fn creer(
                 Some(rank) => rank,
                 None => db::posts::next_position(&ctx.data().db, category.id).await?,
             },
+            information: false,
         },
     )
     .await?;

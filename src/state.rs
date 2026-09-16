@@ -36,7 +36,9 @@ pub type Context<'a> = poise::Context<'a, Data, Error>;
 pub struct PostRef {
     pub post_id: i64,
     pub category_id: i64,
-    pub role_id: i64,
+    /// Rôle nominatif du message. `None` = le message n'accorde que le rôle
+    /// parent de son fil (main levée quand même).
+    pub role_id: Option<i64>,
     /// Rôle parent du fil, accordé en plus de celui du message.
     pub parent_role_id: Option<i64>,
 }
@@ -83,11 +85,19 @@ impl Data {
         let mut post_by_message = HashMap::new();
         let mut parent_grants: HashMap<i64, Vec<i64>> = HashMap::new();
         for post in &posts {
-            let Some(role_id) = post.role_id else {
-                continue;
-            };
             let parent_role_id = parent_of.get(&post.category_id).copied().flatten();
-            if let Some(parent) = parent_role_id {
+
+            // Un message d'information n'accorde rien et ne porte pas de
+            // réaction : il n'a pas à figurer dans l'index du chemin chaud.
+            // Un message n'accordant ni rôle nominatif ni rôle parent non plus.
+            if post.information || (post.role_id.is_none() && parent_role_id.is_none()) {
+                continue;
+            }
+
+            // Seuls les rôles nominatifs alimentent `parent_grants` : c'est la
+            // justification du rôle parent « par rôle porté ». Les messages sans
+            // rôle, eux, sont justifiés par les réactions (table `reactions`).
+            if let (Some(role_id), Some(parent)) = (post.role_id, parent_role_id) {
                 parent_grants.entry(parent).or_default().push(role_id);
             }
             if let Some(message_id) = post.message_id {
@@ -96,7 +106,7 @@ impl Data {
                     PostRef {
                         post_id: post.id,
                         category_id: post.category_id,
-                        role_id,
+                        role_id: post.role_id,
                         parent_role_id,
                     },
                 );
@@ -190,11 +200,73 @@ mod tests {
             Some(PostRef {
                 post_id: paris.id,
                 category_id: category.id,
-                role_id: 10,
+                role_id: Some(10),
                 parent_role_id: Some(999),
             })
         );
         assert_eq!(data.granting_roles(999), vec![10]);
+    }
+
+    #[tokio::test]
+    async fn a_message_without_role_but_with_a_parent_is_indexed() {
+        let pool = db::connect_in_memory().await;
+        let category = categories::insert(
+            &pool,
+            &categories::Category {
+                parent_role_id: Some(999),
+                ..categories::fixture("Projets", 100)
+            },
+        )
+        .await
+        .unwrap();
+        let post = posts::insert(
+            &pool,
+            &posts::Post {
+                message_id: Some(5000),
+                ..posts::fixture(category.id, "fresque", None)
+            },
+        )
+        .await
+        .unwrap();
+
+        // Réagir dessus doit accorder le seul rôle parent : la carte est indexée
+        // avec un rôle nominatif absent.
+        assert_eq!(
+            data_with(pool).await.post_for_message(5000),
+            Some(PostRef {
+                post_id: post.id,
+                category_id: category.id,
+                role_id: None,
+                parent_role_id: Some(999),
+            })
+        );
+    }
+
+    #[tokio::test]
+    async fn an_information_message_is_never_indexed_even_with_a_parent() {
+        let pool = db::connect_in_memory().await;
+        let category = categories::insert(
+            &pool,
+            &categories::Category {
+                parent_role_id: Some(999),
+                ..categories::fixture("Projets", 100)
+            },
+        )
+        .await
+        .unwrap();
+        posts::insert(
+            &pool,
+            &posts::Post {
+                message_id: Some(5000),
+                information: true,
+                ..posts::fixture(category.id, "intro", None)
+            },
+        )
+        .await
+        .unwrap();
+
+        // Marqué information : aucune réaction, rien à déclencher.
+        assert_eq!(data_with(pool).await.post_for_message(5000), None);
     }
 
     #[tokio::test]
