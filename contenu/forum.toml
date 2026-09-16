@@ -143,6 +143,30 @@ titre   = "[À venir] Relations associations"
 texte   = """
 Prendre contact avec différentes associations dont la mission est proche de celle de Pause IA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour créer des liens."""
 
+[[fils.messages]]
+slug    = "veille"
+titre   = "[En pause] Veille"
+# Projet en sommeil : la carte recense les volontés sans engager personne, donc
+# sans accorder le rôle parent du fil. La liste des mains levées sur la carte
+# tient lieu de registre d'intérêt.
+sans_role_parent = true
+mp = """
+👋 Merci de ton intérêt pour la veille !
+
+Ce projet est en pause pour le moment : nous ne savons pas encore s'il repartira, et sous quelle forme.
+
+Ta main levée reste visible sur la carte, elle nous sert à mesurer l'intérêt. Si le projet redémarre, nous reviendrons vers celles et ceux qui se sont signalés.
+
+Merci ! 💙"""
+texte   = """
+Référente : @jeannebazard
+
+Aidez-nous à suivre l'actualité en vous spécialisant dans différents domaines liés à l'IA : incidents, déclarations des politiques, propositions de lois, standards internationaux, recommandations… Vos comptes rendus nous seront précieux !
+
+Ce projet est en pause. Lève la main 🙋 pour nous signaler ton intérêt : aucun rôle ne t'est attribué, et nous te recontacterons s'il redémarre.
+
+Coordonné par l'équipe *communication*."""
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
