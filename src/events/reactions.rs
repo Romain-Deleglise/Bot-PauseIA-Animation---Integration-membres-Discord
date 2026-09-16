@@ -299,10 +299,10 @@ async fn confirm_change(
 
     let text = match change {
         Change::Joined(_) => format!(
-            "🙋 Tu as rejoint **{title}**.\n\nRôle reçu : {mentions}\n\nPour repartir, il suffit de retirer ta réaction sur la carte : le rôle sera repris."
+            "🙋 Te voilà dans **{title}** !\n\nTu viens de recevoir {mentions}.\n\nTu changes d'avis ? Retire ta réaction sur la carte, le rôle est repris aussitôt."
         ),
         Change::Left(_) => format!(
-            "Tu as quitté **{title}**.\n\nRôle retiré : {mentions}\n\nTu peux revenir quand tu veux en levant la main à nouveau sur la carte."
+            "Tu as quitté **{title}**, et {mentions} t'a été repris.\n\nLa porte reste ouverte : lève la main sur la carte quand tu veux revenir."
         ),
     };
 
@@ -336,17 +336,20 @@ async fn announce(
         return;
     };
 
-    // Le·la référente d'abord : c'est la personne qui doit agir.
-    let referent = card
-        .referent_id
-        .map(|id| format!(" — <@{id}>"))
-        .unwrap_or_default();
+    // La personne qui doit agir est nommée, et on lui dit quoi faire : une
+    // annonce que personne ne s'attribue ne fait bouger personne.
     let text = match change {
-        Change::Joined(_) => format!(
-            "🙋 <@{user_id}> a levé la main sur **{}**{referent}",
-            card.title
-        ),
-        Change::Left(_) => format!("↩️ <@{user_id}> a retiré sa main de **{}**", card.title),
+        Change::Joined(_) => {
+            let appel = match card.referent_id {
+                Some(id) => format!("\n<@{id}>, à toi de l'accueillir."),
+                None => String::new(),
+            };
+            format!(
+                "🙋 <@{user_id}> vient de rejoindre **{}**.{appel}",
+                card.title
+            )
+        }
+        Change::Left(_) => format!("↩️ <@{user_id}> a quitté **{}**.", card.title),
     };
 
     // Mentionner sans notifier tout le serveur : seuls le membre et le·la

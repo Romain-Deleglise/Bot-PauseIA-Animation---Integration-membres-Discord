@@ -360,7 +360,7 @@ pub async fn supprimer(
 
     if !confirmer {
         ctx.say(format!(
-            "**{}** contient {} message·s. Les supprimer effacera les cartes de <#{}> — les rôles Discord eux-mêmes seront conservés, ainsi que les membres qui les portent.\nRelancez avec `confirmer: True`.",
+            "**{}** contient {} message·s. Les supprimer effacera les cartes de <#{}>. Les rôles Discord, eux, restent sur le serveur, et les membres qui les portent les gardent.\nRelancez avec `confirmer: True`.",
             current.name,
             posts.len(),
             current.channel_id
@@ -407,19 +407,19 @@ pub async fn liste(ctx: Context<'_>) -> Result<(), Error> {
             .unwrap_or_else(|| "sans couleur".to_owned());
         let parent = category
             .parent_role_id
-            .map(|role| format!(" — rôle parent <@&{role}>"))
+            .map(|role| format!(", rôle parent <@&{role}>"))
             .unwrap_or_default();
         let dm = if category
             .dm_text
             .as_deref()
             .is_some_and(|text| !text.trim().is_empty())
         {
-            " — message privé actif"
+            ", message privé actif"
         } else {
             ""
         };
         lines.push(format!(
-            "- **{}** — <#{}> — {count} message·s — {colour}{parent}{dm}",
+            "- **{}** dans <#{}> : {count} message·s, {colour}{parent}{dm}",
             category.name, category.channel_id
         ));
     }

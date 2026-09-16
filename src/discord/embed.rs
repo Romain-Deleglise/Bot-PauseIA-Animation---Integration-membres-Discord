@@ -80,21 +80,21 @@ fn promise(category: &Category, post: &Post) -> String {
     match granted.len() {
         0 => {}
         1 => lines.push(format!(
-            "Tu reçois le rôle {}, qui t'ouvre les salons correspondants.",
+            "Tu reçois le rôle {}, et l'accès aux salons qui vont avec.",
             granted[0]
         )),
         _ => lines.push(format!(
-            "Tu reçois les rôles {}, qui t'ouvrent les salons correspondants.",
+            "Tu reçois les rôles {}, et l'accès aux salons qui vont avec.",
             granted.join(" et ")
         )),
     }
     if sends_a_message(category, post) {
-        lines.push("Tu reçois un message privé qui explique la suite.".to_owned());
+        lines.push("Un message privé t'explique la suite.".to_owned());
     }
     // Retirer sa réaction reprend le rôle sans un mot : mieux vaut l'avoir lu
     // avant de cliquer qu'après.
     if granted.is_empty() {
-        lines.push("Aucun rôle ne t'est attribué.".to_owned());
+        lines.push("Aucun rôle à la clé : tout se passe en message privé.".to_owned());
     } else {
         lines.push(
             "Tu changes d'avis ? Retire ta réaction, le rôle est repris aussitôt.".to_owned(),

@@ -490,14 +490,14 @@ pub async fn liste(
                 // Le slug est ce qui relie la carte au fichier de contenu :
                 // sans lui, un réimport crée un doublon au lieu de la retrouver.
                 format!(
-                    "  {}. **{}** `{}` — {effect}",
+                    "  {}. **{}** (`{}`) : {effect}",
                     post.position, post.title, post.slug
                 )
             })
             .collect();
 
         sections.push(if lines.is_empty() {
-            format!("**{}** — aucun message", category.name)
+            format!("**{}** : aucun message", category.name)
         } else {
             format!("**{}**\n{}", category.name, lines.join("\n"))
         });
