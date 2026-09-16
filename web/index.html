@@ -33,6 +33,10 @@
   .bloc-titre h2 { margin-right:auto; }
   .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
   label { display:block; font-size:12px; color:var(--gris); margin-bottom:4px; }
+  label.bascule { display:flex; align-items:center; gap:8px; font-size:14px;
+                  color:var(--texte); cursor:pointer; margin:0; }
+  label.bascule input { width:auto; }
+  .aide { font-size:12px; color:var(--gris); margin:4px 0 0 24px; line-height:1.35; }
   input, textarea { width:100%; background:var(--champ); color:var(--texte);
                     border:1px solid var(--bord); border-radius:4px; padding:8px 10px;
                     font:inherit; font-size:14px; }
@@ -106,8 +110,12 @@
    n'apporte. Le bot, lui, lit le fichier avec un vrai analyseur TOML : c'est
    lui qui fait autorité en cas de désaccord. */
 
-const CLES_FIL = ["nom","salon","couleur","illustration","description","role_parent","mp"];
-const CLES_MSG = ["slug","titre","role","couleur","texte"];
+// Les limites de Discord, celles que le bot vérifie aussi.
+const MAX_MESSAGE = 2000, MAX_TITRE = 256, MAX_TEXTE = 4096;
+
+const CLES_FIL = ["nom","salon","couleur","illustration","description","role_parent","mp",
+                  "confirmations"];
+const CLES_MSG = ["slug","titre","role","couleur","information","sans_role_parent","mp","texte"];
 
 function lireToml(texte) {
   const lignes = texte.split(/\r?\n/);
@@ -155,7 +163,10 @@ function lireToml(texte) {
       if (fin <= 0) throw new Error(`ligne ${i+1} : guillemet non fermé pour « ${cle} »`);
       cible[cle] = desechapper(reste.slice(1, fin)); i++; continue;
     }
-    throw new Error(`ligne ${i+1} : la valeur de « ${cle} » doit être entre guillemets`);
+    if (reste === "true" || reste === "false") {
+      cible[cle] = reste === "true"; i++; continue;
+    }
+    throw new Error(`ligne ${i+1} : la valeur de « ${cle} » doit être entre guillemets, ou true / false`);
   }
   return doc;
 }
@@ -165,6 +176,7 @@ function desechapper(v) {
 }
 
 function ecrireValeur(v) {
+  if (typeof v === "boolean") return String(v);
   if (v.includes("\n")) {
     const corps = v.replace(/\\/g, "\\\\").replace(/"""/g, '\\"\\"\\"').replace(/"$/, '\\"');
     return '"""\n' + corps + '"""';
@@ -181,7 +193,7 @@ function ecrireToml(doc) {
     out.push("");
     out.push("[[fils]]");
     for (const cle of CLES_FIL) {
-      if (fil[cle] != null && fil[cle] !== "") {
+      if (fil[cle] != null && fil[cle] !== "" && fil[cle] !== false) {
         out.push(`${cle.padEnd(12)} = ${ecrireValeur(fil[cle])}`);
       }
     }
@@ -189,7 +201,7 @@ function ecrireToml(doc) {
       out.push("");
       out.push("[[fils.messages]]");
       for (const cle of CLES_MSG) {
-        if (msg[cle] != null && msg[cle] !== "") {
+        if (msg[cle] != null && msg[cle] !== "" && msg[cle] !== false) {
           out.push(`${cle.padEnd(7)} = ${ecrireValeur(msg[cle])}`);
         }
       }
@@ -230,15 +242,44 @@ function verifier(doc) {
       soucis.push(`${nom} : l'illustration doit être une URL http(s).`);
     }
 
+    // Message privé et introduction partent tels quels : Discord les refuse
+    // au-delà de 2 000 caractères, et l'échec ne se voit que dans les journaux.
+    for (const [cle, etiquette] of [["mp", "le message privé"], ["description", "l'introduction"]]) {
+      const texte = (fil[cle] || "").trim();
+      if (texte.length > MAX_MESSAGE) {
+        soucis.push(`${nom} : ${etiquette} fait ${texte.length} caractères, maximum ${MAX_MESSAGE}.`);
+      }
+    }
+
     const slugsVus = new Map();
     for (const msg of fil.messages) {
       const titre = (msg.titre || "").trim(), slug = (msg.slug || "").trim();
+      const role = (msg.role || "").trim().replace(/^@/, "").toLowerCase();
       if (!slug) { soucis.push(`${nom} : le message « ${titre || "sans titre"} » n'a pas de slug.`); continue; }
       if (!titre) soucis.push(`${nom} : le message « ${slug} » n'a pas de titre.`);
       if (slugsVus.has(slug)) soucis.push(`${nom} : le slug « ${slug} » apparaît deux fois.`);
       slugsVus.set(slug, true);
       if (msg.couleur && !estCouleur(msg.couleur)) soucis.push(`${slug} : couleur « ${msg.couleur} » invalide.`);
-      const role = (msg.role || "").trim().replace(/^@/, "").toLowerCase();
+      if ((msg.titre || "").length > MAX_TITRE) {
+        soucis.push(`${slug} : le titre fait ${msg.titre.length} caractères, tronqué au-delà de ${MAX_TITRE}.`);
+      }
+      if ((msg.texte || "").length > MAX_TEXTE) {
+        soucis.push(`${slug} : le texte fait ${msg.texte.length} caractères, tronqué au-delà de ${MAX_TEXTE}.`);
+      }
+      if (((msg.mp || "").trim()).length > MAX_MESSAGE) {
+        soucis.push(`${slug} : son message privé fait ${msg.mp.trim().length} caractères, maximum ${MAX_MESSAGE}.`);
+      }
+      // Un message d'information n'accorde rien : lui donner un rôle, un MP ou
+      // un renoncement au parent n'a pas de sens, et le bot les ignorera.
+      if (msg.information && (role || (msg.mp || "").trim() || msg.sans_role_parent)) {
+        soucis.push(`${slug} : marqué message d'information, donc son rôle, son message privé et son renoncement au rôle parent seront ignorés.`);
+      }
+      if (msg.sans_role_parent && !(fil.role_parent || "").trim()) {
+        soucis.push(`${slug} : renonce au rôle parent, mais ${nom} n'en a pas.`);
+      }
+      if (msg.sans_role_parent && !role && !(msg.mp || "").trim()) {
+        soucis.push(`${slug} : n'accorde aucun rôle et n'envoie aucun message privé, sa main levée ne ferait rien.`);
+      }
       if (role) {
         if (rolesVus.has(role)) soucis.push(`Le rôle « ${role} » est réclamé par « ${rolesVus.get(role)} » et par « ${slug} ».`);
         rolesVus.set(role, slug);
@@ -360,6 +401,20 @@ function champ(objet, cle, etiquette, options = {}) {
   return enveloppe;
 }
 
+/// Case à cocher : les réglages du bot qui ne sont pas du texte.
+function bascule(objet, cle, etiquette, aide) {
+  const enveloppe = el("div", { className:"plein" });
+  const ligne = el("label", { className:"bascule" });
+  const entree = el("input");
+  entree.type = "checkbox";
+  entree.checked = objet[cle] === true;
+  entree.onchange = () => { objet[cle] = entree.checked; rafraichirApercus(); };
+  ligne.append(entree, el("span", { textContent:etiquette }));
+  enveloppe.append(ligne);
+  if (aide) enveloppe.append(el("div", { className:"aide", textContent:aide }));
+  return enveloppe;
+}
+
 let attente = null;
 function planifier() {
   clearTimeout(attente);
@@ -391,7 +446,10 @@ function blocFil(fil) {
     champ(fil, "role_parent", "Rôle parent", { indice:"groupe-local" }),
     champ(fil, "illustration", "URL de l'illustration", { indice:"https://…" }),
     champ(fil, "description", "Texte d'introduction du fil", { lignes:4, plein:true, indice:"vide si le fil a déjà son message d'ouverture" }),
-    champ(fil, "mp", "Message privé de bienvenue", { lignes:4, plein:true }),
+    champ(fil, "mp", "Message privé de bienvenue", { lignes:4, plein:true,
+      indice:"envoyé une seule fois, à la première main levée dans ce fil" }),
+    bascule(fil, "confirmations", "Confirmer les entrées et les sorties en privé",
+      "Un court message privé à chaque fois qu'un membre rejoint ou quitte une carte de ce fil. À réserver aux fils où l'on rejoint un groupe : dix compétences cochées d'affilée feraient dix messages."),
   );
   bloc.append(grille);
   return bloc;
@@ -419,8 +477,15 @@ function blocMessage(fil, msg, index) {
   grille.append(
     champ(msg, "titre", "Titre", { vif:true }),
     champ(msg, "slug", "Slug (identité stable)"),
-    champ(msg, "role", "Rôle accordé", { indice:"vide = message d'information", vif:true }),
+    champ(msg, "role", "Rôle accordé", { vif:true,
+      indice:"vide = seul le rôle parent du fil est accordé" }),
     champ(msg, "couleur", "Couleur de la carte", { indice:"#99AAB5 pour griser", vif:true }),
+    bascule(msg, "information", "Message d'information",
+      "Aucune réaction, aucun rôle, aucun message privé, même dans un fil à rôle parent."),
+    bascule(msg, "sans_role_parent", "Renonce au rôle parent du fil",
+      "La carte porte la main levée mais n'accorde rien. Pour le message qui dépareille dans son fil, comme PauseAction parmi les projets."),
+    champ(msg, "mp", "Message privé propre à cette carte", { lignes:4, plein:true,
+      indice:"remplace celui du fil ; une seule fois par membre et par carte" }),
     champ(msg, "texte", "Texte", { lignes:7, plein:true, vif:true }),
   );
   gauche.append(grille);
@@ -440,25 +505,43 @@ function apercu(fil, msg) {
   carte.append(el("div", { className:"t", textContent:msg.titre || "(sans titre)" }));
   if ((msg.texte || "").trim()) carte.append(el("div", { className:"d", textContent:msg.texte.trim() }));
 
+  // Les mêmes règles que `discord::embed` : un message d'information n'accorde
+  // rien, les autres accordent leur rôle et celui du fil, sauf renoncement.
   const roles = [];
-  if ((msg.role || "").trim()) {
-    roles.push("@" + msg.role.trim().replace(/^@/, ""));
-    if ((fil.role_parent || "").trim()) roles.push("@" + fil.role_parent.trim().replace(/^@/, ""));
+  if (!msg.information) {
+    if ((msg.role || "").trim()) roles.push("@" + msg.role.trim().replace(/^@/, ""));
+    if (!msg.sans_role_parent && (fil.role_parent || "").trim()) {
+      roles.push("@" + fil.role_parent.trim().replace(/^@/, ""));
+    }
   }
-  if (roles.length) {
-    carte.append(el("div", { className:"cle", textContent:roles.length > 1 ? "Rôles" : "Rôle" }));
+  const prive = !msg.information
+    && (((msg.mp || "").trim()) || ((fil.mp || "").trim()));
+  const reaction = roles.length > 0 || (!msg.information && (msg.mp || "").trim());
+
+  if (reaction) {
+    carte.append(el("div", { className:"cle", textContent:"En levant la main 🙋" }));
     const ligne = el("div");
-    roles.forEach((r, i) => {
-      if (i) ligne.append(document.createTextNode(" "));
-      ligne.append(el("span", { className:"role", textContent:r }));
-    });
+    if (roles.length) {
+      ligne.append(document.createTextNode(
+        roles.length > 1 ? "Tu reçois les rôles " : "Tu reçois le rôle "));
+      roles.forEach((r, i) => {
+        if (i) ligne.append(document.createTextNode(" et "));
+        ligne.append(el("span", { className:"role", textContent:r }));
+      });
+      ligne.append(document.createTextNode(", qui t'ouvre" + (roles.length > 1 ? "nt" : "")
+        + " les salons correspondants."));
+    }
     carte.append(ligne);
+    if (prive) carte.append(el("div", { textContent:"Tu reçois un message privé qui explique la suite." }));
+    carte.append(el("div", { textContent: roles.length
+      ? "Retire la réaction pour rendre ce que tu as reçu."
+      : "Aucun rôle ne t'est attribué." }));
   }
 
   const enveloppe = el("div");
   enveloppe.append(carte);
-  // Un message sans rôle ne porte pas de réaction : c'est la règle du bot.
-  if (roles.length) enveloppe.append(el("div", { className:"reac", textContent:"🙋 1" }));
+  // Un message d'information ne porte pas de réaction : c'est la règle du bot.
+  if (reaction) enveloppe.append(el("div", { className:"reac", textContent:"🙋 1" }));
   return enveloppe;
 }
 
