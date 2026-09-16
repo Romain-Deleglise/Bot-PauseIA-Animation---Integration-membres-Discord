@@ -534,7 +534,7 @@ function apercu(fil, msg) {
     carte.append(ligne);
     if (prive) carte.append(el("div", { textContent:"Tu reçois un message privé qui explique la suite." }));
     carte.append(el("div", { textContent: roles.length
-      ? "Retire la réaction pour rendre ce que tu as reçu."
+      ? "Tu changes d'avis ? Retire ta réaction, le rôle est repris aussitôt."
       : "Aucun rôle ne t'est attribué." }));
   }
 

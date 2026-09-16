@@ -96,7 +96,9 @@ fn promise(category: &Category, post: &Post) -> String {
     if granted.is_empty() {
         lines.push("Aucun rôle ne t'est attribué.".to_owned());
     } else {
-        lines.push("Retire la réaction pour rendre ce que tu as reçu.".to_owned());
+        lines.push(
+            "Tu changes d'avis ? Retire ta réaction, le rôle est repris aussitôt.".to_owned(),
+        );
     }
     lines.join("\n")
 }
@@ -216,7 +218,7 @@ mod tests {
         assert_eq!(fields[0]["name"], "En levant la main 🙋");
         let promise = fields[0]["value"].as_str().unwrap();
         assert!(promise.contains("<@&10> et <@&999>"), "{promise}");
-        assert!(promise.contains("Retire la réaction"), "{promise}");
+        assert!(promise.contains("Retire ta réaction"), "{promise}");
     }
 
     #[test]
