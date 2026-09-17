@@ -36,29 +36,18 @@ Coordonné par l'équipe *communication*."""
 [[fils.messages]]
 slug    = "pauseaction"
 titre   = "PauseAction"
-# PauseAction est l'engagement le plus léger, alors que toute carte de ce fil
-# accorde @portail-équipe, le rôle des bénévoles actifs. Elle y renonce donc, et
-# envoie le lien du groupe en privé : sur la carte, il serait ouvert à tout
-# visiteur du serveur.
-sans_role_parent = true
-mp = """
-Salut 👋
-
-Voici le lien du groupe : https://chat.whatsapp.com/LThhghXc0Hk3sTwQMyy1wU
-
-Chaque semaine, on y propose une action simple à faire en moins de cinq minutes : signer, partager, commenter. Rien d'autre, pas de discussion.
-
-Tu participes quand tu peux, et tu pars quand tu veux.
-
-Merci d'en être ! ⚡"""
+# Le lien du groupe figure directement sur la carte : plus de main levée, donc
+# plus de message privé ni de rôle. C'est la carte la plus simple du fil, et
+# c'est voulu, l'engagement qu'elle décrit étant le plus léger.
+information = true
 referent = "@clemence_coqcinelle"
 texte   = """
 Référent : @clemence_coqcinelle
 
 Chaque semaine, nous trouvons une action simple, signer, partager ou commenter, réalisable en moins de cinq minutes, sur notre groupe WhatsApp.
-Nous avons grandement besoin d'un nouveau référent pour ce projet!
+Nous avons grandement besoin d'un nouveau référent pour ce projet !
 
-Lève la main 🙋 pour recevoir le lien du groupe en message privé.
+👉 Rejoindre le groupe : https://chat.whatsapp.com/LThhghXc0Hk3sTwQMyy1wU
 
 Coordonné par l'équipe *communication*."""
 
