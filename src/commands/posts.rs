@@ -326,6 +326,20 @@ pub async fn modifier(
         },
     };
 
+    // Le slug suit la carte quand elle change de fil : si le fil d'arrivée en a
+    // déjà un du même nom, l'index unique refuserait la mise à jour.
+    if new_thread.id != current.category_id
+        && let Some(clash) =
+            db::posts::by_slug(&ctx.data().db, new_thread.id, &current.slug).await?
+    {
+        ctx.say(format!(
+            "**{}** contient déjà un message sous l'identifiant `{}` : **{}**.\n\nRenommez l'un des deux avant de déplacer celui-ci.",
+            new_thread.name, current.slug, clash.title
+        ))
+        .await?;
+        return Ok(());
+    }
+
     let role_id = match &role {
         None => current.role_id,
         Some(role) => Some(ids::to_db(role.id.get())),
