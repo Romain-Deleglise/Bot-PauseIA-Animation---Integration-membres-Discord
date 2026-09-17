@@ -214,6 +214,18 @@ pub async fn creer(
         return Ok(());
     };
 
+    // Le slug se déduit du titre : deux titres proches se réduisent au même, et
+    // l'index unique refusait l'insertion en renvoyant sa contrainte SQL brute.
+    let slug = slug_from(&titre);
+    if let Some(existing) = db::posts::by_slug(&ctx.data().db, category.id, &slug).await? {
+        ctx.say(format!(
+            "**{}** contient déjà un message sous l'identifiant `{slug}` : **{}**.\n\nChoisissez un titre différent, ou modifiez le message existant avec `/forum message éditer`.",
+            category.name, existing.title
+        ))
+        .await?;
+        return Ok(());
+    }
+
     let role_id = role.as_ref().map(|role| ids::to_db(role.id.get()));
     if let Some(role_id) = role_id
         && let Some(existing) = db::posts::by_role(&ctx.data().db, role_id).await?
@@ -232,7 +244,7 @@ pub async fn creer(
         &Post {
             id: 0,
             category_id: category.id,
-            slug: slug_from(&titre),
+            slug,
             title: titre.clone(),
             body,
             role_id,
@@ -522,6 +534,14 @@ mod tests {
         // Les accents sont conservés : ils restent lisibles et le slug n'est
         // jamais présenté à Discord, seulement à un relecteur du fichier.
         assert_eq!(slug_from("Créa photo /vidéo"), "créa-photo--vidéo");
+    }
+
+    #[test]
+    fn two_close_titles_collide_on_the_same_slug() {
+        // D'où le contrôle avant insertion : sans lui, l'index unique renvoyait
+        // sa contrainte SQL à l'auteur de la commande.
+        assert_eq!(slug_from("Veille"), slug_from("veille !"));
+        assert_eq!(slug_from("Fresque de l'IA"), slug_from("Fresque de l’IA"));
     }
 
     #[test]
