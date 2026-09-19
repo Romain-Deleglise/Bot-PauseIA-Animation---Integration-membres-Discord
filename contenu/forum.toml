@@ -4,7 +4,6 @@ salon        = "1548365905870721084"
 confirmations = true
 couleur      = "#27AE60"
 role_parent  = "projet"
-description  = "Des missions concrètes auxquelles contribuer quand tu peux, sans engagement de durée. C'est le meilleur endroit pour commencer. Lève la main 🙋 sur un projet qui t'intéresse, et son référent ou sa référente prendra contact avec toi."
 mp           = """
 👋 Bienvenue, et merci d'avoir levé la main !
 
@@ -184,7 +183,6 @@ confirmations = true
 couleur      = "#9B51E0"
 role_parent  = "portail-équipe"
 salon_notifications = "1408569062241603614"
-description  = "Les équipes font tourner l'association au quotidien, et cela demande environ cinq heures par semaine. On y entre après un parcours d'intégration qui commence par un échange de trente minutes. Lève la main 🙋 sur une équipe pour le démarrer : tu recevras en privé le lien pour réserver ce créneau, et les étapes suivantes."
 mp           = """
 Salut 👋
 
@@ -267,7 +265,6 @@ Rechercher des financements et nouer des partenariats pour soutenir l'associatio
 salon        = "1548366084967760004"
 confirmations = true
 couleur      = "#F2994A"
-description  = "Agir près de chez toi, avec les bénévoles de ta ville ou de ton département : tractage, fresque de l'IA, rencontres d'élu·es, stands. Lève la main 🙋 sur ton groupe pour rejoindre son salon, et sur plusieurs si tu partages ton temps entre deux villes. Les autres façons de contribuer sont décrites dans notre guide des bénévoles : <https://pauseia.notion.site/guide-des-benevoles-tier-1>"
 role_parent  = "groupe-local"
 mp           = """
 👋 Bienvenue dans ton groupe local !
@@ -404,7 +401,6 @@ Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors
 # Compétences
 salon        = "1548365209050161284"
 couleur      = "#2D9CDB"
-description  = "Dis-nous ce que tu sais faire, et les équipes viendront te chercher quand un besoin correspondra. Lève la main 🙋 sur autant de compétences que tu veux : ici, rien ne t'engage et rien ne te sera demandé tant que tu n'auras pas dit oui. Pour contribuer dès maintenant, va plutôt voir les fils **Projets** et **Équipes**."
 mp           = """
 👋 Merci, c'est noté !
 

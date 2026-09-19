@@ -250,9 +250,15 @@ CDC demande de pouvoir éditer un message en quelques secondes
 depuis Discord. L'import ne supprime donc jamais rien, il signale.
 
 Un test (`commands::import::tests::the_shipped_content_file_is_valid`) charge le
-fichier livré et vérifie qu'il décrit bien quatre fils et 38 messages, et que
-chaque fil porte une description et un message privé d'accueil : une coquille
-dans le contenu échoue en CI, pas en production.
+fichier livré et vérifie qu'il décrit bien quatre fils et 38 messages, chacun
+doté d'un message privé d'accueil : une coquille dans le contenu échoue en CI,
+pas en production.
+
+L'introduction d'un fil, elle, n'appartient plus au bot. Dans un salon forum,
+le premier message est celui de la personne qui a créé le fil : il est en tête,
+indestructible, et se corrige d'un clic. Une `description` en aurait publié une
+seconde en dessous, et la changer aurait coûté toutes les mains levées du fil,
+faute de mémoriser l'identifiant de ce message.
 
 ## Vérifier
 

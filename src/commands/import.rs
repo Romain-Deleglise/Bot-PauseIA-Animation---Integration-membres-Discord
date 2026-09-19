@@ -761,13 +761,6 @@ texte = "Levez la main pour rejoindre un projet."
                 "le fil `{}` n'a pas de message privé d'accueil",
                 fil.label()
             );
-            assert!(
-                fil.description
-                    .as_deref()
-                    .is_some_and(|texte| !texte.trim().is_empty()),
-                "le fil `{}` n'a pas de description",
-                fil.label()
-            );
 
             for message in &fil.messages {
                 assert!(

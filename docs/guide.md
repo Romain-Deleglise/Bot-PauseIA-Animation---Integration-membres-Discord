@@ -69,12 +69,12 @@ vous.
 | Commande | Effet |
 |---|---|
 | `/forum importer` | Importe un fichier `forum.toml`. Rejouable, ne supprime rien, édite les cartes sur place. Masquée si `ENABLE_IMPORT=false`. |
-| `/forum republier` | Réécrit un fil entier pour rétablir l'ordre ou afficher une nouvelle introduction. **Efface toutes les mains levées du fil.** Demande `confirmer: True` ; sans lui, elle annonce seulement ce qu'elle ferait. |
+| `/forum republier` | Réécrit un fil entier pour rétablir l'ordre des cartes. **Efface toutes les mains levées du fil.** Demande `confirmer: True` ; sans lui, elle annonce seulement ce qu'elle ferait. |
 
 ### Les champs du fichier de contenu
 
-Un **fil** accepte `nom`, `salon`, `couleur`, `illustration`, `description`,
-`role_parent`, `mp`, plus deux réglages plus récents :
+Un **fil** accepte `nom`, `salon`, `couleur`, `illustration`, `role_parent`,
+`mp`, plus deux réglages plus récents :
 
 - `confirmations = true` : un message privé confirme chaque entrée et chaque
   sortie de ce fil. À réserver aux fils où l'on rejoint un groupe ; dix
@@ -95,6 +95,7 @@ Un **message** accepte `slug`, `titre`, `texte`, `role`, `couleur`, plus :
 
 ## 4. À savoir
 
+- **Introduction d'un fil** : c'est le premier message du fil, écrit et corrigé à la main par l'équipe. Le bot n'y touche pas, ce qui permet de la changer sans rien republier.
 - **Rôle parent** : accordé par chaque carte d'un fil, repris seulement quand la personne n'a plus aucune carte de ce fil.
 - **Carte grisée** : couleur `#99AAB5`.
 - **Fils archivés** : Discord archive un fil après 3 jours sans message, ce qui bloque les réactions. Le bot le rouvre aussitôt. Un fil verrouillé reste fermé.
