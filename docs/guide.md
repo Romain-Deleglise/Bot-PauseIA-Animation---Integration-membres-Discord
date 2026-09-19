@@ -41,17 +41,18 @@ https://discord.com/oauth2/authorize?client_id=VOTRE_ID&scope=bot+applications.c
 
 ## 3. Commandes
 
-Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que de vous.
+Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que de
+vous.
 
 **Cartes**
 
 | Commande | Effet |
 |---|---|
-| `/forum message créer` | Publie une carte dans un fil : titre, texte, rôle, couleur, rang. Sans rôle, pas de réaction. |
+| `/forum message créer` | Publie une carte : titre, texte, rôle, couleur, rang. Sans rôle, elle accorde quand même le rôle parent de son fil. |
 | `/forum message modifier` | Modifie titre, texte, rôle, couleur, fil ou rang. La carte est éditée sur place : réactions et rôles conservés. |
-| `/forum message éditer` | Ouvre une fenêtre (modal) pré-remplie avec le titre et le texte actuels, éditables en multiligne, puis met la carte à jour sur place. Pour le rôle, la couleur, le fil ou le rang, utiliser `modifier`. |
-| `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent : supprimez-le à la main si besoin. Demande `confirmer: True`. |
-| `/forum message liste` | Liste les cartes d'un fil, ou de tout le forum. |
+| `/forum message éditer` | Ouvre une fenêtre pré-remplie avec le titre et le texte, éditables en multiligne. Pour le rôle, la couleur, le fil ou le rang, passer par `modifier`. |
+| `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent. Demande `confirmer: True`. |
+| `/forum message liste` | Liste les cartes d'un fil avec leur identifiant et ce qu'elles accordent réellement. |
 
 **Fils**
 
@@ -59,7 +60,7 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 |---|---|
 | `/forum fil créer` | Rattache un fil Discord existant : nom, couleur, illustration, introduction, rôle parent. |
 | `/forum fil modifier` | Modifie ces réglages. La valeur `-` efface un champ ; `sans_role_parent: True` retire le rôle parent. |
-| `/forum fil mp` | Définit le message privé envoyé à la première réaction dans le fil : `texte`, ou recopié d'un message existant avec `depuis_message`. 2 000 caractères maximum, la limite de Discord. `texte: -` le désactive. |
+| `/forum fil mp` | Définit le message privé envoyé à la première réaction dans le fil, ou le recopie d'un message existant avec `depuis_message`. 2 000 caractères maximum. `texte: -` le désactive. |
 | `/forum fil supprimer` | Retire le fil du bot et efface ses cartes. Les rôles restent. Demande `confirmer: True`. |
 | `/forum fil liste` | Liste les fils et leurs réglages. |
 
@@ -67,19 +68,30 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 
 | Commande | Effet |
 |---|---|
-| `/forum importer` | Importe un fichier `forum.toml`. Rejouable, ne supprime rien. Masquée si `ENABLE_IMPORT=false`. |
-| `/forum republier` | Republie un fil dans l'ordre. **Remet toutes les réactions à zéro.** |
+| `/forum importer` | Importe un fichier `forum.toml`. Rejouable, ne supprime rien, édite les cartes sur place. Masquée si `ENABLE_IMPORT=false`. |
+| `/forum republier` | Réécrit un fil entier pour rétablir l'ordre ou afficher une nouvelle introduction. **Efface toutes les mains levées du fil.** Demande `confirmer: True` ; sans lui, elle annonce seulement ce qu'elle ferait. |
 
-Un fil accepte aussi `salon_notifications` (l'identifiant du salon où annoncer
-ses mains levées) et `confirmations = true`. Un message accepte `referent`, le
-`@pseudo` de la personne mentionnée dans cette annonce, et son propre
-`salon_notifications`, qui l'emporte sur celui du fil.
+### Les champs du fichier de contenu
 
-Dans le fichier de contenu, un message accepte deux champs à part : `mp`, son
-message privé propre, envoyé à sa place de celui du fil ; et
-`sans_role_parent = true`, qui le fait renoncer au rôle parent de son fil. Les
-deux ensemble décrivent une carte qui ne donne rien et se contente de répondre
-en privé.
+Un **fil** accepte `nom`, `salon`, `couleur`, `illustration`, `description`,
+`role_parent`, `mp`, plus deux réglages plus récents :
+
+- `confirmations = true` : un message privé confirme chaque entrée et chaque
+  sortie de ce fil. À réserver aux fils où l'on rejoint un groupe ; dix
+  compétences cochées d'affilée feraient dix messages.
+- `salon_notifications` : l'identifiant du salon où annoncer les mains levées,
+  quand la carte n'en a pas à elle.
+
+Un **message** accepte `slug`, `titre`, `texte`, `role`, `couleur`, plus :
+
+- `information = true` : carte affichée sans réaction, qui n'accorde rien et
+  n'envoie rien, même dans un fil à rôle parent.
+- `mp` : son message privé propre, envoyé à la place de celui du fil.
+- `sans_role_parent = true` : la carte renonce au rôle parent de son fil. Avec
+  un `mp`, elle porte une main levée qui n'accorde rien et se contente de
+  répondre en privé.
+- `referent` : le `@pseudo` de la personne mentionnée dans l'annonce.
+- `salon_notifications` : le salon où annoncer, qui l'emporte sur celui du fil.
 
 ## 4. À savoir
 
@@ -87,5 +99,11 @@ en privé.
 - **Carte grisée** : couleur `#99AAB5`.
 - **Fils archivés** : Discord archive un fil après 3 jours sans message, ce qui bloque les réactions. Le bot le rouvre aussitôt. Un fil verrouillé reste fermé.
 - **Rôle retiré à la main** : la 🙋 reste sur la carte. Retirez-la puis remettez-la pour récupérer le rôle.
-- **Message privé** : envoyé une seule fois par personne et par fil.
+- **Message privé** : envoyé une seule fois par personne et par fil, et une
+  seule fois par personne et par carte pour une carte qui a le sien. Un membre
+  qui refuse les messages privés du serveur ne reçoit rien, et le bot n'y peut
+  rien : les liens importants doivent aussi figurer dans l'introduction du fil.
+- **Annonce aux référents** : chaque main levée est annoncée dans le salon de la
+  carte, en mentionnant son référent. Le bot doit pouvoir écrire dans ce salon,
+  sinon l'annonce échoue en silence et seuls les journaux le disent.
 - **Référents** : écrivez `@pseudo` dans le texte d'une carte. S'il correspond à un membre du serveur, le bot en fait une mention cliquable ; sinon il le laisse en texte et vous le signale.
