@@ -68,6 +68,7 @@ vous.
 
 | Commande | Effet |
 |---|---|
+| `/forum exporter` | Rend le contenu actuel du bot sous forme de `forum.toml`, à comparer au vôtre avant de réimporter. |
 | `/forum importer` | Importe un fichier `forum.toml`. Rejouable, ne supprime rien, édite les cartes sur place. Masquée si `ENABLE_IMPORT=false`. |
 | `/forum republier` | Réécrit un fil entier pour rétablir l'ordre des cartes. **Efface toutes les mains levées du fil.** Demande `confirmer: True` ; sans lui, elle annonce seulement ce qu'elle ferait. |
 

@@ -249,6 +249,11 @@ posés à l'ouverture de la connexion, dans `db::connect`.
 CDC demande de pouvoir éditer un message en quelques secondes
 depuis Discord. L'import ne supprime donc jamais rien, il signale.
 
+Il écrase en revanche : ce que le fichier décrit remplace ce que Discord
+affiche. D'où `/forum exporter`, qui rend l'état réel dans le même format. Le
+cycle sûr est exporter, comparer, fusionner, importer. Sans lui, corriger une
+carte depuis Discord et réimporter plus tard efface la correction sans le dire.
+
 Un test (`commands::import::tests::the_shipped_content_file_is_valid`) charge le
 fichier livré et vérifie qu'il décrit bien quatre fils et 38 messages, chacun
 doté d'un message privé d'accueil : une coquille dans le contenu échoue en CI,

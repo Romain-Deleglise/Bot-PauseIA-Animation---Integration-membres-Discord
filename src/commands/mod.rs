@@ -52,6 +52,7 @@ pub fn all(enable_import: bool) -> Vec<poise::Command<Data, Error>> {
         "threads::fil",
         "posts::message",
         "import::importer",
+        "import::exporter",
         "import::republier",
     )
 )]

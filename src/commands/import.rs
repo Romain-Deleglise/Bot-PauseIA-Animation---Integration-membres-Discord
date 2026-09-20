@@ -326,6 +326,133 @@ pub async fn importer(
     Ok(())
 }
 
+/// Exporter le contenu actuel du forum au format du fichier.
+///
+/// C'est ce qui rend l'import sans danger : on exporte ce que le bot a
+/// réellement en base, on le compare à ce qu'on voulait changer, on fusionne,
+/// et on réimporte. Sans cela, l'import écrase en silence tout ce qui a été
+/// corrigé depuis Discord.
+#[poise::command(slash_command, rename = "exporter")]
+pub async fn exporter(ctx: Context<'_>) -> Result<(), Error> {
+    commands::begin(ctx).await?;
+
+    let Some(guild_id) = ctx.guild_id() else {
+        ctx.say("Commande réservée à un serveur.").await?;
+        return Ok(());
+    };
+    // Les rôles et les référents sont stockés par identifiant ; le fichier, lui,
+    // se lit et s'écrit avec des noms.
+    let roles = guild_id.roles(ctx.http()).await?;
+    let name_of = |role_id: i64| -> Option<String> {
+        roles
+            .get(&ids::role(role_id))
+            .map(|role| role.name.to_string())
+    };
+
+    let mut out = String::from(
+        "# Exporté depuis Discord par /forum exporter.\n\
+         # Comparez ce fichier au vôtre avant de réimporter : il contient tout\n\
+         # ce qui a été modifié depuis Discord, et que l'import écraserait.\n",
+    );
+    for category in db::categories::list(&ctx.data().db).await? {
+        out.push_str("\n[[fils]]\n");
+        out.push_str(&field("nom", &category.name));
+        out.push_str(&field("salon", &category.channel_id.to_string()));
+        if let Some(colour) = category.colour {
+            out.push_str(&field("couleur", &format!("#{colour:06X}")));
+        }
+        if let Some(url) = &category.header_image_url {
+            out.push_str(&field("illustration", url));
+        }
+        if let Some(parent) = category.parent_role_id.and_then(name_of) {
+            out.push_str(&field("role_parent", &parent));
+        }
+        if let Some(channel) = category.notify_channel_id {
+            out.push_str(&field("salon_notifications", &channel.to_string()));
+        }
+        if category.confirmations {
+            out.push_str("confirmations = true\n");
+        }
+        if let Some(text) = filled(&category.dm_text) {
+            out.push_str(&long_field("mp", text));
+        }
+
+        for post in db::posts::by_category(&ctx.data().db, category.id).await? {
+            out.push_str("\n[[fils.messages]]\n");
+            out.push_str(&field("slug", &post.slug));
+            out.push_str(&field("titre", &post.title));
+            if let Some(role) = post.role_id.and_then(name_of) {
+                out.push_str(&field("role", &role));
+            }
+            if let Some(colour) = post.colour {
+                out.push_str(&field("couleur", &format!("#{colour:06X}")));
+            }
+            if post.information {
+                out.push_str("information = true\n");
+            }
+            if !post.grants_parent {
+                out.push_str("sans_role_parent = true\n");
+            }
+            if let Some(referent) = post.referent_id {
+                // Une mention est relue telle quelle par l'import, là où un
+                // pseudo devrait être retrouvé dans la liste des membres.
+                out.push_str(&field("referent", &format!("<@{referent}>")));
+            }
+            if let Some(channel) = post.notify_channel_id {
+                out.push_str(&field("salon_notifications", &channel.to_string()));
+            }
+            if let Some(text) = filled(&post.dm_text) {
+                out.push_str(&long_field("mp", text));
+            }
+            if !post.body.trim().is_empty() {
+                out.push_str(&long_field("texte", &post.body));
+            }
+        }
+    }
+
+    ctx.send(
+        poise::CreateReply::default()
+            .attachment(serenity::CreateAttachment::bytes(
+                out.into_bytes(),
+                "forum.toml",
+            ))
+            .content(
+                "Voici le contenu actuel du bot. Comparez-le au vôtre avant de réimporter : \
+                 tout ce qui a été modifié depuis Discord s'y trouve.",
+            )
+            .ephemeral(true),
+    )
+    .await?;
+    Ok(())
+}
+
+/// Le pseudo d'un référent, débarrassé de ce qui n'en fait pas partie : l'arobase
+/// qui le précède, et la ponctuation de la phrase dont il a été recopié.
+fn clean_handle(raw: &str) -> &str {
+    raw.trim()
+        .trim_start_matches('@')
+        .trim_end_matches(['.', ',', ';', ':'])
+}
+
+/// Une valeur sur une ligne, guillemets et antislashs échappés.
+fn field(key: &str, value: &str) -> String {
+    let escaped = value.replace('\\', "\\\\").replace('"', "\\\"");
+    format!("{key} = \"{escaped}\"\n")
+}
+
+/// Une valeur multiligne. Le premier saut de ligne est avalé par TOML, d'où le
+/// texte qui commence à la ligne suivante.
+fn long_field(key: &str, value: &str) -> String {
+    let escaped = value
+        .replace('\\', "\\\\")
+        .replace("\"\"\"", "\\\"\\\"\\\"");
+    format!("{key} = \"\"\"\n{escaped}\"\"\"\n")
+}
+
+fn filled(text: &Option<String>) -> Option<&str> {
+    text.as_deref().filter(|value| !value.trim().is_empty())
+}
+
 /// Réécrire les fils pour rétablir l'ordre d'affichage.
 ///
 /// Republier efface et repose chaque carte : les réactions des membres
@@ -580,11 +707,15 @@ async fn upsert_post(
     }
     // Le référent est noté `@pseudo` comme dans les textes : il se résout sur la
     // liste des membres, et son absence se signale plutôt que d'échouer.
-    let referent = match spec
-        .referent
-        .as_deref()
-        .map(|handle| handle.trim_start_matches('@'))
-    {
+    let referent = match spec.referent.as_deref().map(clean_handle) {
+        // `<@123>` est ce qu'écrit `/forum exporter` : l'identifiant s'y lit
+        // directement, sans dépendre d'un pseudo qui peut avoir changé.
+        Some(handle) if handle.starts_with("<@") => handle
+            .trim_start_matches("<@")
+            .trim_end_matches('>')
+            .parse::<u64>()
+            .ok()
+            .map(ids::to_db),
         Some(handle) => match members.get(&handle.to_lowercase()) {
             Some(id) => Some(ids::to_db(*id)),
             None => {
@@ -775,6 +906,32 @@ texte = "Levez la main pour rejoindre un projet."
     /// Un fil minimal, avec un champ d'en-tête à éprouver.
     fn thread_with(field: &str, value: &str) -> String {
         format!("[[fils]]\nnom = \"Projets\"\nsalon = \"1\"\n{field} = \"\"\"{value}\"\"\"\n")
+    }
+
+    #[test]
+    fn an_exported_field_can_be_read_back() {
+        // Ce que `field` et `long_field` écrivent doit se relire tel quel,
+        // sinon l'aller-retour perdrait un guillemet ou un antislash.
+        let texte = format!(
+            "[[fils]]\n{}{}{}",
+            field("nom", "Projets \"spéciaux\""),
+            field("salon", "123"),
+            long_field("mp", "Une ligne\nUne autre avec un \\ antislash")
+        );
+        let lu = parse(&texte).expect("le format exporté doit être relisible");
+        assert_eq!(lu.fils[0].nom.as_deref(), Some("Projets \"spéciaux\""));
+        assert_eq!(
+            lu.fils[0].mp.as_deref(),
+            Some("Une ligne\nUne autre avec un \\ antislash")
+        );
+    }
+
+    #[test]
+    fn a_referent_survives_the_round_trip() {
+        // L'export écrit une mention, et le nettoyage laisse intacte une
+        // ponctuation recopiée depuis le texte d'une carte.
+        assert_eq!(clean_handle("  @dyson4282. "), "dyson4282");
+        assert_eq!(clean_handle("<@123>"), "<@123>");
     }
 
     #[test]
