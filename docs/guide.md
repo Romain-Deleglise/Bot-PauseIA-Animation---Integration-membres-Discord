@@ -50,7 +50,7 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 | `/forum message créer` | Publie une carte : titre, texte, rôle, couleur, rang. Sans rôle, elle accorde le rôle parent du fil. |
 | `/forum message modifier` | Modifie titre, texte, rôle, couleur, fil, rang, et `desactiver: True` pour qu'elle n'accorde plus rien. Éditée sur place : réactions et rôles conservés. |
 | `/forum message éditer` | Fenêtre pré-remplie avec le titre et le texte, éditables en multiligne. |
-| `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent. Demande `confirmer: True`. |
+| `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent, sauf si vous ajoutez `supprimer_rôle: True`. Demande `confirmer: True`. |
 | `/forum message liste` | Liste les cartes d'un fil, leur identifiant et ce qu'elles accordent. |
 
 **Fils**

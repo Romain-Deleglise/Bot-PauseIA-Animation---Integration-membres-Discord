@@ -14,6 +14,10 @@ use crate::state::{Context, Data, Error};
 use poise::Modal as _;
 use poise::serenity_prelude as serenity;
 
+/// Motif inscrit au journal d'audit du serveur, pour qu'un rôle disparu
+/// s'explique sans avoir à relire les journaux du bot.
+const REASON_DELETE: &str = "suppression de la carte du forum";
+
 /// Propose les messages existants, préfixés de leur fil.
 ///
 /// La valeur transmise est l'identifiant du message, pas son titre : deux
@@ -420,9 +424,10 @@ pub async fn modifier(
 
 /// Supprimer la carte d'un message.
 ///
-/// Le rôle reste sur le serveur, et ceux qui le portent le gardent : un rôle
-/// règle souvent l'accès à des salons, le détruire se décide à la main dans
-/// Discord, pas en effet de bord d'une commande.
+/// Par défaut le rôle reste sur le serveur, et ceux qui le portent le gardent :
+/// un rôle règle souvent l'accès à des salons, le détruire ne doit pas être un
+/// effet de bord. `supprimer_role` le demande explicitement, pour la carte de
+/// test qu'on retire sans vouloir laisser un rôle orphelin derrière elle.
 #[poise::command(slash_command)]
 pub async fn supprimer(
     ctx: Context<'_>,
@@ -430,6 +435,9 @@ pub async fn supprimer(
     #[autocomplete = "autocomplete_post"]
     message: String,
     #[description = "Confirmer la suppression de la carte"] confirmer: bool,
+    #[description = "Détruire aussi le rôle Discord. Défaut : non"]
+    #[rename = "supprimer_rôle"]
+    supprimer_role: Option<bool>,
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
@@ -444,12 +452,19 @@ pub async fn supprimer(
         return Ok(());
     };
 
+    let drop_role = supprimer_role.unwrap_or(false);
+
     if !confirmer {
-        let effect = match current.role_id {
-            Some(role) => format!(
-                "Le rôle <@&{role}> restera sur le serveur, et ceux qui le portent le garderont."
+        let effect = match (current.role_id, drop_role) {
+            (Some(role), false) => format!(
+                "Le rôle <@&{role}> restera sur le serveur, et ceux qui le portent le garderont. \
+                 Ajoutez `supprimer_rôle: True` pour le détruire aussi."
             ),
-            None => "Ce message n'accorde aucun rôle.".to_owned(),
+            (Some(role), true) => format!(
+                "Le rôle <@&{role}> sera **détruit** : tous ceux qui le portent le perdront, \
+                 et les salons qu'il ouvrait leur seront fermés."
+            ),
+            (None, _) => "Ce message n'accorde aucun rôle.".to_owned(),
         };
         ctx.say(format!(
             "Supprimer **{}** effacera sa carte de <#{}>. {effect}\nRelancez avec `confirmer: True`.",
@@ -465,9 +480,33 @@ pub async fn supprimer(
 
     let mut report = format!("Message **{}** supprimé.", current.title);
     if let Some(role) = current.role_id {
-        report.push_str(&format!(
-            " Le rôle <@&{role}> est conservé : supprimez-le dans Discord s'il n'a plus lieu d'être."
-        ));
+        if drop_role {
+            // Le rôle est détruit après la carte : si Discord refuse (hiérarchie,
+            // permissions), la carte est déjà partie et le message le dit, plutôt
+            // que d'abandonner une suppression à moitié faite.
+            match ctx
+                .http()
+                .delete_role(
+                    ctx.data().config.guild_id,
+                    ids::role(role),
+                    Some(REASON_DELETE),
+                )
+                .await
+            {
+                Ok(()) => report.push_str(" Le rôle qu'il accordait a été détruit."),
+                Err(err) => {
+                    tracing::warn!(%err, role, "rôle non détruit");
+                    report.push_str(&format!(
+                        " En revanche le rôle <@&{role}> n'a pas pu être détruit : \
+                         vérifiez qu'il est placé sous le rôle du bot."
+                    ));
+                }
+            }
+        } else {
+            report.push_str(&format!(
+                " Le rôle <@&{role}> est conservé : supprimez-le dans Discord s'il n'a plus lieu d'être."
+            ));
+        }
     }
     ctx.say(report).await?;
     Ok(())

@@ -135,7 +135,11 @@ pub async fn refresh(
     let outcome = if wanted {
         channel.create_reaction(http, message, emoji).await
     } else {
-        channel.delete_reaction(http, message, None, emoji).await
+        // Toutes les mains levées, pas seulement celle du bot : une carte
+        // désactivée qui garde les 🙋 des membres invite à cliquer sur un
+        // bouton mort. Discord envoie un seul événement groupé pour ce retrait,
+        // que le bot n'écoute pas : personne ne perd le rôle qu'il a déjà.
+        channel.delete_reaction_emoji(http, message, emoji).await
     };
     if let Err(err) = outcome {
         // Poser une réaction déjà là, ou en retirer une absente, n'est pas une
