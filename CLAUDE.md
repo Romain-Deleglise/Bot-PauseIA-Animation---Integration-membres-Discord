@@ -133,7 +133,7 @@ pour être testable sans serveur. Un membre inscrit à Paris et à Lyon porte
 `@groupe-local` pour deux raisons : quitter Paris ne doit pas lui faire perdre
 l'accès aux salons communs, quitter le dernier groupe, si.
 
-Elle s'applique au retrait d'une réaction (`events::reactions::on_remove`). La suppression d'un message, elle, ne touche à aucun rôle : le rôle reste sur le serveur et ses porteurs le gardent. Décision prise à la démo, un rôle réglant souvent l'accès à des salons.
+Elle s'applique au retrait d'une réaction (`events::reactions::on_remove`). La suppression d'un message, elle, ne touche à aucun rôle par défaut : le rôle reste sur le serveur et ses porteurs le gardent. Décision prise à la démo, un rôle réglant souvent l'accès à des salons. `/forum message supprimer` accepte `supprimer_rôle: True` pour le détruire quand même, ce qui reste un choix explicite : c'est la carte de test qu'on retire sans vouloir laisser un rôle orphelin, pas le cas courant.
 
 ### 4. `posts.message_id` est la clé du chemin chaud
 
