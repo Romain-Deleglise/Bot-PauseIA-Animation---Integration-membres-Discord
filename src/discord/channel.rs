@@ -123,6 +123,24 @@ pub async fn refresh(
             },
         )
         .await?;
+        return Ok(());
+    }
+
+    // La main levée suit ce que la carte est devenue : désactiver un message
+    // sans retirer sa réaction laisserait un bouton qui ne fait plus rien.
+    let channel = ids::channel(category.channel_id);
+    let message = ids::message(message_id);
+    let emoji = serenity::ReactionType::from(&data.config.reaction_emoji);
+    let wanted = embed::carries_a_reaction(category, post);
+    let outcome = if wanted {
+        channel.create_reaction(http, message, emoji).await
+    } else {
+        channel.delete_reaction(http, message, None, emoji).await
+    };
+    if let Err(err) = outcome {
+        // Poser une réaction déjà là, ou en retirer une absente, n'est pas une
+        // erreur à remonter : la carte, elle, est à jour.
+        tracing::debug!(message = %post.title, %err, "réaction déjà dans l'état voulu");
     }
     Ok(())
 }

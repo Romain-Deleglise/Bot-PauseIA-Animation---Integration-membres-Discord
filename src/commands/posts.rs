@@ -301,6 +301,8 @@ pub async fn modifier(
     #[autocomplete = "autocomplete_thread"]
     fil: Option<String>,
     #[description = "Nouveau rang dans le fil"] position: Option<i64>,
+    #[description = "Désactiver : la carte reste affichée mais n'accorde plus rien"]
+    desactiver: Option<bool>,
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
@@ -377,6 +379,7 @@ pub async fn modifier(
         },
         category_id: new_thread.id,
         position: position.unwrap_or(current.position),
+        information: desactiver.unwrap_or(current.information),
         ..current.clone()
     };
     db::posts::update(&ctx.data().db, &updated).await?;
@@ -399,8 +402,15 @@ pub async fn modifier(
     }
     ctx.data().reload_caches().await?;
 
+    // Désactiver change ce que la carte fait, pas seulement ce qu'elle dit :
+    // autant l'annoncer plutôt que de laisser vérifier.
+    let etat = match (desactiver, current.information) {
+        (Some(true), false) => " Elle est désactivée : plus de réaction, plus de rôle accordé.",
+        (Some(false), true) => " Elle est réactivée : la main levée revient.",
+        _ => "",
+    };
     ctx.say(format!(
-        "Message **{}** modifié.{}",
+        "Message **{}** modifié.{etat}{}",
         updated.title,
         commands::unknown_handles_note(&unknown)
     ))
