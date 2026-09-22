@@ -279,7 +279,7 @@ async fn show_all(ctx: Context<'_>) -> Result<(), Error> {
         .collect();
     if !own.is_empty() {
         ctx.say(fit(&format!(
-            "Ces cartes ont leur propre message privé, qui remplace celui de leur fil : {}.",
+            "Ces cartes ont leur propre message privé, qui remplace celui de leur fil : {}.\n\nAffichez-le avec `/forum message mp`.",
             own.join(", ")
         )))
         .await?;
