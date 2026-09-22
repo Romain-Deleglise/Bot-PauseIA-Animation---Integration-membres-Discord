@@ -550,6 +550,9 @@ pub async fn supprimer(
     #[description = "Détruire aussi le rôle Discord. Défaut : non"]
     #[rename = "supprimer_rôle"]
     supprimer_role: Option<bool>,
+    #[description = "Second accord, exigé pour détruire un rôle"]
+    #[rename = "confirmer_rôle"]
+    confirmer_role: Option<bool>,
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
@@ -565,6 +568,24 @@ pub async fn supprimer(
     };
 
     let drop_role = supprimer_role.unwrap_or(false);
+
+    // Détruire un rôle retire l'accès à des salons à tous ceux qui le portent,
+    // et rien ne le rend : ce geste se demande deux fois, séparément de la
+    // suppression de la carte.
+    if drop_role && confirmer && !confirmer_role.unwrap_or(false) {
+        let porteurs = match current.role_id {
+            Some(role) => format!(
+                "Le rôle <@&{role}> va être **détruit**, et tous ceux qui le portent perdront \
+                 l'accès aux salons qu'il ouvre. C'est sans retour."
+            ),
+            None => "Cette carte n'accorde aucun rôle : rien à détruire.".to_owned(),
+        };
+        ctx.say(format!(
+            "{porteurs}\n\nSi c'est bien ce que vous voulez, relancez avec `confirmer: True` **et** `confirmer_rôle: True`."
+        ))
+        .await?;
+        return Ok(());
+    }
 
     if !confirmer {
         let effect = match (current.role_id, drop_role) {

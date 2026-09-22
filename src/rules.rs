@@ -25,6 +25,43 @@ pub fn parent_still_justified(
         .any(|role| *role != removed_role && member_roles.contains(role))
 }
 
+/// Confirmation d'entrée par défaut, quand un fil n'en définit pas.
+pub const JOINED_DEFAULT: &str = "🙋 Te voilà dans **{carte}** !\n\nTu viens de recevoir {rôles}.\n\nTu changes d'avis ? Retire ta réaction sur la carte, le rôle est repris aussitôt.";
+
+/// Confirmation de sortie par défaut.
+pub const LEFT_DEFAULT: &str = "Tu as quitté **{carte}**, et {rôles} t'a été repris.\n\nLa porte reste ouverte : lève la main sur la carte quand tu veux revenir.";
+
+/// Marqueurs reconnus dans une confirmation. `roles` sans accent est accepté :
+/// la saisie se fait sur un téléphone aussi souvent que sur un clavier.
+pub const MARKERS: [&str; 3] = ["{carte}", "{rôles}", "{roles}"];
+
+/// Remplit les marqueurs d'une confirmation.
+pub fn render_confirmation(template: &str, title: &str, roles: &str) -> String {
+    template
+        .replace("{carte}", title)
+        .replace("{rôles}", roles)
+        .replace("{roles}", roles)
+}
+
+/// Liste les marqueurs inconnus d'un texte, pour les refuser à la saisie.
+///
+/// Une faute de frappe dans `{carte}` partirait sinon telle quelle à chaque
+/// membre, et ne se verrait qu'une fois le mal fait.
+pub fn unknown_markers(template: &str) -> Vec<String> {
+    let mut rest = template;
+    let mut found = Vec::new();
+    while let Some(start) = rest.find('{') {
+        let after = &rest[start..];
+        let Some(end) = after.find('}') else { break };
+        let marker = &after[..=end];
+        if !MARKERS.contains(&marker) && !found.iter().any(|seen| seen == marker) {
+            found.push(marker.to_owned());
+        }
+        rest = &after[end + 1..];
+    }
+    found
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -85,5 +122,30 @@ mod tests {
             &holding(&[10]),
             10
         ));
+    }
+
+    #[test]
+    fn a_confirmation_keeps_text_without_markers() {
+        assert_eq!(render_confirmation("Merci !", "Veille", "@x"), "Merci !");
+    }
+
+    #[test]
+    fn both_spellings_of_the_roles_marker_are_filled() {
+        assert_eq!(
+            render_confirmation("{carte} : {rôles} et {roles}", "Veille", "@x"),
+            "Veille : @x et @x"
+        );
+    }
+
+    #[test]
+    fn a_mistyped_marker_is_reported() {
+        assert_eq!(unknown_markers("Bravo {crate} !"), vec!["{crate}"]);
+        assert!(unknown_markers(JOINED_DEFAULT).is_empty());
+        assert!(unknown_markers(LEFT_DEFAULT).is_empty());
+    }
+
+    #[test]
+    fn an_unclosed_brace_is_not_a_marker() {
+        assert!(unknown_markers("accolade { seule").is_empty());
     }
 }

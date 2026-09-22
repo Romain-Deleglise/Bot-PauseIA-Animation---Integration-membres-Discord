@@ -650,6 +650,10 @@ async fn upsert_thread(
             .map(commands::parse_snowflake)
             .transpose()?
             .map(ids::to_db),
+        // Le fichier de contenu ne décrit pas les confirmations : elles se
+        // règlent depuis Discord, et un import ne doit pas les écraser.
+        joined_text: None,
+        left_text: None,
     };
 
     // Le salon d'abord : le nom repris de Discord peut avoir changé depuis le
@@ -664,6 +668,8 @@ async fn upsert_thread(
                 &ctx.data().db,
                 &Category {
                     id: existing.id,
+                    joined_text: existing.joined_text.clone(),
+                    left_text: existing.left_text.clone(),
                     ..wanted
                 },
             )

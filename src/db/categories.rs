@@ -23,6 +23,10 @@ pub struct Category {
     pub confirmations: bool,
     /// Salon où annoncer les mains levées de ce fil, pour que quelqu'un le sache.
     pub notify_channel_id: Option<i64>,
+    /// Confirmation d'entrée, `None` pour celle par défaut du bot.
+    pub joined_text: Option<String>,
+    /// Confirmation de sortie, `None` pour celle par défaut du bot.
+    pub left_text: Option<String>,
 }
 
 /// Clé de recherche et d'unicité d'un nom de fil.
@@ -37,7 +41,7 @@ pub async fn list(pool: &SqlitePool) -> sqlx::Result<Vec<Category>> {
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
                 parent_role_id, dm_text, confirmations,
-                   notify_channel_id
+                   notify_channel_id, joined_text, left_text
            FROM categories ORDER BY name",
     )
     .fetch_all(pool)
@@ -48,7 +52,7 @@ pub async fn by_id(pool: &SqlitePool, id: i64) -> sqlx::Result<Option<Category>>
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
                 parent_role_id, dm_text, confirmations,
-                   notify_channel_id
+                   notify_channel_id, joined_text, left_text
            FROM categories WHERE id = ?",
     )
     .bind(id)
@@ -62,7 +66,7 @@ pub async fn by_name(pool: &SqlitePool, name: &str) -> sqlx::Result<Option<Categ
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
                 parent_role_id, dm_text, confirmations,
-                   notify_channel_id
+                   notify_channel_id, joined_text, left_text
            FROM categories WHERE name_key = ?",
     )
     .bind(name_key(name))
@@ -74,7 +78,7 @@ pub async fn by_channel(pool: &SqlitePool, channel_id: i64) -> sqlx::Result<Opti
     sqlx::query_as::<_, Category>(
         "SELECT id, name, channel_id, header_image_url, header_text, colour,
                 parent_role_id, dm_text, confirmations,
-                   notify_channel_id
+                   notify_channel_id, joined_text, left_text
            FROM categories WHERE channel_id = ?",
     )
     .bind(channel_id)
@@ -86,10 +90,11 @@ pub async fn insert(pool: &SqlitePool, category: &Category) -> sqlx::Result<Cate
     sqlx::query_as::<_, Category>(
         "INSERT INTO categories (name, name_key, channel_id, header_image_url, header_text,
                                  colour, parent_role_id, dm_text, confirmations,
-                                 notify_channel_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                 notify_channel_id, joined_text, left_text)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          RETURNING id, name, channel_id, header_image_url, header_text, colour,
-                   parent_role_id, dm_text, confirmations, notify_channel_id",
+                   parent_role_id, dm_text, confirmations, notify_channel_id,
+                   joined_text, left_text",
     )
     .bind(&category.name)
     .bind(name_key(&category.name))
@@ -101,6 +106,8 @@ pub async fn insert(pool: &SqlitePool, category: &Category) -> sqlx::Result<Cate
     .bind(&category.dm_text)
     .bind(category.confirmations)
     .bind(category.notify_channel_id)
+    .bind(&category.joined_text)
+    .bind(&category.left_text)
     .fetch_one(pool)
     .await
 }
@@ -112,7 +119,8 @@ pub async fn update(pool: &SqlitePool, category: &Category) -> sqlx::Result<()> 
         "UPDATE categories
             SET name = ?, name_key = ?, channel_id = ?, header_image_url = ?,
                 header_text = ?, colour = ?, parent_role_id = ?, dm_text = ?,
-                confirmations = ?, notify_channel_id = ?
+                confirmations = ?, notify_channel_id = ?, joined_text = ?,
+                left_text = ?
           WHERE id = ?",
     )
     .bind(&category.name)
@@ -125,6 +133,8 @@ pub async fn update(pool: &SqlitePool, category: &Category) -> sqlx::Result<()> 
     .bind(&category.dm_text)
     .bind(category.confirmations)
     .bind(category.notify_channel_id)
+    .bind(&category.joined_text)
+    .bind(&category.left_text)
     .bind(category.id)
     .execute(pool)
     .await
@@ -154,6 +164,8 @@ pub(crate) fn fixture(name: &str, channel_id: i64) -> Category {
         dm_text: None,
         confirmations: false,
         notify_channel_id: None,
+        joined_text: None,
+        left_text: None,
     }
 }
 

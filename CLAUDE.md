@@ -167,7 +167,20 @@ les liens du message privé figurent aussi dans la description du fil : une part
 des membres ferme les messages privés de serveur, et rien ne permet de les
 joindre autrement.
 
-### 6. La clé d'un emoji ignore son nom
+### 6. Le texte d'une confirmation est un gabarit vérifié à la saisie
+
+`categories.joined_text` et `left_text` (migration `0006`) sont vides par
+défaut, le bot retombant alors sur `rules::JOINED_DEFAULT` et `LEFT_DEFAULT`.
+Ces textes portent `{carte}` et `{rôles}`, remplis par
+`rules::render_confirmation`.
+
+`rules::unknown_markers` refuse tout autre marqueur **au moment de la saisie** :
+ces messages partent à chaque main levée, une coquille s'y répéterait à chaque
+membre au lieu d'apparaître une fois. L'import, lui, ne les décrit pas et
+conserve ce qui est en base : ils se règlent depuis Discord, comme le CDC le
+demande pour tout ce qui se corrige en quelques secondes.
+
+### 7. La clé d'un emoji ignore son nom
 
 Discord n'inclut pas toujours le nom d'un emoji custom dans un événement de
 réaction. `Emoji::key()` ne retient donc que l'identifiant (`custom:123`), et

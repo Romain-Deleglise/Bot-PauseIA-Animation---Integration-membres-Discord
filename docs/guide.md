@@ -51,7 +51,7 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 | `/forum message modifier` | Modifie titre, texte, rôle, couleur, fil, rang. `retirer_rôle: True` détache le rôle de la carte sans toucher au rôle Discord ni à ses porteurs ; `desactiver: True` fait qu'elle n'accorde plus rien. Éditée sur place : réactions et rôles conservés. |
 | `/forum message éditer` | Fenêtre pré-remplie avec le titre et le texte, éditables en multiligne. |
 | `/forum message mp` | Consulte, définit ou retire le message privé propre à une carte. Sans texte, il s'affiche. `texte: -` la fait retomber sur celui de son fil. |
-| `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent, sauf si vous ajoutez `supprimer_rôle: True`. Demande `confirmer: True`. |
+| `/forum message supprimer` | Supprime la carte. Demande `confirmer: True`. Le rôle reste sur le serveur et ses porteurs le gardent, sauf avec `supprimer_rôle: True`, qui exige en plus `confirmer_rôle: True`. |
 | `/forum message liste` | Liste les cartes d'un fil, leur identifiant et ce qu'elles accordent. |
 
 **Fils**
@@ -61,6 +61,7 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 | `/forum fil créer` | Rattache un fil Discord existant : nom, couleur, illustration, rôle parent. |
 | `/forum fil modifier` | Modifie ces réglages. La valeur `-` efface un champ ; `sans_role_parent: True` retire le rôle parent. |
 | `/forum fil mp` | Sans argument, affiche tous les messages privés d'accueil, ceux des fils comme ceux des cartes. Avec un `fil` seul, affiche le sien. Le définit avec `texte`, ou en le recopiant avec `depuis_message`. 2 000 caractères maximum. `texte: -` le désactive. |
+| `/forum fil confirmation` | Consulte ou réécrit le message privé envoyé à chaque main levée ou baissée, `moment: arrivée` ou `départ`. Marqueurs `{carte}` et `{rôles}`. `texte: -` rétablit celui d'origine. |
 | `/forum fil supprimer` | Retire le fil du bot et efface ses cartes. Les rôles restent. Demande `confirmer: True`. |
 | `/forum fil liste` | Liste les fils et leurs réglages. |
 
