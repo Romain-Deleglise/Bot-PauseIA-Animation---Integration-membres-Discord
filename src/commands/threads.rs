@@ -9,7 +9,9 @@ use crate::db;
 use crate::db::categories::Category;
 use crate::discord::channel;
 use crate::ids;
+use crate::rules;
 use crate::state::{Context, Error};
+use poise::ChoiceParameter as _;
 use poise::serenity_prelude as serenity;
 
 /// Propose les fils existants pendant la saisie.
@@ -33,7 +35,7 @@ pub async fn autocomplete_thread(ctx: Context<'_>, partial: &str) -> Vec<String>
 #[poise::command(
     slash_command,
     rename = "fil",
-    subcommands("creer", "modifier", "mp", "supprimer", "liste")
+    subcommands("creer", "modifier", "mp", "confirmation", "supprimer", "liste")
 )]
 pub async fn fil(_ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
@@ -102,6 +104,8 @@ pub async fn creer(
         dm_text: None,
         confirmations: false,
         notify_channel_id: None,
+        joined_text: None,
+        left_text: None,
     };
     db::categories::insert(&ctx.data().db, &category).await?;
     ctx.data().reload_caches().await?;
@@ -245,13 +249,64 @@ pub async fn modifier(
     Ok(())
 }
 
+/// Affiche les messages privés de tous les fils, un message par fil.
+///
+/// Chacun peut faire 2000 caractères : les empiler dans une seule réponse
+/// dépasserait la limite de Discord, d'où l'envoi séparé.
+async fn show_all(ctx: Context<'_>) -> Result<(), Error> {
+    let categories = db::categories::list(&ctx.data().db).await?;
+    if categories.is_empty() {
+        ctx.say("Aucun fil n'est encore configuré.").await?;
+        return Ok(());
+    }
+
+    for category in &categories {
+        let body = match category.dm_text.as_deref() {
+            Some(text) if !text.trim().is_empty() => text,
+            _ => "*aucun message privé*",
+        };
+        ctx.say(fit(&format!("**{}**\n\n{body}", category.name)))
+            .await?;
+    }
+
+    // Les cartes qui portent leur propre message privé passent avant celui du
+    // fil : les omettre ici donnerait une liste fausse.
+    let posts = db::posts::all(&ctx.data().db).await?;
+    for post in &posts {
+        let Some(text) = post
+            .dm_text
+            .as_deref()
+            .map(str::trim)
+            .filter(|text| !text.is_empty())
+        else {
+            continue;
+        };
+        ctx.say(fit(&format!(
+            "**{}** *(carte, remplace le message privé de son fil)*\n\n{text}",
+            post.title
+        )))
+        .await?;
+    }
+    Ok(())
+}
+
+/// Tronque proprement ce qui dépasserait la limite d'un message Discord.
+fn fit(text: &str) -> String {
+    const SUFFIX: &str = "\n\n*(tronqué)*";
+    if text.chars().count() <= commands::MAX_MESSAGE_CHARS {
+        return text.to_owned();
+    }
+    let keep = commands::MAX_MESSAGE_CHARS - SUFFIX.chars().count();
+    text.chars().take(keep).collect::<String>() + SUFFIX
+}
+
 /// Configurer le message privé envoyé à la première réaction dans ce fil.
 #[poise::command(slash_command)]
 pub async fn mp(
     ctx: Context<'_>,
-    #[description = "Fil concerné"]
+    #[description = "Fil concerné. Sans lui, affiche les messages privés de tous les fils"]
     #[autocomplete = "autocomplete_thread"]
-    fil: String,
+    fil: Option<String>,
     #[description = "Texte du message privé, ou - pour ne plus rien envoyer"] texte: Option<String>,
     #[description = "Identifiant d'un message à recopier comme modèle"] depuis_message: Option<
         String,
@@ -262,6 +317,9 @@ pub async fn mp(
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
+    let Some(fil) = fil else {
+        return show_all(ctx).await;
+    };
     let Some(current) = db::categories::by_name(&ctx.data().db, &fil).await? else {
         ctx.say(format!("Aucun fil nommé **{fil}**.")).await?;
         return Ok(());
@@ -338,6 +396,120 @@ pub async fn mp(
             .await?
         }
     };
+    Ok(())
+}
+
+/// Lequel des deux messages de confirmation on règle.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum Moment {
+    #[name = "arrivée"]
+    Arrivee,
+    #[name = "départ"]
+    Depart,
+}
+
+/// Consulter, réécrire ou rétablir une confirmation d'entrée ou de sortie.
+///
+/// Ces messages partent à chaque main levée ou baissée, là où le message privé
+/// d'accueil ne part qu'une fois : une coquille s'y répète.
+#[poise::command(slash_command)]
+pub async fn confirmation(
+    ctx: Context<'_>,
+    #[description = "Fil concerné"]
+    #[autocomplete = "autocomplete_thread"]
+    fil: String,
+    #[description = "Message d'arrivée ou de départ"] moment: Moment,
+    #[description = "Nouveau texte, ou - pour revenir à celui d'origine"] texte: Option<String>,
+) -> Result<(), Error> {
+    commands::begin(ctx).await?;
+
+    let Some(current) = db::categories::by_name(&ctx.data().db, &fil).await? else {
+        ctx.say(format!("Aucun fil nommé **{fil}**.")).await?;
+        return Ok(());
+    };
+    let (stored, default) = match moment {
+        Moment::Arrivee => (&current.joined_text, rules::JOINED_DEFAULT),
+        Moment::Depart => (&current.left_text, rules::LEFT_DEFAULT),
+    };
+
+    let Some(texte) = texte
+        .as_deref()
+        .map(str::trim)
+        .filter(|text| !text.is_empty())
+    else {
+        let (origine, texte) = match stored.as_deref() {
+            Some(text) if !text.trim().is_empty() => ("propre au fil", text),
+            _ => ("par défaut", default),
+        };
+        ctx.say(fit(&format!(
+            "Confirmation d'{} de **{}** *({origine})* :\n\n{texte}\n\nMarqueurs disponibles : `{{carte}}` et `{{rôles}}`.",
+            moment.name(),
+            current.name
+        )))
+        .await?;
+        return Ok(());
+    };
+
+    let text = match texte {
+        CLEAR_SENTINEL => None,
+        raw => Some(crate::discord::embed::format_description(raw)),
+    };
+
+    // Un marqueur mal orthographié partirait tel quel à chaque membre : mieux
+    // vaut refuser la saisie que découvrir `{crate}` dans les messages privés.
+    if let Some(raw) = text.as_deref() {
+        let unknown = rules::unknown_markers(raw);
+        if !unknown.is_empty() {
+            ctx.say(format!(
+                "Marqueur inconnu : {}. Seuls `{{carte}}` et `{{rôles}}` sont remplacés.",
+                unknown.join(", ")
+            ))
+            .await?;
+            return Ok(());
+        }
+        if let Some(excess) = commands::too_long_for_a_message(raw) {
+            ctx.say(format!(
+                "Confirmation non enregistrée : {excess}. Discord refuserait de l'envoyer."
+            ))
+            .await?;
+            return Ok(());
+        }
+    }
+
+    let updated = match moment {
+        Moment::Arrivee => Category {
+            joined_text: text.clone(),
+            ..current.clone()
+        },
+        Moment::Depart => Category {
+            left_text: text.clone(),
+            ..current.clone()
+        },
+    };
+    db::categories::update(&ctx.data().db, &updated).await?;
+    ctx.data().reload_caches().await?;
+
+    let rappel = if current.confirmations {
+        String::new()
+    } else {
+        format!(
+            "\n\nAttention : **{}** n'envoie aucune confirmation pour l'instant. Activez `confirmations` avec `/forum fil modifier`.",
+            current.name
+        )
+    };
+    let report = match text {
+        Some(text) => format!(
+            "Confirmation d'{} de **{}** enregistrée :\n\n{text}{rappel}",
+            moment.name(),
+            current.name
+        ),
+        None => format!(
+            "Confirmation d'{} de **{}** rétablie :\n\n{default}{rappel}",
+            moment.name(),
+            current.name
+        ),
+    };
+    ctx.say(fit(&report)).await?;
     Ok(())
 }
 

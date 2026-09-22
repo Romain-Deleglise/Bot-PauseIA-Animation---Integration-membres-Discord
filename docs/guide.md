@@ -41,37 +41,98 @@ https://discord.com/oauth2/authorize?client_id=VOTRE_ID&scope=bot+applications.c
 
 ## 3. Commandes
 
-Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que de vous.
+Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que de
+vous. Une commande qui détruit quelque chose demande `confirmer: True` : lancée
+sans, elle décrit ce qu'elle ferait et ne fait rien.
 
-**Cartes**
+Trois notions reviennent partout :
 
-| Commande | Effet |
+- une **carte**, le message encadré qu'on publie pour un projet, une équipe, un groupe local ;
+- un **fil**, le salon de forum qui rassemble des cartes et leur donne des réglages communs ;
+- le **MP d'accueil**, le message privé envoyé à la première main levée.
+
+### Je veux…
+
+| … | Commande |
 |---|---|
-| `/forum message créer` | Publie une carte : titre, texte, rôle, couleur, rang. Sans rôle, elle accorde le rôle parent du fil. |
-| `/forum message modifier` | Modifie titre, texte, rôle, couleur, fil, rang, et `desactiver: True` pour qu'elle n'accorde plus rien. Éditée sur place : réactions et rôles conservés. |
-| `/forum message éditer` | Fenêtre pré-remplie avec le titre et le texte, éditables en multiligne. |
-| `/forum message supprimer` | Supprime la carte. Le rôle reste sur le serveur et ses porteurs le gardent, sauf si vous ajoutez `supprimer_rôle: True`. Demande `confirmer: True`. |
+| ajouter un projet ou une équipe | `/forum message créer` |
+| corriger un titre ou un texte | `/forum message éditer` |
+| mettre une carte en pause sans l'effacer | `/forum message modifier`, `desactiver: True` |
+| retirer une carte pour de bon | `/forum message supprimer` |
+| changer le message privé d'accueil | `/forum fil mp`, ou `/forum message mp` pour une seule carte |
+| changer ce qu'on écrit quand on lève la main | `/forum fil confirmation` |
+| remettre les cartes dans l'ordre | `/forum republier` |
+| savoir ce que le bot contient vraiment | `/forum exporter` |
+
+### Les cartes
+
+| Commande | Ce qu'elle fait |
+|---|---|
+| `/forum message créer` | Publie une carte : titre, texte, rôle, couleur, rang. Sans rôle, elle accorde celui du fil. |
+| `/forum message éditer` | Ouvre une fenêtre pré-remplie pour reprendre le titre et le texte en multiligne. |
+| `/forum message modifier` | Change les réglages : rôle, couleur, fil, rang (voir les options ci-dessous). |
+| `/forum message mp` | Affiche, remplace ou retire le message privé propre à cette carte. |
+| `/forum message supprimer` | Efface la carte du fil et de la base. |
 | `/forum message liste` | Liste les cartes d'un fil, leur identifiant et ce qu'elles accordent. |
 
-**Fils**
+Options de `/forum message modifier` :
 
-| Commande | Effet |
+- `desactiver: True` met la carte en pause. Elle reste affichée, sa 🙋 disparaît, elle n'accorde plus rien. `desactiver: False` la réveille.
+- `retirer_rôle: True` détache le rôle de la carte. Le rôle Discord et ceux qui le portent ne bougent pas.
+- Le titre et le texte se corrigent sur place : les mains levées et les rôles déjà donnés sont conservés.
+
+Options de `/forum message supprimer` :
+
+- `confirmer: True` est toujours exigé.
+- Par défaut le rôle survit à la carte, et ses porteurs le gardent.
+- `supprimer_rôle: True` détruit aussi le rôle Discord. Comme ses porteurs perdraient alors l'accès à des salons sans retour possible, le bot réclame en plus `confirmer_rôle: True`.
+
+Option de `/forum message mp` : `texte: -` retire le message propre à la carte,
+qui retombe alors sur celui de son fil.
+
+### Les fils
+
+| Commande | Ce qu'elle fait |
 |---|---|
-| `/forum fil créer` | Rattache un fil Discord existant : nom, couleur, illustration, rôle parent. |
-| `/forum fil modifier` | Modifie ces réglages. La valeur `-` efface un champ ; `sans_role_parent: True` retire le rôle parent. |
-| `/forum fil mp` | Définit le message privé envoyé à la première réaction dans le fil : `texte`, ou recopié avec `depuis_message`. 2 000 caractères maximum. `texte: -` le désactive. |
+| `/forum fil créer` | Rattache au bot un fil Discord existant : nom, couleur, illustration, rôle parent. |
+| `/forum fil modifier` | Change ces réglages. `-` efface un champ, `sans_role_parent: True` retire le rôle parent. |
+| `/forum fil mp` | Affiche ou règle les messages privés d'accueil. |
+| `/forum fil confirmation` | Affiche ou règle ce que le bot écrit quand on lève ou baisse la main. |
 | `/forum fil supprimer` | Retire le fil du bot et efface ses cartes. Les rôles restent. Demande `confirmer: True`. |
 | `/forum fil liste` | Liste les fils et leurs réglages. |
 
-**Contenu**
+`/forum fil mp`, du plus large au plus précis :
 
-| Commande | Effet |
+- sans rien, affiche **tous** les messages d'accueil, ceux des fils comme ceux des cartes ;
+- avec un `fil` seul, affiche celui de ce fil ;
+- avec `texte`, l'enregistre (2 000 caractères maximum), ou le recopie d'un message existant avec `depuis_message` ;
+- `texte: -` le supprime : plus aucun accueil pour ce fil.
+
+`/forum fil confirmation` règle les deux messages envoyés à chaque main levée ou
+baissée, `moment: arrivée` ou `moment: départ`. Sans `texte`, le message
+s'affiche. Deux marqueurs sont remplacés à l'envoi :
+
+- `{carte}` par le titre de la carte, `{rôles}` par les rôles concernés ;
+- tout autre marqueur est refusé à la saisie, pour qu'une coquille ne parte pas à chaque membre ;
+- `texte: -` rétablit le texte d'origine.
+
+Ces messages ne partent que si le fil a `confirmations` activé. Le bot vous le
+rappelle si ce n'est pas le cas.
+
+### Le contenu
+
+| Commande | Ce qu'elle fait |
 |---|---|
-| `/forum exporter` | Renvoie le contenu réel du bot au format `forum.toml`. À comparer au fichier avant d'importer, sans quoi l'import écrase ce qui a été modifié depuis Discord. |
-| `/forum importer` | Importe un `forum.toml`. Rejouable, ne supprime rien, édite les cartes sur place. Masquée si `ENABLE_IMPORT=false`. |
+| `/forum exporter` | Renvoie le contenu réel du bot au format `forum.toml`. |
+| `/forum importer` | Applique un `forum.toml`. Rejouable, ne supprime rien, édite les cartes sur place. Masquée si `ENABLE_IMPORT=false`. |
 | `/forum republier` | Réécrit un fil pour rétablir l'ordre des cartes. **Efface toutes les mains levées du fil.** Demande `confirmer: True`. |
 
-Champs du fichier, en plus de ceux des commandes. Pour un fil :
+L'import **écrase** : ce que le fichier décrit remplace ce que Discord affiche.
+Le bon ordre est donc toujours le même : `/forum exporter`, comparer au fichier
+qu'on s'apprête à importer, fusionner les deux, puis `/forum importer`. Sans
+cette comparaison, une carte corrigée depuis Discord est effacée sans un mot.
+
+Le fichier accepte quelques champs qui n'ont pas de commande. Pour un fil :
 `confirmations` et `salon_notifications`. Pour un message : `information`,
 `sans_role_parent`, `mp`, `referent` et `salon_notifications`.
 
@@ -79,10 +140,9 @@ Champs du fichier, en plus de ceux des commandes. Pour un fil :
 
 - **Rôle parent** : accordé par chaque carte d'un fil, repris seulement quand la personne n'a plus aucune carte de ce fil.
 - **Introduction d'un fil** : c'est le premier message du fil, écrit à la main. Le bot n'y touche pas, donc la changer ne coûte rien.
-- **Désactiver une carte** : `/forum message modifier` avec `desactiver: True`. La carte reste affichée, sa réaction est retirée, elle n'accorde plus rien. Les rôles déjà donnés restent.
 - **Carte grisée** : couleur `#99AAB5`.
 - **Fils archivés** : Discord archive un fil après 3 jours sans message, ce qui bloque les réactions. Le bot le rouvre aussitôt. Un fil verrouillé reste fermé.
 - **Rôle retiré à la main** : la 🙋 reste sur la carte. Retirez-la puis remettez-la pour récupérer le rôle.
-- **Message privé** : une fois par personne et par fil, une fois par personne et par carte pour les cartes qui ont le leur. Un membre qui refuse les MP de serveur ne reçoit rien.
+- **Message d'accueil ou confirmation ?** L'accueil part une seule fois, à la première main levée dans le fil (ou sur la carte, si elle a le sien). Les confirmations partent à chaque main levée ou baissée. Un membre qui refuse les MP de serveur ne reçoit ni l'un ni l'autre, mais garde ses rôles.
 - **Annonce aux référents** : chaque main levée est annoncée dans le salon de la carte. Le bot doit pouvoir y écrire, sinon l'annonce échoue en silence.
 - **Référents** : écrivez `@pseudo` dans le texte d'une carte. S'il correspond à un membre, le bot en fait une mention ; sinon il le signale à l'import.

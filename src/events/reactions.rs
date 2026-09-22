@@ -291,20 +291,26 @@ async fn confirm_change(
         Ok(Some(found)) => found.title,
         _ => return,
     };
+    let category = match db::categories::by_id(&data.db, post.category_id).await {
+        Ok(Some(found)) => found,
+        _ => return,
+    };
     let mentions = roles
         .iter()
         .map(|role_id| format!("<@&{role_id}>"))
         .collect::<Vec<_>>()
         .join(" et ");
 
-    let text = match change {
-        Change::Joined(_) => format!(
-            "🙋 Te voilà dans **{title}** !\n\nTu viens de recevoir {mentions}.\n\nTu changes d'avis ? Retire ta réaction sur la carte, le rôle est repris aussitôt."
-        ),
-        Change::Left(_) => format!(
-            "Tu as quitté **{title}**, et {mentions} t'a été repris.\n\nLa porte reste ouverte : lève la main sur la carte quand tu veux revenir."
-        ),
+    let template = match change {
+        Change::Joined(_) => category.joined_text.as_deref(),
+        Change::Left(_) => category.left_text.as_deref(),
     };
+    let template = match (template, change) {
+        (Some(text), _) if !text.trim().is_empty() => text,
+        (_, Change::Joined(_)) => rules::JOINED_DEFAULT,
+        (_, Change::Left(_)) => rules::LEFT_DEFAULT,
+    };
+    let text = rules::render_confirmation(template, &title, &mentions);
 
     if let Err(err) = send_dm(ctx, user_id, &text).await {
         // Sans réservation ni reprise : une confirmation manquée n'empêche rien,

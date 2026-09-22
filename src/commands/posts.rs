@@ -114,7 +114,7 @@ struct EditModal {
 #[poise::command(
     slash_command,
     rename = "message",
-    subcommands("creer", "modifier", "editer", "supprimer", "liste")
+    subcommands("creer", "modifier", "editer", "mp", "supprimer", "liste")
 )]
 pub async fn message(_ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
@@ -299,6 +299,9 @@ pub async fn modifier(
     #[description = "Nouveau titre"] titre: Option<String>,
     #[description = "Nouveau texte (\\n pour un saut de ligne)"] texte: Option<String>,
     #[description = "Nouveau rôle accordé"] role: Option<serenity::Role>,
+    #[description = "Détacher le rôle de la carte. Le rôle Discord n'est pas supprimé"]
+    #[rename = "retirer_rôle"]
+    retirer_role: Option<bool>,
     #[description = "Couleur de la carte, #99AAB5 pour la griser, - pour revenir à celle du fil"]
     couleur: Option<String>,
     #[description = "Déplacer vers un autre fil"]
@@ -346,9 +349,18 @@ pub async fn modifier(
         return Ok(());
     }
 
-    let role_id = match &role {
-        None => current.role_id,
-        Some(role) => Some(ids::to_db(role.id.get())),
+    // Détacher prime sur désigner : demander les deux à la fois n'a pas de sens,
+    // et le refus le dit plutôt que de choisir à la place de l'appelant.
+    let detach = retirer_role.unwrap_or(false);
+    if detach && role.is_some() {
+        ctx.say("Choisissez : un nouveau rôle, ou `retirer_rôle: True`, pas les deux.")
+            .await?;
+        return Ok(());
+    }
+    let role_id = match (&role, detach) {
+        (_, true) => None,
+        (None, _) => current.role_id,
+        (Some(role), _) => Some(ids::to_db(role.id.get())),
     };
     if let Some(role_id) = role_id
         && role.is_some()
@@ -413,12 +425,112 @@ pub async fn modifier(
         (Some(false), true) => " Elle est réactivée : la main levée revient.",
         _ => "",
     };
+    // Détacher un rôle ne le fait pas disparaître : sans cette précision, on
+    // croirait la carte devenue inoffensive alors qu'elle accorde encore le
+    // rôle parent de son fil.
+    let detache = match (detach, current.role_id) {
+        (true, Some(role)) => {
+            let reste = match new_thread.parent_role_id {
+                Some(parent) if !updated.information && updated.grants_parent => {
+                    format!(" Elle accorde encore <@&{parent}>, le rôle du fil.")
+                }
+                _ => " Elle n'accorde plus aucun rôle.".to_owned(),
+            };
+            format!(" Le rôle <@&{role}> lui est détaché, il reste sur le serveur.{reste}")
+        }
+        _ => String::new(),
+    };
     ctx.say(format!(
-        "Message **{}** modifié.{etat}{}",
+        "Message **{}** modifié.{etat}{detache}{}",
         updated.title,
         commands::unknown_handles_note(&unknown)
     ))
     .await?;
+    Ok(())
+}
+
+/// Consulter, définir ou retirer le message privé propre à une carte.
+///
+/// Sans texte, il s'affiche. Une carte qui n'en a pas retombe sur celui de son
+/// fil : le retirer ne prive donc pas forcément le membre d'un accueil.
+#[poise::command(slash_command)]
+pub async fn mp(
+    ctx: Context<'_>,
+    #[description = "Message concerné"]
+    #[autocomplete = "autocomplete_post"]
+    message: String,
+    #[description = "Texte du message privé, ou - pour revenir à celui du fil"] texte: Option<
+        String,
+    >,
+) -> Result<(), Error> {
+    commands::begin(ctx).await?;
+
+    let Some(current) = resolve(ctx, &message).await? else {
+        ctx.say("Message introuvable. Choisissez-le dans les suggestions.")
+            .await?;
+        return Ok(());
+    };
+    let Some(thread) = db::categories::by_id(&ctx.data().db, current.category_id).await? else {
+        ctx.say("Le fil de ce message est introuvable, la base est incohérente.")
+            .await?;
+        return Ok(());
+    };
+
+    let Some(texte) = texte
+        .as_deref()
+        .map(str::trim)
+        .filter(|text| !text.is_empty())
+    else {
+        let state = match current.dm_text.as_deref() {
+            Some(text) if !text.trim().is_empty() => {
+                format!("Message privé propre à **{}** :\n\n{text}", current.title)
+            }
+            _ => format!(
+                "**{}** n'a pas de message privé à elle : ses mains levées reçoivent celui de **{}**.",
+                current.title, thread.name
+            ),
+        };
+        ctx.say(state).await?;
+        return Ok(());
+    };
+
+    let text = match texte {
+        commands::CLEAR_SENTINEL => None,
+        raw => Some(embed::format_description(raw)),
+    };
+    if let Some(excess) = text.as_deref().and_then(commands::too_long_for_a_message) {
+        ctx.say(format!(
+            "Message privé non enregistré : {excess}. Discord refuserait de l'envoyer."
+        ))
+        .await?;
+        return Ok(());
+    }
+
+    db::posts::update(
+        &ctx.data().db,
+        &Post {
+            dm_text: text.clone(),
+            ..current.clone()
+        },
+    )
+    .await?;
+    // Le message privé propre à une carte décide de son indexation sur le
+    // chemin chaud : sans ce rechargement, la réaction ne le trouverait pas.
+    ctx.data().reload_caches().await?;
+
+    // Les membres qui ont déjà réagi ne sont pas notifiés : le texte vit en
+    // base, aucun message Discord n'est modifié.
+    let report = match text {
+        Some(_) => format!(
+            "Message privé de **{}** enregistré. Ceux qui ont déjà levé la main ne le recevront pas.",
+            current.title
+        ),
+        None => format!(
+            "**{}** n'a plus de message privé à elle : ses mains levées recevront celui de **{}**.",
+            current.title, thread.name
+        ),
+    };
+    ctx.say(report).await?;
     Ok(())
 }
 
@@ -438,6 +550,9 @@ pub async fn supprimer(
     #[description = "Détruire aussi le rôle Discord. Défaut : non"]
     #[rename = "supprimer_rôle"]
     supprimer_role: Option<bool>,
+    #[description = "Second accord, exigé pour détruire un rôle"]
+    #[rename = "confirmer_rôle"]
+    confirmer_role: Option<bool>,
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
@@ -453,6 +568,24 @@ pub async fn supprimer(
     };
 
     let drop_role = supprimer_role.unwrap_or(false);
+
+    // Détruire un rôle retire l'accès à des salons à tous ceux qui le portent,
+    // et rien ne le rend : ce geste se demande deux fois, séparément de la
+    // suppression de la carte.
+    if drop_role && confirmer && !confirmer_role.unwrap_or(false) {
+        let porteurs = match current.role_id {
+            Some(role) => format!(
+                "Le rôle <@&{role}> va être **détruit**, et tous ceux qui le portent perdront \
+                 l'accès aux salons qu'il ouvre. C'est sans retour."
+            ),
+            None => "Cette carte n'accorde aucun rôle : rien à détruire.".to_owned(),
+        };
+        ctx.say(format!(
+            "{porteurs}\n\nSi c'est bien ce que vous voulez, relancez avec `confirmer: True` **et** `confirmer_rôle: True`."
+        ))
+        .await?;
+        return Ok(());
+    }
 
     if !confirmer {
         let effect = match (current.role_id, drop_role) {
