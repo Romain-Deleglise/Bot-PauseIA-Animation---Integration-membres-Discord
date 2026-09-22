@@ -1,10 +1,270 @@
+# Exporté depuis Discord par /forum exporter.
+# Comparez ce fichier au vôtre avant de réimporter : il contient tout
+# ce qui a été modifié depuis Discord, et que l'import écraserait.
+
 [[fils]]
-# Projets
-salon        = "1548365905870721084"
+nom = "Compétences"
+salon = "1548365209050161284"
+couleur = "#2D9CDB"
+mp = """
+👋 Merci, c'est noté !
+
+**Tu n'as rien d'autre à faire : nos équipes viendront te chercher.** L'une d'elles t'écrira ici le jour où un besoin correspondra à ce que tu sais faire. Cela peut prendre quelques jours comme quelques mois, et rien ne t'obligera à dire oui.
+
+Tu préfères ne pas attendre ? Le fil **Projets** liste des missions à rejoindre dès aujourd'hui.
+
+À bientôt ! 🛠️"""
+
+[[fils.messages]]
+slug = "aide-creation"
+titre = "Aide à la création"
+role = "comp-aide-creation"
+texte = """
+Vous voulez donner un coup de main pour créer du contenu militant: relecture, sous-titrage, communication, conseils techniques…"""
+
+[[fils.messages]]
+slug = "artivisme"
+titre = "Artivisme"
+role = "comp-artivisme"
+texte = """
+Vous pratiquez un art et voulez le mettre au service de la cause. Exemples: photo, illustration, mise en scène, tournage vidéo, chant, motion design, sculpture, poésie, danse…"""
+
+[[fils.messages]]
+slug = "crea-graphisme"
+titre = "Créa graphisme"
+role = "comp-graphisme"
+texte = """
+Vous savez créer, choisir et agencer des éléments graphiques. Vous avez une bonne culture de l'image et des bases en maquette, mise en page ou retouche photo. Exemples : concevoir un logo, un flyer, proposer une initiation à Photoshop…"""
+
+[[fils.messages]]
+slug = "crea-jeux-video"
+titre = "Créa jeux vidéo"
+role = "comp-jeux-vidéo"
+texte = """
+Vous savez programmer ou concevoir des jeux vidéo. Exemples : penser un level design, manier Unreal Engine, Unity, RPG Maker…"""
+
+[[fils.messages]]
+slug = "crea-photo-video"
+titre = "Créa photo / vidéo"
+role = "comp-photo-video"
+texte = """
+Vous savez manier un appareil photo ou une caméra. Exemples : portraits, clichés pris lors d'un événement, enregistrement d'une conférence…"""
+
+[[fils.messages]]
+slug = "crea-son"
+titre = "Créa son"
+role = "comp-crea-son"
+texte = """
+Vous savez composer des musiques, réaliser des bruitages et mixer. Vous avez une bonne culture musicale ou des bases en composition et prise de son. Exemples : habillage sonore d'une vidéo, jingle, montage audio…"""
+
+[[fils.messages]]
+slug = "sensibilisation"
+titre = "Sensibilisation"
+role = "comp-sensibilisation"
+texte = """
+Vous savez animer et présenter des ateliers, campagnes de sensibilisation ou des événements similaires. Vous voulez utiliser cette compétence pour faire connaître les enjeux de l'IA."""
+
+[[fils.messages]]
+slug = "vulgarisation-ia"
+titre = "Support et vulgarisation scientifique en IA"
+role = "comp-vulga-ia"
+texte = """
+Vous pouvez apporter une expertise sur le fonctionnement de l'IA et savez l'expliquer simplement."""
+
+[[fils.messages]]
+slug = "vulgarisation-securite"
+titre = "Support et vulgarisation scientifique en sécurité de l'IA"
+role = "comp-vulga-sécurité"
+texte = """
+Vous pouvez apporter une expertise sur les risques et la sécurité de l'IA."""
+
+[[fils.messages]]
+slug = "support-technique"
+titre = "Support technique en informatique"
+role = "comp-tech"
+texte = """
+Vous savez mettre en œuvre des outils et des solutions techniques liés à l'IA."""
+
+[[fils.messages]]
+slug = "réseau-international"
+titre = "Réseau international"
+role = "comp-international"
+texte = """
+Vous avez des contacts dans des pays étrangers qui seraient pertinents pour soutenir PauseAI"""
+
+[[fils]]
+nom = "Groupes locaux"
+salon = "1548366084967760004"
+couleur = "#F2994A"
+role_parent = "groupe-local"
 confirmations = true
-couleur      = "#27AE60"
-role_parent  = "projet"
-mp           = """
+mp = """
+👋 Bienvenue dans ton groupe local !
+
+Tu as maintenant accès à son salon, et son référent ou sa référente vient d'être prévenu·e.
+
+**Passe y dire bonjour, et dis d'où tu es exactement.** On te donnera les prochaines actions près de chez toi : tractage, fresque de l'IA, rencontre avec des élu·es.
+
+Tu partages ton temps entre deux villes ? Lève la main sur les deux groupes.
+
+Bonnes actions ! 📍"""
+
+[[fils.messages]]
+slug = "bordeaux"
+titre = "Bordeaux"
+role = "gl-bordeaux"
+referent = "<@393065872576479232>"
+salon_notifications = "1491009393750315029"
+texte = """
+Référent : <@393065872576479232>
+
+Pour l'instant en sous-effectif (un membre actif, deux membres potentiels). Mais ils sont motivés pour lancer des projets !"""
+
+[[fils.messages]]
+slug = "colmar"
+titre = "[Inactif] Colmar"
+role = "gl-colmar"
+couleur = "#99AAB5"
+salon_notifications = "1471108273661804565"
+texte = """
+Ancien référent : <@173436299892490240>
+
+Groupe inactif, mais n'hésitez pas si vous voulez le relancer !"""
+
+[[fils.messages]]
+slug = "dordogne"
+titre = "Dordogne"
+role = "gl-dordogne"
+referent = "<@456868543225528331>"
+salon_notifications = "1471109518258864273"
+texte = """
+Référente : <@456868543225528331>
+
+Groupe sur le département, car nous sommes dans différentes villes (Périgueux, Bergerac, Sarlat). On a fait une manif et un tractage, et on a fait signer quelques chartes aux candidat·es pendant la campagne des municipales. On aimerait organiser une fresque de la sécurité de l'IA en septembre !"""
+
+[[fils.messages]]
+slug = "grenoble"
+titre = "Grenoble"
+role = "gl-grenoble"
+referent = "<@914093606309077012>"
+salon_notifications = "1471108419778908251"
+texte = """
+Référent : <@914093606309077012>
+
+Groupe créé début 2026, on a été autrefois nombreux (5) et on a fait plein de choses : premier mai, municipales, sessions de tractage, discussion avec la mairie, fresque. Mais après de nombreux départs il ne reste que quelques membres. Rejoignez-nous vite pour qu'on recommence !"""
+
+[[fils.messages]]
+slug = "lille"
+titre = "Lille"
+role = "gl-lille"
+referent = "<@1139108636812128317>"
+salon_notifications = "1511019665084911616"
+texte = """
+Référents : <@1139108636812128317> <@779121950248534036>
+
+Ils ne sont que trois, mais ils se sont rencontrés et sont très motivés ! En particulier, ils ont participé à l'anti-sommet sur l'IA."""
+
+[[fils.messages]]
+slug = "lyon"
+titre = "Lyon"
+role = "gl-lyon"
+referent = "<@1234739672983535639>"
+salon_notifications = "1471109615881293946"
+texte = """
+Référents : <@1234739672983535639> <@982278013616009247>
+
+Plusieurs membres très impliqués dans Pause IA sont présents dans ce groupe, mais pas encore de fonctionnement bien défini pour le groupe local."""
+
+[[fils.messages]]
+slug = "marseille"
+titre = "Marseille"
+role = "gl-marseille"
+salon_notifications = "1539403280478765056"
+texte = """
+Groupe en pleine construction. Vous pouvez contacter @11mishka11."""
+
+[[fils.messages]]
+slug = "melun"
+titre = "[Inactif] Melun"
+role = "gl-melun"
+couleur = "#99AAB5"
+salon_notifications = "1471109926267916434"
+texte = """
+Seul membre : @Flavien
+
+Groupe inactif (une seule personne présente), mais n'hésitez pas si vous voulez le relancer !"""
+
+[[fils.messages]]
+slug = "paris"
+titre = "Paris"
+role = "gl-paris"
+referent = "<@537373589788164096>"
+salon_notifications = "1471108628982272188"
+texte = """
+Référent : <@537373589788164096>
+
+Un groupe très actif : tractage, manifestations, organisation de conférences…"""
+
+[[fils.messages]]
+slug = "poitiers"
+titre = "Poitiers"
+role = "gl-poitiers"
+referent = "<@842064286901469194>"
+salon_notifications = "1471111591381565545"
+texte = """
+Référente : <@842064286901469194>
+
+Ce groupe n'a pas encore eu l'occasion d'organiser des événements locaux, mais il compte déjà trois membres."""
+
+[[fils.messages]]
+slug = "toulouse"
+titre = "Toulouse"
+role = "gl-toulouse"
+referent = "<@475319753867526148>"
+salon_notifications = "1478744200907325663"
+texte = """
+Référents : <@475319753867526148> <@1272395165654585428> <@410105907758891018>
+
+Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors. On a créé un groupe WhatsApp, plus accessible que Discord pour les événements. On a déjà organisé un débat, un tractage et une fresque de la sécurité de l'IA."""
+
+[[fils.messages]]
+slug = "clermont-ferrand"
+titre = "Clermont-Ferrand"
+role = "gl-clermont-ferrand"
+texte = """
+Petit groupe local organisé par <@776140182159884330>, mais il risque de déménager. Pas de salon discord créé pour l'instant."""
+
+[[fils.messages]]
+slug = "montpellier"
+titre = "Montpellier"
+role = "gl-montpellier"
+texte = """
+Référent: <@364082976042123274> mais il n'est plus très actif sur ce discord.
+Groupe local créé en septrembre 2026."""
+
+[[fils.messages]]
+slug = "nantes"
+titre = "Nantes"
+role = "gl-nantes"
+texte = """
+Pas encore de référent.
+Groupe local créé en septembre 2026"""
+
+[[fils.messages]]
+slug = "angers"
+titre = "Angers"
+role = "gl-angers"
+texte = """
+Pas encore de référent.
+Groupe local créé en septembre 2026"""
+
+[[fils]]
+nom = "Projets"
+salon = "1548365905870721084"
+couleur = "#27AE60"
+role_parent = "projet"
+confirmations = true
+mp = """
 👋 Bienvenue, et merci d'avoir levé la main !
 
 Tu as maintenant accès au salon de ce projet, et son référent ou sa référente vient d'être prévenu·e.
@@ -20,142 +280,148 @@ Et notre guide des bénévoles fait le tour du reste : <https://pauseia.notion.s
 À très vite ! 💙"""
 
 [[fils.messages]]
-slug    = "fresque-ia"
-titre   = "Fresque de l'IA"
+slug = "fresque-ia"
+titre = "Fresque de l'IA"
+role = "fresque-ia"
+referent = "<@525813136033316915>"
 salon_notifications = "1509918375286018219"
-referent = "@doweee1"
-texte   = """
-Référent : @doweee1
+texte = """
+Référent : <@525813136033316915>
 
 Notre version de la Fresque de l'IA, adaptée de celle du CeSIA et inspirée de la Fresque du climat : 36 cartes pour animer un atelier collaboratif où les participants apprennent et relient les sujets.
-Il reste à créer les documents pour animateurs et une formation. Une fois déployé, le projet continuera de vivre grâce aux retours d'expérience et aux mises à jour.
+Le projet est abouti et disponible sur le [site de la fresque](https://fresquedesrisquesdelia.org/). Nous sommes en train de le déployer, il faut maintenant créer des formations et dans le futur, des mises à jour.
+
+:writing_hand: **Pour débuter**: vous pouvez lister des partenaires intéressés pour disséminer cette fresque, ou proposer des améliorations des cartes.
 
 Coordonné par l'équipe *communication*."""
 
 [[fils.messages]]
-slug    = "pauseaction"
-titre   = "PauseAction"
-# Le lien du groupe figure directement sur la carte : plus de main levée, donc
-# plus de message privé ni de rôle. C'est la carte la plus simple du fil, et
-# c'est voulu, l'engagement qu'elle décrit étant le plus léger.
+slug = "pauseaction"
+titre = "PauseAction"
 information = true
-referent = "@clemence_coqcinelle"
-texte   = """
-Référent : @clemence_coqcinelle
+referent = "<@456868543225528331>"
+texte = """
+Référent : <@456868543225528331>
 
 Chaque semaine, nous trouvons une action simple, signer, partager ou commenter, réalisable en moins de cinq minutes, sur notre groupe WhatsApp.
-Nous avons grandement besoin d'un nouveau référent pour ce projet !
+
+:writing_hand: Nous avons grandement besoin d'un nouveau référent pour ce projet ! Contactez le ou la référente.
 
 👉 Rejoindre le groupe : https://chat.whatsapp.com/LThhghXc0Hk3sTwQMyy1wU
 
 Coordonné par l'équipe *communication*."""
 
 [[fils.messages]]
-slug    = "idees-recues"
-titre   = "Idées reçues"
+slug = "idees-recues"
+titre = "Idées reçues"
+couleur = "#0080FF"
 information = true
-referent = "@jeannebazard"
-texte   = """
-Référentes : @jeannebazard @lady_mircalla
+referent = "<@982278013616009247>"
+texte = """
+Référentes : <@982278013616009247> <@255054948167974913>
 
-Nous rassemblons les objections fréquentes, les idées reçues et les fausses promesses sur les apports et les dangers de l'IA, puis nous y répondons afin d'outiller le mouvement.
+Nous rassemblons les objections fréquentes, les idées reçues et les fausses promesses sur les apports et les dangers de l'IA, puis nous y répondons afin d'outiller le mouvement. Le projet est finalisé, disponible dans le salon #idées-reçues
+
+Si vous avez des suggestions, contactez directement le ou la référente.
 
 Coordonné par l'équipe *communication*."""
 
 [[fils.messages]]
-slug    = "entraide-plaidoyer"
-titre   = "Entraide plaidoyer"
+slug = "entraide-plaidoyer"
+titre = "Entraide plaidoyer"
+role = "entraide-plaidoyer"
+referent = "<@270646574948941824>"
 salon_notifications = "1412367909975752736"
-referent = "@zedioum"
-texte   = """
-Référent : @zedioum
+texte = """
+Référent : <@270646574948941824>
 
 Porter la position de Pause IA auprès des institutions et des élus. Dans ce projet, vous aurez accès à des ressources et des formations pour participer au plaidoyer de l'association dans votre département.
+
+:writing_hand: **Pour débuter**: lisez le [guide plaidoyer](https://pauseia.notion.site/guide-du-plaidoyer)
 
 Coordonné par l'équipe *plaidoyer* de l'association. Vous pouvez d'ailleurs rejoindre cette équipe si vous êtes très motivé."""
 
 [[fils.messages]]
-slug    = "onboarding"
-titre   = "Accueil et orientation"
+slug = "onboarding"
+titre = "Accueil et orientation"
+role = "onboarding"
+referent = "<@655067726863269899>"
 salon_notifications = "1522182103616327690"
-referent = "@gadow2_0"
-texte   = """
-Référent : @gadow2_0
+texte = """
+Référent : <@655067726863269899>
 
 Accueillir les nouveaux membres sur le Discord et les orienter vers les projets et équipes qui leur correspondent.
 On essaie de proposer des visios à chaque nouveau membre, et c'est très motivant et enrichissant !
 
+:writing_hand: **Pour débuter**: lire le [guide pour accueillir](https://app.notion.com/p/pauseia/Guide-pour-l-quipe-Discord-onboarding-3c028fc94b7780a18bade6165840d3b1) et commencez à répondre aux messages des nouveaux arrivants.
+
 Coordonné par le bureau."""
 
 [[fils.messages]]
-slug    = "animation-discord"
-titre   = "[En structuration] Animation Discord"
-referent = "@gyrodiot"
-texte   = """
-Référent : @gyrodiot
+slug = "animation-discord"
+titre = "[En structuration] Animation Discord"
+role = "animation-discord"
+referent = "<@294480444248817664>"
+texte = """
+Référent : <@294480444248817664>
 
 Organiser et animer des ateliers, soirées de réflexion, discussions détente, lectures et soirées de soutien.
 
-Ce groupe a pour vocation d'effectuer aussi une veille sur le bien-être et la santé mentale des membres (canal #soutien) et d'apporter des ressources spécifiques.
+Ce groupe a également pour vocation d'effectuer aussi une veille sur le bien-être et la santé mentale des membres (canal #soutien) et d'apporter des ressources spécifiques.
 
-Toutes les autres idées sont bienvenues.
-
-Coordonné par le bureau."""
-
-[[fils.messages]]
-slug    = "rencontres-pauseia"
-titre   = "Organisation des rencontres Pause IA"
-referent = "@clemence_coqcinelle"
-texte   = """
-Référente : @clemence_coqcinelle
-
-Rejoignez ce projet pour aider à organiser des rencontres entre membres de toute la France. Prochain objectif : week-end de rencontre et de formation de Pause IA.
+:writing_hand: **Pour débuter**: listez plusieurs événements possibles sur discord pour fédérer la communauté (en visio ou dans un salon), et proposez vous pour l'animer.
 
 Coordonné par le bureau."""
 
 [[fils.messages]]
-slug    = "partenariats-influenceurs"
-titre   = "[En structuration] Partenariats avec des influenceurs"
+slug = "partenariats-influenceurs"
+titre = "Partenariats avec des influenceurs"
+role = "partenariats-influenceurs"
+referent = "<@1331698777328980104>"
 salon_notifications = "1542614204522037499"
-referent = "@flavien0525"
-texte   = """
-Référent : @flavien0525
+texte = """
+Référent : <@1331698777328980104>
 
 Identifier et solliciter des streamers et youtubeurs pour inviter Maxime Fournes sur leurs chaînes, mais aussi contacter d'autres types de profils influents pour organiser des rencontres.
-"""
+
+:writing_hand: **Pour débuter**: listez des vidéastes influents sur lesquelles Maxime Fournes n'est jamais intervenu, et expliquez pourquoi ils vous paraissent pertinents."""
 
 [[fils.messages]]
-slug    = "illustration"
-titre   = "[À venir] Illustration humaine (PauseIArt)"
+slug = "illustration"
+titre = "Illustration humaine (PauseIArt)"
+role = "illustration"
 salon_notifications = "1547989852191203528"
-texte   = """
+texte = """
 Rejoignez ce projet si vous avez envie de produire des illustrations humaines pour les réseaux sociaux et la communication de Pause IA.
 Cela comprend aussi la création de tracts, de visuels originaux pour les groupes locaux et même de goodies pour notre boutique.
+
+:writing_hand: **Pour débuter**: lisez notre [charte visuelle](https://pauseia.notion.site/Charte-visuelle-PauseIA-3e028fc94b7780abb3f3e8f3da387f8a) et proposez un design d'affiche ou autre support innovant. Vous pouvez également adapter une citation ou un mème.
+
 
 Coordonné par l'équipe *communication*."""
 
 [[fils.messages]]
-slug    = "jeu-pauseia"
-titre   = "[À venir] Jeu vidéo et jeu de rôle"
-referent = "@dyson4282"
-texte   = """
-Référent : @dyson4282. Il a développé un jeu multijoueur super, n'hésitez pas à lui demander le lien.
+slug = "jeu-pauseia"
+titre = "[À venir] Jeu vidéo et jeu de rôle"
+referent = "<@289135022693154817>"
+texte = """
+Référent : <@289135022693154817>. Il a développé un jeu multijoueur super, n'hésitez pas à lui demander le lien.
 
 Concevoir des jeux vidéo et jeux de rôle au service de la sensibilisation. Plusieurs personnes ont manifesté leur intérêt, mais tout reste à faire !"""
 
 [[fils.messages]]
-slug    = "relation-associations"
-titre   = "[À venir] Relations associations"
-texte   = """
+slug = "relation-associations"
+titre = "[À venir] Relations associations"
+role = "relations-associations"
+texte = """
 Prendre contact avec différentes associations dont la mission est proche de celle de Pause IA. Leur présenter notre argumentaire, proposer différentes activités, et aussi surveiller leurs événements pour créer des liens."""
 
 [[fils.messages]]
-slug    = "veille"
-titre   = "[En pause] Veille"
-# Projet en sommeil : la carte recense les volontés sans engager personne, donc
-# sans accorder le rôle parent du fil. La liste des mains levées sur la carte
-# tient lieu de registre d'intérêt.
+slug = "veille"
+titre = "[En construction] Veille (actualités)"
+role = "veille"
 sans_role_parent = true
+referent = "<@982278013616009247>"
 mp = """
 👋 Merci de t'être signalé·e sur la veille.
 
@@ -164,26 +430,23 @@ Ce projet est en pause : nous ne savons pas encore s'il repartira, ni sous quell
 Ta main levée reste visible sur la carte, et c'est justement ce qui nous sert à mesurer l'intérêt. S'il redémarre, nous reviendrons vers toi.
 
 Merci de ta patience ! 🌱"""
-referent = "@jeannebazard"
-texte   = """
-Référente : @jeannebazard
+texte = """
+Référente : <@597162183759233054>
 
 Aidez-nous à suivre l'actualité en vous spécialisant dans différents domaines liés à l'IA : incidents, déclarations des politiques, propositions de lois, standards internationaux, recommandations… Vos comptes rendus nous seront précieux !
 
-Ce projet est en pause. Lève la main 🙋 pour nous signaler ton intérêt : aucun rôle ne t'est attribué, et nous te recontacterons s'il redémarre.
+:writing_hand: **Pour débuter**: suivre [ce guide](https://pauseia.notion.site/Veille-d-actualit-par-les-b-n-voles-3e028fc94b7780579d22e50e5aecb2c6)
 
 Coordonné par l'équipe *communication*."""
 
-
-# ═══════════════════════════════════════════════════════════════════════════
 [[fils]]
-# Équipes
-salon        = "1548365691038732368"
-confirmations = true
-couleur      = "#9B51E0"
-role_parent  = "portail-équipe"
+nom = "Équipes"
+salon = "1548365691038732368"
+couleur = "#9B51E0"
+role_parent = "portail-équipe"
 salon_notifications = "1408569062241603614"
-mp           = """
+confirmations = true
+mp = """
 Salut 👋
 
 Tu viens de dire que tu voulais t'investir dans une équipe. Merci, et bienvenue !
@@ -207,275 +470,62 @@ Une question ? Le salon #portail est fait pour ça, quelqu'un te répondra. 🌱
 Si tu fais déjà partie d'une équipe, tu peux ignorer ce message."""
 
 [[fils.messages]]
-slug    = "communication"
-titre   = "Communication"
+slug = "communication"
+titre = "Communication"
+referent = "<@982278013616009247>"
 salon_notifications = "1512427322874134620"
-referent = "@jeannebazard"
-texte   = """
-Référente : @jeannebazard
+texte = """
+Référente : <@982278013616009247>
 
 L'équipe suit l'actualité, rédige les communiqués de presse, les posts pour les réseaux sociaux, la newsletter et le blog Substack.
 
 Un nouvel employé va bientôt rejoindre cette équipe."""
 
 [[fils.messages]]
-slug    = "plaidoyer"
-titre   = "Plaidoyer"
+slug = "plaidoyer"
+titre = "Plaidoyer"
+referent = "<@270646574948941824>"
 salon_notifications = "1408563420311195742"
-referent = "@zedioum"
-texte   = """
-Référent : @zedioum
+texte = """
+Référent : <@270646574948941824>
 
 Porter la position de Pause IA auprès des institutions et des élus. Exemples : rédiger une prise de position, écrire aux élus, rencontrer un député…"""
 
 [[fils.messages]]
-slug    = "tech"
-titre   = "Tech"
+slug = "tech"
+titre = "Tech"
+referent = "<@386806240787038208>"
 salon_notifications = "1364173403325599804"
-referent = "@.romain73"
-texte   = """
-Référent : @.romain73
+texte = """
+Référent : <@386806240787038208>
 
-L'équipe assure le support technique sur Notion, Discord et le site internet, ainsi que leurs mises à jour."""
+L'équipe assure le support technique sur Notion, Discord et le site internet, ainsi que leurs mises à jour.
+
+Contactez le référent directement pour tout problème technique."""
 
 [[fils.messages]]
-slug    = "initiatives-locales"
-titre   = "Initiatives locales"
+slug = "initiatives-locales"
+titre = "Initiatives locales"
+referent = "<@712634506569580576>"
 salon_notifications = "1408567188822032489"
-referent = "@rambip"
-texte   = """
-Référent : @rambip
+texte = """
+Référent : <@712634506569580576>
 
 Organiser les temps forts et mobiliser les membres autour des actions de terrain. Gère les groupes locaux."""
 
 [[fils.messages]]
-slug    = "financement-partenariats"
-titre   = "Financement & Partenariats"
+slug = "financement-partenariats"
+titre = "Financement & Partenariats"
+referent = "<@386806240787038208>"
 salon_notifications = "1408563697022140561"
-referent = "@.romain73"
-texte   = """
-Référent : @.romain73
+texte = """
+Référent : <@386806240787038208>
 
 Rechercher des financements et nouer des partenariats pour soutenir l'association."""
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-[[fils]]
-# Groupes locaux
-salon        = "1548366084967760004"
-confirmations = true
-couleur      = "#F2994A"
-role_parent  = "groupe-local"
-mp           = """
-👋 Bienvenue dans ton groupe local !
-
-Tu as maintenant accès à son salon, et son référent ou sa référente vient d'être prévenu·e.
-
-**Passe y dire bonjour, et dis d'où tu es exactement.** On te donnera les prochaines actions près de chez toi : tractage, fresque de l'IA, rencontre avec des élu·es.
-
-Tu partages ton temps entre deux villes ? Lève la main sur les deux groupes.
-
-Bonnes actions ! 📍"""
-
 [[fils.messages]]
-slug    = "bordeaux"
-titre   = "Bordeaux"
-salon_notifications = "1491009393750315029"
-role    = "gl-bordeaux"
-referent = "@olivierloisel"
-texte   = """
-Référent : @olivierloisel
-
-Pour l'instant en sous-effectif (un membre actif, deux membres potentiels). Mais ils sont motivés pour lancer des projets !"""
-
-[[fils.messages]]
-slug    = "colmar"
-titre   = "[Inactif] Colmar"
-salon_notifications = "1471108273661804565"
-role    = "gl-colmar"
-couleur = "#99AAB5"
-texte   = """
-Ancien référent : @method75019
-
-Groupe inactif, mais n'hésitez pas si vous voulez le relancer !"""
-
-[[fils.messages]]
-slug    = "dordogne"
-titre   = "Dordogne"
-salon_notifications = "1471109518258864273"
-role    = "gl-dordogne"
-referent = "@clemence_coqcinelle"
-texte   = """
-Référente : @clemence_coqcinelle
-
-Groupe sur le département, car nous sommes dans différentes villes (Périgueux, Bergerac, Sarlat). On a fait une manif et un tractage, et on a fait signer quelques chartes aux candidat·es pendant la campagne des municipales. On aimerait organiser une fresque de la sécurité de l'IA en septembre !"""
-
-[[fils.messages]]
-slug    = "grenoble"
-titre   = "Grenoble"
-salon_notifications = "1471108419778908251"
-role    = "gl-grenoble"
-referent = "@nothing.45"
-texte   = """
-Référent : @nothing.45
-
-Groupe créé début 2026, on a été autrefois nombreux (5) et on a fait plein de choses : premier mai, municipales, sessions de tractage, discussion avec la mairie, fresque. Mais après de nombreux départs il ne reste que quelques membres. Rejoignez-nous vite pour qu'on recommence !"""
-
-[[fils.messages]]
-slug    = "lille"
-titre   = "Lille"
-salon_notifications = "1511019665084911616"
-role    = "gl-lille"
-referent = "@anmacha"
-texte   = """
-Référents : @anmacha @pogzo
-
-Ils ne sont que trois, mais ils se sont rencontrés et sont très motivés ! En particulier, ils ont participé à l'anti-sommet sur l'IA."""
-
-[[fils.messages]]
-slug    = "lyon"
-titre   = "Lyon"
-salon_notifications = "1471109615881293946"
-role    = "gl-lyon"
-referent = "@bayes8"
-texte   = """
-Référents : @bayes8 @jeannebazard
-
-Plusieurs membres très impliqués dans Pause IA sont présents dans ce groupe, mais pas encore de fonctionnement bien défini pour le groupe local."""
-
-[[fils.messages]]
-slug    = "marseille"
-titre   = "Marseille"
-salon_notifications = "1539403280478765056"
-role    = "gl-marseille"
-texte   = """
-Groupe en pleine construction. Vous pouvez contacter @11mishka11."""
-
-[[fils.messages]]
-slug    = "melun"
-titre   = "[Inactif] Melun"
-salon_notifications = "1471109926267916434"
-role    = "gl-melun"
-couleur = "#99AAB5"
-texte   = """
-Seul membre : @Flavien
-
-Groupe inactif (une seule personne présente), mais n'hésitez pas si vous voulez le relancer !"""
-
-[[fils.messages]]
-slug    = "paris"
-titre   = "Paris"
-salon_notifications = "1471108628982272188"
-role    = "gl-paris"
-referent = "@martinkunev"
-texte   = """
-Référent : @martinkunev
-
-Un groupe très actif : tractage, manifestations, organisation de conférences…"""
-
-[[fils.messages]]
-slug    = "poitiers"
-titre   = "Poitiers"
-salon_notifications = "1471111591381565545"
-role    = "gl-poitiers"
-referent = "@Armelle86"
-texte   = """
-Référente : @Armelle86
-
-Ce groupe n'a pas encore eu l'occasion d'organiser des événements locaux, mais il compte déjà trois membres."""
-
-[[fils.messages]]
-slug    = "toulouse"
-titre   = "Toulouse"
-salon_notifications = "1478744200907325663"
-role    = "gl-toulouse"
-referent = "@bizouche"
-texte   = """
-Référents : @bizouche @totoss0901 @Eloise_b_
-
-Groupe créé début 2026, avec des membres sur le Discord et d'autres en dehors. On a créé un groupe WhatsApp, plus accessible que Discord pour les événements. On a déjà organisé un débat, un tractage et une fresque de la sécurité de l'IA."""
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-[[fils]]
-# Compétences
-salon        = "1548365209050161284"
-couleur      = "#2D9CDB"
-mp           = """
-👋 Merci, c'est noté !
-
-**Tu n'as rien d'autre à faire : nos équipes viendront te chercher.** L'une d'elles t'écrira ici le jour où un besoin correspondra à ce que tu sais faire. Cela peut prendre quelques jours comme quelques mois, et rien ne t'obligera à dire oui.
-
-Tu préfères ne pas attendre ? Le fil **Projets** liste des missions à rejoindre dès aujourd'hui.
-
-À bientôt ! 🛠️"""
-
-[[fils.messages]]
-slug    = "aide-creation"
-titre   = "Aide à la création"
-role    = "comp-aide-creation"
-texte   = """
-Vous voulez donner un coup de main pour créer du contenu militant: relecture, sous-titrage, communication, conseils techniques…"""
-
-[[fils.messages]]
-slug    = "artivisme"
-titre   = "Artivisme"
-role    = "comp-artivisme"
-texte   = """
-Vous pratiquez un art et voulez le mettre au service de la cause. Exemples: photo, illustration, mise en scène, tournage vidéo, chant, motion design, sculpture, poésie, danse…"""
-
-[[fils.messages]]
-slug    = "crea-graphisme"
-titre   = "Créa graphisme"
-role    = "comp-graphisme"
-texte   = """
-Vous savez créer, choisir et agencer des éléments graphiques. Vous avez une bonne culture de l'image et des bases en maquette, mise en page ou retouche photo. Exemples : concevoir un logo, un flyer, proposer une initiation à Photoshop…"""
-
-[[fils.messages]]
-slug    = "crea-jeux-video"
-titre   = "Créa jeux vidéo"
-role    = "comp-jeux-vidéo"
-texte   = """
-Vous savez programmer ou concevoir des jeux vidéo. Exemples : penser un level design, manier Unreal Engine, Unity, RPG Maker…"""
-
-[[fils.messages]]
-slug    = "crea-photo-video"
-titre   = "Créa photo / vidéo"
-role    = "comp-photo-video"
-texte   = """
-Vous savez manier un appareil photo ou une caméra. Exemples : portraits, clichés pris lors d'un événement, enregistrement d'une conférence…"""
-
-[[fils.messages]]
-slug    = "crea-son"
-titre   = "Créa son"
-role    = "comp-crea-son"
-texte   = """
-Vous savez composer des musiques, réaliser des bruitages et mixer. Vous avez une bonne culture musicale ou des bases en composition et prise de son. Exemples : habillage sonore d'une vidéo, jingle, montage audio…"""
-
-[[fils.messages]]
-slug    = "sensibilisation"
-titre   = "Sensibilisation"
-role    = "comp-sensibilisation"
-texte   = """
-Vous savez animer et présenter des ateliers, campagnes de sensibilisation ou des événements similaires. Vous voulez utiliser cette compétence pour faire connaître les enjeux de l'IA."""
-
-[[fils.messages]]
-slug    = "vulgarisation-ia"
-titre   = "Support et vulgarisation scientifique en IA"
-role    = "comp-vulga-ia"
-texte   = """
-Vous pouvez apporter une expertise sur le fonctionnement de l'IA et savez l'expliquer simplement."""
-
-[[fils.messages]]
-slug    = "vulgarisation-securite"
-titre   = "Support et vulgarisation scientifique en sécurité de l'IA"
-role    = "comp-vulga-sécurité"
-texte   = """
-Vous pouvez apporter une expertise sur les risques et la sécurité de l'IA."""
-
-[[fils.messages]]
-slug    = "support-technique"
-titre   = "Support technique en informatique"
-role    = "comp-tech"
-texte   = """
-Vous savez mettre en œuvre des outils et des solutions techniques liés à l'IA."""
+slug = "événements-et-mobilisations"
+titre = "Événements et Mobilisations"
+texte = """
+Organiser les très gros projets de l'association (comme par exemple le [forum des solutions pour l'IA de 2025](https://controleia.org/solutions/).
+Exemple d'événement à venir: la semaine de formation PauseIA en France."""
