@@ -245,13 +245,65 @@ pub async fn modifier(
     Ok(())
 }
 
+/// Affiche les messages privés de tous les fils, un message par fil.
+///
+/// Chacun peut faire 2000 caractères : les empiler dans une seule réponse
+/// dépasserait la limite de Discord, d'où l'envoi séparé.
+async fn show_all(ctx: Context<'_>) -> Result<(), Error> {
+    let categories = db::categories::list(&ctx.data().db).await?;
+    if categories.is_empty() {
+        ctx.say("Aucun fil n'est encore configuré.").await?;
+        return Ok(());
+    }
+
+    for category in &categories {
+        let body = match category.dm_text.as_deref() {
+            Some(text) if !text.trim().is_empty() => text,
+            _ => "*aucun message privé*",
+        };
+        ctx.say(fit(&format!("**{}**\n\n{body}", category.name)))
+            .await?;
+    }
+
+    // Les cartes qui portent leur propre message privé passent avant celui du
+    // fil : les omettre ici donnerait une liste fausse.
+    let posts = db::posts::all(&ctx.data().db).await?;
+    let own: Vec<&str> = posts
+        .iter()
+        .filter(|post| {
+            post.dm_text
+                .as_deref()
+                .is_some_and(|text| !text.trim().is_empty())
+        })
+        .map(|post| post.title.as_str())
+        .collect();
+    if !own.is_empty() {
+        ctx.say(fit(&format!(
+            "Ces cartes ont leur propre message privé, qui remplace celui de leur fil : {}.",
+            own.join(", ")
+        )))
+        .await?;
+    }
+    Ok(())
+}
+
+/// Tronque proprement ce qui dépasserait la limite d'un message Discord.
+fn fit(text: &str) -> String {
+    const SUFFIX: &str = "\n\n*(tronqué)*";
+    if text.chars().count() <= commands::MAX_MESSAGE_CHARS {
+        return text.to_owned();
+    }
+    let keep = commands::MAX_MESSAGE_CHARS - SUFFIX.chars().count();
+    text.chars().take(keep).collect::<String>() + SUFFIX
+}
+
 /// Configurer le message privé envoyé à la première réaction dans ce fil.
 #[poise::command(slash_command)]
 pub async fn mp(
     ctx: Context<'_>,
-    #[description = "Fil concerné"]
+    #[description = "Fil concerné. Sans lui, affiche les messages privés de tous les fils"]
     #[autocomplete = "autocomplete_thread"]
-    fil: String,
+    fil: Option<String>,
     #[description = "Texte du message privé, ou - pour ne plus rien envoyer"] texte: Option<String>,
     #[description = "Identifiant d'un message à recopier comme modèle"] depuis_message: Option<
         String,
@@ -262,6 +314,9 @@ pub async fn mp(
 ) -> Result<(), Error> {
     commands::begin(ctx).await?;
 
+    let Some(fil) = fil else {
+        return show_all(ctx).await;
+    };
     let Some(current) = db::categories::by_name(&ctx.data().db, &fil).await? else {
         ctx.say(format!("Aucun fil nommé **{fil}**.")).await?;
         return Ok(());

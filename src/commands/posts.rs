@@ -299,6 +299,9 @@ pub async fn modifier(
     #[description = "Nouveau titre"] titre: Option<String>,
     #[description = "Nouveau texte (\\n pour un saut de ligne)"] texte: Option<String>,
     #[description = "Nouveau rôle accordé"] role: Option<serenity::Role>,
+    #[description = "Détacher le rôle de la carte. Le rôle Discord n'est pas supprimé"]
+    #[rename = "retirer_rôle"]
+    retirer_role: Option<bool>,
     #[description = "Couleur de la carte, #99AAB5 pour la griser, - pour revenir à celle du fil"]
     couleur: Option<String>,
     #[description = "Déplacer vers un autre fil"]
@@ -346,9 +349,18 @@ pub async fn modifier(
         return Ok(());
     }
 
-    let role_id = match &role {
-        None => current.role_id,
-        Some(role) => Some(ids::to_db(role.id.get())),
+    // Détacher prime sur désigner : demander les deux à la fois n'a pas de sens,
+    // et le refus le dit plutôt que de choisir à la place de l'appelant.
+    let detach = retirer_role.unwrap_or(false);
+    if detach && role.is_some() {
+        ctx.say("Choisissez : un nouveau rôle, ou `retirer_rôle: True`, pas les deux.")
+            .await?;
+        return Ok(());
+    }
+    let role_id = match (&role, detach) {
+        (_, true) => None,
+        (None, _) => current.role_id,
+        (Some(role), _) => Some(ids::to_db(role.id.get())),
     };
     if let Some(role_id) = role_id
         && role.is_some()
@@ -413,8 +425,23 @@ pub async fn modifier(
         (Some(false), true) => " Elle est réactivée : la main levée revient.",
         _ => "",
     };
+    // Détacher un rôle ne le fait pas disparaître : sans cette précision, on
+    // croirait la carte devenue inoffensive alors qu'elle accorde encore le
+    // rôle parent de son fil.
+    let detache = match (detach, current.role_id) {
+        (true, Some(role)) => {
+            let reste = match new_thread.parent_role_id {
+                Some(parent) if !updated.information && updated.grants_parent => {
+                    format!(" Elle accorde encore <@&{parent}>, le rôle du fil.")
+                }
+                _ => " Elle n'accorde plus aucun rôle.".to_owned(),
+            };
+            format!(" Le rôle <@&{role}> lui est détaché, il reste sur le serveur.{reste}")
+        }
+        _ => String::new(),
+    };
     ctx.say(format!(
-        "Message **{}** modifié.{etat}{}",
+        "Message **{}** modifié.{etat}{detache}{}",
         updated.title,
         commands::unknown_handles_note(&unknown)
     ))
