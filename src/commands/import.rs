@@ -1,6 +1,6 @@
 //! `/forum importer` et `/forum republier`.
 //!
-//! Le CDC décrit 38 messages et 40 rôles. Les saisir un par un en commande
+//! Le CDC décrivait 38 messages et 40 rôles. Les saisir un par un en commande
 //! slash prendrait des heures et multiplierait les fautes de frappe : le
 //! contenu est donc rédigé dans un fichier TOML versionné, relu comme un texte,
 //! puis importé en le glissant dans la commande.
@@ -887,7 +887,7 @@ texte = "Levez la main pour rejoindre un projet."
 
         assert_eq!(content.fils.len(), 4, "le CDC décrit quatre fils");
         let messages: usize = content.fils.iter().map(|fil| fil.messages.len()).sum();
-        assert_eq!(messages, 38, "le contenu du forum décrit 38 messages");
+        assert_eq!(messages, 43, "le contenu du forum décrit 43 messages");
 
         // Le MP est la seule explication du parcours que reçoit un membre qui
         // lève la main : aucun fil ne doit rester muet. La description tient la
