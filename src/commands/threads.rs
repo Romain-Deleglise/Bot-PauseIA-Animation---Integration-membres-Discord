@@ -268,19 +268,18 @@ async fn show_all(ctx: Context<'_>) -> Result<(), Error> {
     // Les cartes qui portent leur propre message privé passent avant celui du
     // fil : les omettre ici donnerait une liste fausse.
     let posts = db::posts::all(&ctx.data().db).await?;
-    let own: Vec<&str> = posts
-        .iter()
-        .filter(|post| {
-            post.dm_text
-                .as_deref()
-                .is_some_and(|text| !text.trim().is_empty())
-        })
-        .map(|post| post.title.as_str())
-        .collect();
-    if !own.is_empty() {
+    for post in &posts {
+        let Some(text) = post
+            .dm_text
+            .as_deref()
+            .map(str::trim)
+            .filter(|text| !text.is_empty())
+        else {
+            continue;
+        };
         ctx.say(fit(&format!(
-            "Ces cartes ont leur propre message privé, qui remplace celui de leur fil : {}.\n\nAffichez-le avec `/forum message mp`.",
-            own.join(", ")
+            "**{}** *(carte, remplace le message privé de son fil)*\n\n{text}",
+            post.title
         )))
         .await?;
     }

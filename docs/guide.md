@@ -60,7 +60,7 @@ Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que 
 |---|---|
 | `/forum fil créer` | Rattache un fil Discord existant : nom, couleur, illustration, rôle parent. |
 | `/forum fil modifier` | Modifie ces réglages. La valeur `-` efface un champ ; `sans_role_parent: True` retire le rôle parent. |
-| `/forum fil mp` | Sans argument, affiche les messages privés de tous les fils. Avec un `fil` seul, affiche le sien. Le définit avec `texte`, ou en le recopiant avec `depuis_message`. 2 000 caractères maximum. `texte: -` le désactive. |
+| `/forum fil mp` | Sans argument, affiche tous les messages privés d'accueil, ceux des fils comme ceux des cartes. Avec un `fil` seul, affiche le sien. Le définit avec `texte`, ou en le recopiant avec `depuis_message`. 2 000 caractères maximum. `texte: -` le désactive. |
 | `/forum fil supprimer` | Retire le fil du bot et efface ses cartes. Les rôles restent. Demande `confirmer: True`. |
 | `/forum fil liste` | Liste les fils et leurs réglages. |
 
