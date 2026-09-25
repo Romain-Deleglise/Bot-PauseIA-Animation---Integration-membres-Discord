@@ -268,6 +268,37 @@ enum Change<'a> {
 /// Discord ne rend une réponse éphémère qu'à une interaction : une réaction
 /// n'en est pas une, et le membre n'a donc aucun retour à l'écran. Sans ce
 /// message, quitter une équipe par un clic malheureux ferait disparaître des
+/// Nomme des rôles en toutes lettres, pour un message privé.
+///
+/// Une mention `<@&id>` n'a pas de serveur où se résoudre dans un message
+/// privé : Discord y affiche « @rôle inconnu ». On écrit donc le nom.
+async fn role_names(ctx: &serenity::Context, guild_id: serenity::GuildId, roles: &[i64]) -> String {
+    let mut names = Vec::with_capacity(roles.len());
+    for role_id in roles {
+        let role_id = ids::role(*role_id);
+        // Le cache d'abord, sans tenir son garde au travers d'un `.await`.
+        let cached = ctx
+            .cache
+            .guild(guild_id)
+            .and_then(|guild| guild.roles.get(&role_id).map(|role| role.name.clone()));
+        let name = match cached {
+            Some(name) => Some(name),
+            None => guild_id
+                .roles(&ctx.http)
+                .await
+                .ok()
+                .and_then(|roles| roles.get(&role_id).map(|role| role.name.clone())),
+        };
+        // Un rôle introuvable reste mentionné : illisible en privé, mais au
+        // moins le message ne ment pas sur ce qui a été accordé.
+        names.push(match name {
+            Some(name) => format!("**@{name}**"),
+            None => format!("<@&{role_id}>"),
+        });
+    }
+    names.join(" et ")
+}
+
 /// salons sans une explication.
 async fn confirm_change(
     ctx: &serenity::Context,
@@ -295,11 +326,7 @@ async fn confirm_change(
         Ok(Some(found)) => found,
         _ => return,
     };
-    let mentions = roles
-        .iter()
-        .map(|role_id| format!("<@&{role_id}>"))
-        .collect::<Vec<_>>()
-        .join(" et ");
+    let mentions = role_names(ctx, data.config.guild_id, roles).await;
 
     let template = match change {
         Change::Joined(_) => category.joined_text.as_deref(),

@@ -180,7 +180,14 @@ membre au lieu d'apparaître une fois. L'import, lui, ne les décrit pas et
 conserve ce qui est en base : ils se règlent depuis Discord, comme le CDC le
 demande pour tout ce qui se corrige en quelques secondes.
 
-### 7. La clé d'un emoji ignore son nom
+### 7. Un message privé nomme les rôles, il ne les mentionne pas
+
+Une mention `<@&id>` n'a pas de serveur où se résoudre dans un message privé :
+Discord y affiche « @rôle inconnu ». `events::reactions::role_names` écrit donc
+le nom en toutes lettres, cache d'abord puis API. Même règle pour tout texte
+destiné à partir en privé ; dans un salon, la mention reste la bonne forme.
+
+### 8. La clé d'un emoji ignore son nom
 
 Discord n'inclut pas toujours le nom d'un emoji custom dans un événement de
 réaction. `Emoji::key()` ne retient donc que l'identifiant (`custom:123`), et

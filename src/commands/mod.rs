@@ -32,6 +32,31 @@ pub fn too_long_for_a_message(text: &str) -> Option<String> {
         .then(|| format!("{length} caractères, maximum {MAX_MESSAGE_CHARS}"))
 }
 
+/// Répond en éphémère, que la commande ait différé sa réponse ou non.
+///
+/// Une commande qui ouvre une fenêtre ne peut pas différer : le modal doit être
+/// la toute première réponse. `ctx.say` suppose l'inverse.
+pub async fn reply(ctx: Context<'_>, text: impl Into<String>) -> Result<(), Error> {
+    ctx.send(
+        poise::CreateReply::default()
+            .content(text.into())
+            .ephemeral(true),
+    )
+    .await?;
+    Ok(())
+}
+
+/// Lit un champ de fenêtre : vide ou réduit au tiret, il efface.
+///
+/// Effacer un champ pré-rempli est le geste naturel pour retirer un texte ; le
+/// tiret reste accepté, c'est la convention des autres commandes.
+pub fn submitted_text(raw: Option<&str>) -> Option<String> {
+    match raw.map(str::trim) {
+        None | Some("") | Some(CLEAR_SENTINEL) => None,
+        Some(text) => Some(crate::discord::embed::format_description(text)),
+    }
+}
+
 /// Commandes à enregistrer. `/forum importer` n'est proposé que si
 /// `ENABLE_IMPORT` le permet : il ne sert en principe qu'à l'amorçage.
 pub fn all(enable_import: bool) -> Vec<poise::Command<Data, Error>> {
