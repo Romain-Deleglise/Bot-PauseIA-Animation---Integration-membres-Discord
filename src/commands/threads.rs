@@ -311,20 +311,22 @@ fn fit(text: &str) -> String {
     text.chars().take(keep).collect::<String>() + SUFFIX
 }
 
-/// Fenêtre d'édition d'un message privé.
+/// Fenêtre d'édition du message d'accueil d'un fil.
 ///
-/// Vide, ou réduit au tiret, elle retire le message : c'est la même convention
-/// que partout ailleurs dans les commandes.
+/// Titre, intitulé et invite portent toute l'explication : une fenêtre est
+/// souvent le seul endroit qu'on lit, et une boîte vide sans un mot laisse
+/// croire à un texte perdu.
 #[derive(Debug, poise::Modal)]
-#[name = "Message privé"]
-pub struct DirectMessageModal {
-    #[name = "Texte, vide ou - pour le retirer"]
+#[name = "Accueil de tout le fil"]
+pub struct ThreadDirectMessageModal {
+    #[name = "Reçu à la 1re main levée dans ce fil"]
+    #[placeholder = "Ce texte part pour toutes les cartes du fil. Vider le champ, ou n'y laisser qu'un -, le supprime."]
     #[paragraph]
     #[max_length = 2000]
     pub texte: Option<String>,
 }
 
-/// Afficher ou modifier le message privé d'accueil d'un fil.
+/// Modifier le message privé reçu à la première main levée dans un fil.
 ///
 /// Sans fil, la commande liste tous les messages d'accueil. Avec un fil, elle
 /// ouvre une fenêtre pré-remplie : un message d'accueil fait des paragraphes,
@@ -347,13 +349,13 @@ pub async fn mp(
         return Ok(());
     };
 
-    let defaults = DirectMessageModal {
+    let defaults = ThreadDirectMessageModal {
         texte: current
             .dm_text
             .clone()
             .filter(|text| !text.trim().is_empty()),
     };
-    let Some(edited) = DirectMessageModal::execute_with_defaults(ctx, defaults).await? else {
+    let Some(edited) = ThreadDirectMessageModal::execute_with_defaults(ctx, defaults).await? else {
         // Fenêtre fermée sans soumission : rien à enregistrer.
         return Ok(());
     };
@@ -382,7 +384,7 @@ pub async fn mp(
     // base, aucun message Discord n'est modifié.
     let report = match text {
         Some(_) => format!(
-            "Message privé de **{}** enregistré. Ceux qui ont déjà levé la main ne le recevront pas.",
+            "Message d'accueil de **{}** enregistré, pour toutes ses cartes. Ceux qui ont déjà levé la main ne le recevront pas.",
             current.name
         ),
         None => format!("**{}** n'enverra plus de message privé.", current.name),

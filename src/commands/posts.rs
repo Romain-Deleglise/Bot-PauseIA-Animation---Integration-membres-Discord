@@ -4,7 +4,6 @@
 //! le salon entier à chaque fois, ce qui effaçait au passage les réactions déjà
 //! posées par les membres — exactement ce que le CDC interdit.
 
-use crate::commands::threads::DirectMessageModal;
 use crate::commands::{self, threads::autocomplete_thread};
 use crate::db;
 use crate::db::posts::Post;
@@ -453,7 +452,21 @@ pub async fn modifier(
 /// Consulter, définir ou retirer le message privé propre à une carte.
 ///
 /// Sans texte, il s'affiche. Une carte qui n'en a pas retombe sur celui de son
-/// Afficher ou modifier le message privé propre à une carte.
+/// Fenêtre d'édition du message privé propre à une carte.
+///
+/// L'exception est rare — une seule carte du forum en a une — et une boîte vide
+/// ne dit pas d'elle-même que la carte suit son fil. L'invite le dit.
+#[derive(Debug, poise::Modal)]
+#[name = "Exception pour cette carte"]
+struct PostDirectMessageModal {
+    #[name = "Remplace l'accueil du fil, ici seulement"]
+    #[placeholder = "Vide, la carte envoie l'accueil de son fil : c'est le cas normal. Un texte ici crée une exception."]
+    #[paragraph]
+    #[max_length = 2000]
+    texte: Option<String>,
+}
+
+/// Donner à une carte un message privé différent de celui de son fil.
 ///
 /// Une fenêtre pré-remplie, comme pour le texte d'une carte. La vider rend la
 /// carte au message privé de son fil : elle ne prive personne d'accueil.
@@ -483,13 +496,13 @@ pub async fn mp(
         return Ok(());
     };
 
-    let defaults = DirectMessageModal {
+    let defaults = PostDirectMessageModal {
         texte: current
             .dm_text
             .clone()
             .filter(|text| !text.trim().is_empty()),
     };
-    let Some(edited) = DirectMessageModal::execute_with_defaults(ctx, defaults).await? else {
+    let Some(edited) = PostDirectMessageModal::execute_with_defaults(ctx, defaults).await? else {
         return Ok(());
     };
 
@@ -517,11 +530,11 @@ pub async fn mp(
 
     let report = match text {
         Some(_) => format!(
-            "Message privé de **{}** enregistré. Ceux qui ont déjà levé la main ne le recevront pas.",
-            current.title
+            "**{}** enverra désormais ce message à la place de celui de **{}**. Ceux qui ont déjà levé la main ne le recevront pas.",
+            current.title, thread.name
         ),
         None => format!(
-            "**{}** n'a plus de message privé à elle : ses mains levées recevront celui de **{}**.",
+            "**{}** n'a pas d'exception : ses mains levées reçoivent le message d'accueil de **{}**, comme les autres cartes du fil.",
             current.title, thread.name
         ),
     };
