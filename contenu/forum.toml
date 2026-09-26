@@ -355,7 +355,7 @@ On essaie de proposer des visios à chaque nouveau membre, et c'est très motiva
 
 :writing_hand: **Pour débuter**: lire le [guide pour accueillir](https://app.notion.com/p/pauseia/Guide-pour-l-quipe-Discord-onboarding-3c028fc94b7780a18bade6165840d3b1) et commencez à répondre aux messages des nouveaux arrivants.
 
-Coordonné par le bureau."""
+Coordonné par l'équipe *Communauté et Onboarding*."""
 
 [[fils.messages]]
 slug = "animation-discord"
@@ -407,7 +407,9 @@ referent = "<@289135022693154817>"
 texte = """
 Référent : <@289135022693154817>. Il a développé un jeu multijoueur super, n'hésitez pas à lui demander le lien.
 
-Concevoir des jeux vidéo et jeux de rôle au service de la sensibilisation. Plusieurs personnes ont manifesté leur intérêt, mais tout reste à faire !"""
+Concevoir des jeux vidéo et jeux de rôle au service de la sensibilisation. Plusieurs personnes ont manifesté leur intérêt, mais tout reste à faire !
+
+Il y a également des collaborations possibles avec des membres PauseAI d'autres pays. [exemple](https://www.aiapocalypto.com/)"""
 
 [[fils.messages]]
 slug = "relation-associations"
@@ -438,6 +440,20 @@ Aidez-nous à suivre l'actualité en vous spécialisant dans différents domaine
 :writing_hand: **Pour débuter**: suivre [ce guide](https://pauseia.notion.site/Veille-d-actualit-par-les-b-n-voles-3e028fc94b7780579d22e50e5aecb2c6)
 
 Coordonné par l'équipe *communication*."""
+
+[[fils.messages]]
+slug = "en-construction--boost-sur-les-réseaux"
+titre = "[En construction] Boost sur les réseaux"
+role = "boost"
+texte = """
+Pas encore de référent. 
+
+Multipliez l'impact de PauseIA sur les réseaux sociaux.
+Dans ce projet, vous aurez 2 rôles:
+- vous serez notifié environ 3 fois par semaine pour liker, commenter nos contenus, et envoyer des mails.
+- vous pourrez proposer des actions à la communauté: liker des posts, ou au contraire répondre pour combattre le déni de certains utilisateurs.
+
+Si vous préférez contribuer une fois par semaine sur whatsapp, "PauseAction" est fait pour vous."""
 
 [[fils]]
 nom = "Équipes"
@@ -479,7 +495,14 @@ Référente : <@982278013616009247>
 
 L'équipe suit l'actualité, rédige les communiqués de presse, les posts pour les réseaux sociaux, la newsletter et le blog Substack.
 
-Un nouvel employé va bientôt rejoindre cette équipe."""
+Un nouvel employé va bientôt rejoindre cette équipe.
+
+**Rôles recherchés en priorité**:
+- Monteur (son et vidéo)
+- Responsable réseaux sociaux
+- Graphiste & Designer Visuel
+- Chargé de veille et actualité
+- Référent du groupe whtasapp "PauseAction""""
 
 [[fils.messages]]
 slug = "plaidoyer"
@@ -489,7 +512,10 @@ salon_notifications = "1408563420311195742"
 texte = """
 Référent : <@270646574948941824>
 
-Porter la position de Pause IA auprès des institutions et des élus. Exemples : rédiger une prise de position, écrire aux élus, rencontrer un député…"""
+Porter la position de Pause IA auprès des institutions et des élus. Exemples : rédiger une prise de position, écrire aux élus, rencontrer un député…
+
+**Rôles recherchés en priorité**:
+- Responsable des relations avec l'Église"""
 
 [[fils.messages]]
 slug = "tech"
@@ -501,7 +527,10 @@ Référent : <@386806240787038208>
 
 L'équipe assure le support technique sur Notion, Discord et le site internet, ainsi que leurs mises à jour.
 
-Contactez le référent directement pour tout problème technique."""
+Contactez le référent directement pour tout problème technique.
+
+**Rôles recherchés en priorité**:
+- Expert Notion"""
 
 [[fils.messages]]
 slug = "initiatives-locales"
@@ -529,3 +558,15 @@ titre = "Événements et Mobilisations"
 texte = """
 Organiser les très gros projets de l'association (comme par exemple le [forum des solutions pour l'IA de 2025](https://controleia.org/solutions/).
 Exemple d'événement à venir: la semaine de formation PauseIA en France."""
+
+[[fils.messages]]
+slug = "communauté-et-onboarding"
+titre = "Communauté et Onboarding"
+texte = """
+Prendre soin de notre communauté: accueillir les nouveaux, répondre aux questions, recueillir les suggestions, et proposer des animations sur discord.
+
+Cette équipe gère aussi la documentation interne, pour garantir la transparence envers nos membres moins impliqués.
+
+**Rôles recherchés en priorité**:
+- Responsable des évolutions Discord et Notion
+- Responsable "Dissémination internationale" (rendre disponible nos outils aux chapitres de PauseIA dans les autres pays)"""

@@ -887,7 +887,7 @@ texte = "Levez la main pour rejoindre un projet."
 
         assert_eq!(content.fils.len(), 4, "le CDC décrit quatre fils");
         let messages: usize = content.fils.iter().map(|fil| fil.messages.len()).sum();
-        assert_eq!(messages, 43, "le contenu du forum décrit 43 messages");
+        assert_eq!(messages, 45, "le contenu du forum décrit 45 messages");
 
         // Le MP est la seule explication du parcours que reçoit un membre qui
         // lève la main : aucun fil ne doit rester muet. La description tient la
