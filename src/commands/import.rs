@@ -654,6 +654,8 @@ async fn upsert_thread(
         // règlent depuis Discord, et un import ne doit pas les écraser.
         joined_text: None,
         left_text: None,
+        announce_join_text: None,
+        announce_leave_text: None,
     };
 
     // Le salon d'abord : le nom repris de Discord peut avoir changé depuis le
@@ -670,6 +672,8 @@ async fn upsert_thread(
                     id: existing.id,
                     joined_text: existing.joined_text.clone(),
                     left_text: existing.left_text.clone(),
+                    announce_join_text: existing.announce_join_text.clone(),
+                    announce_leave_text: existing.announce_leave_text.clone(),
                     ..wanted
                 },
             )

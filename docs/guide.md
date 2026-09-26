@@ -60,7 +60,8 @@ Trois notions reviennent partout :
 | mettre une carte en pause sans l'effacer | `/forum message modifier`, `desactiver: True` |
 | retirer une carte pour de bon | `/forum message supprimer` |
 | changer le message privé d'accueil | `/forum fil mp`, ou `/forum message mp` pour une seule carte |
-| changer ce qu'on écrit quand on lève la main | `/forum fil confirmation` |
+| changer le message privé envoyé quand on lève la main | `/forum fil confirmation` |
+| changer l'annonce lue par les référents | `/forum fil annonce` |
 | remettre les cartes dans l'ordre | `/forum republier` |
 | savoir ce que le bot contient vraiment | `/forum exporter` |
 
@@ -95,6 +96,7 @@ Options de `/forum message supprimer` :
 | `/forum fil modifier` | Change ces réglages. `-` efface un champ, `sans_role_parent: True` retire le rôle parent. |
 | `/forum fil mp` | Ouvre une fenêtre pré-remplie avec le message privé d'accueil du fil. |
 | `/forum fil confirmation` | Affiche ou règle ce que le bot écrit quand on lève ou baisse la main. |
+| `/forum fil annonce` | Affiche ou règle l'annonce publiée dans le salon du projet quand quelqu'un lève la main. |
 | `/forum fil supprimer` | Retire le fil du bot et efface ses cartes. Les rôles restent. Demande `confirmer: True`. |
 | `/forum fil liste` | Liste les fils et leurs réglages. |
 
@@ -119,6 +121,10 @@ s'affiche. Deux marqueurs sont remplacés à l'envoi :
 
 Ces messages ne partent que si le fil a `confirmations` activé. Le bot vous le
 rappelle si ce n'est pas le cas.
+
+`/forum fil annonce` fonctionne pareil, pour le message publié dans le salon du
+projet à chaque main levée. Ses marqueurs sont `{carte}` et `{membre}` ; le
+rappel au référent s'ajoute tout seul en dessous, quand la carte en a un.
 
 ### Le contenu
 

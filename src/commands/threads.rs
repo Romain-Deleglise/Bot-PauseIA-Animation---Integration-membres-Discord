@@ -36,7 +36,15 @@ pub async fn autocomplete_thread(ctx: Context<'_>, partial: &str) -> Vec<String>
 #[poise::command(
     slash_command,
     rename = "fil",
-    subcommands("creer", "modifier", "mp", "confirmation", "supprimer", "liste")
+    subcommands(
+        "creer",
+        "modifier",
+        "mp",
+        "confirmation",
+        "annonce",
+        "supprimer",
+        "liste"
+    )
 )]
 pub async fn fil(_ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
@@ -107,6 +115,8 @@ pub async fn creer(
         notify_channel_id: None,
         joined_text: None,
         left_text: None,
+        announce_join_text: None,
+        announce_leave_text: None,
     };
     db::categories::insert(&ctx.data().db, &category).await?;
     ctx.data().reload_caches().await?;
@@ -440,7 +450,7 @@ pub async fn confirmation(
     // Un marqueur mal orthographié partirait tel quel à chaque membre : mieux
     // vaut refuser la saisie que découvrir `{crate}` dans les messages privés.
     if let Some(raw) = text.as_deref() {
-        let unknown = rules::unknown_markers(raw);
+        let unknown = rules::unknown_markers(raw, &rules::MARKERS);
         if !unknown.is_empty() {
             ctx.say(format!(
                 "Marqueur inconnu : {}. Seuls `{{carte}}` et `{{rôles}}` sont remplacés.",
@@ -487,6 +497,107 @@ pub async fn confirmation(
         ),
         None => format!(
             "Confirmation d'{} de **{}** rétablie :\n\n{default}{rappel}",
+            moment.name(),
+            current.name
+        ),
+    };
+    ctx.say(fit(&report)).await?;
+    Ok(())
+}
+
+/// Consulter, réécrire ou rétablir l'annonce publiée dans le salon du projet.
+///
+/// C'est le message que lisent les référents, pas le membre : il dit qu'une
+/// candidature est arrivée, et à qui de l'accueillir.
+#[poise::command(slash_command)]
+pub async fn annonce(
+    ctx: Context<'_>,
+    #[description = "Fil concerné"]
+    #[autocomplete = "autocomplete_thread"]
+    fil: String,
+    #[description = "Annonce d'arrivée ou de départ"] moment: Moment,
+    #[description = "Nouveau texte, ou - pour revenir à celui d'origine"] texte: Option<String>,
+) -> Result<(), Error> {
+    commands::begin(ctx).await?;
+
+    let Some(current) = db::categories::by_name(&ctx.data().db, &fil).await? else {
+        ctx.say(format!("Aucun fil nommé **{fil}**.")).await?;
+        return Ok(());
+    };
+    let (stored, default) = match moment {
+        Moment::Arrivee => (&current.announce_join_text, rules::ANNOUNCE_JOIN_DEFAULT),
+        Moment::Depart => (&current.announce_leave_text, rules::ANNOUNCE_LEAVE_DEFAULT),
+    };
+
+    let Some(texte) = texte
+        .as_deref()
+        .map(str::trim)
+        .filter(|text| !text.is_empty())
+    else {
+        let (origine, texte) = match stored.as_deref() {
+            Some(text) if !text.trim().is_empty() => ("propre au fil", text),
+            _ => ("par défaut", default),
+        };
+        ctx.say(fit(&format!(
+            "Annonce d'{} de **{}** *({origine})* :\n\n{texte}\n\nMarqueurs disponibles : `{{carte}}` et `{{membre}}`.",
+            moment.name(),
+            current.name
+        )))
+        .await?;
+        return Ok(());
+    };
+
+    let text = match texte {
+        CLEAR_SENTINEL => None,
+        raw => Some(crate::discord::embed::format_description(raw)),
+    };
+    if let Some(raw) = text.as_deref() {
+        let unknown = rules::unknown_markers(raw, &rules::ANNOUNCE_MARKERS);
+        if !unknown.is_empty() {
+            ctx.say(format!(
+                "Marqueur inconnu : {}. Une annonce ne remplace que `{{carte}}` et `{{membre}}`.",
+                unknown.join(", ")
+            ))
+            .await?;
+            return Ok(());
+        }
+        if let Some(excess) = commands::too_long_for_a_message(raw) {
+            ctx.say(format!(
+                "Annonce non enregistrée : {excess}. Discord refuserait de l'envoyer."
+            ))
+            .await?;
+            return Ok(());
+        }
+    }
+
+    let updated = match moment {
+        Moment::Arrivee => Category {
+            announce_join_text: text.clone(),
+            ..current.clone()
+        },
+        Moment::Depart => Category {
+            announce_leave_text: text.clone(),
+            ..current.clone()
+        },
+    };
+    db::categories::update(&ctx.data().db, &updated).await?;
+    ctx.data().reload_caches().await?;
+
+    // Une annonce sans salon où la publier ne se voit nulle part : le dire ici
+    // évite de croire le réglage sans effet.
+    let rappel = if current.notify_channel_id.is_some() {
+        String::new()
+    } else {
+        "\n\nAttention : ce fil n'a pas de salon d'annonce de recours. Seules les cartes qui ont le leur publieront.".to_owned()
+    };
+    let report = match text {
+        Some(text) => format!(
+            "Annonce d'{} de **{}** enregistrée :\n\n{text}{rappel}",
+            moment.name(),
+            current.name
+        ),
+        None => format!(
+            "Annonce d'{} de **{}** rétablie :\n\n{default}{rappel}",
             moment.name(),
             current.name
         ),

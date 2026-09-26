@@ -180,6 +180,12 @@ membre au lieu d'apparaître une fois. L'import, lui, ne les décrit pas et
 conserve ce qui est en base : ils se règlent depuis Discord, comme le CDC le
 demande pour tout ce qui se corrige en quelques secondes.
 
+Même mécanique pour l'annonce publiée dans le salon d'un projet
+(`announce_join_text`, `announce_leave_text`, migration `0007`), avec ses
+marqueurs à elle : `{carte}` et `{membre}`, jamais les rôles — le salon parle
+d'une personne et d'une carte. Le rappel au référent reste hors gabarit : dans
+le texte, une carte sans référent y laisserait une ligne vide.
+
 ### 7. Un message privé nomme les rôles, il ne les mentionne pas
 
 Une mention `<@&id>` n'a pas de serveur où se résoudre dans un message privé :
