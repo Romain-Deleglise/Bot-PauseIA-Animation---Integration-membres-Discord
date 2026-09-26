@@ -72,7 +72,7 @@ Trois notions reviennent partout :
 | `/forum message créer` | Publie une carte : titre, texte, rôle, couleur, rang. Sans rôle, elle accorde celui du fil. |
 | `/forum message éditer` | Ouvre une fenêtre pré-remplie pour reprendre le titre et le texte en multiligne. |
 | `/forum message modifier` | Change les réglages : rôle, couleur, fil, rang (voir les options ci-dessous). |
-| `/forum message mp` | Ouvre une fenêtre pré-remplie avec le message privé propre à cette carte. |
+| `/forum message mp` | Donne à une carte un message d'accueil différent de celui de son fil. Fenêtre vide = pas d'exception, le cas normal. |
 | `/forum message supprimer` | Efface la carte du fil et de la base. |
 | `/forum message liste` | Liste les cartes d'un fil, leur identifiant et ce qu'elles accordent. |
 
@@ -100,13 +100,21 @@ Options de `/forum message supprimer` :
 | `/forum fil supprimer` | Retire le fil du bot et efface ses cartes. Les rôles restent. Demande `confirmer: True`. |
 | `/forum fil liste` | Liste les fils et leurs réglages. |
 
-`/forum fil mp` et `/forum message mp` s'utilisent de la même façon : elles
-ouvrent une fenêtre déjà remplie avec le texte actuel, à corriger directement.
-Videz-la, ou laissez un simple `-`, pour retirer le message. 2 000 caractères
-maximum.
+Les deux commandes ouvrent une fenêtre remplie avec le texte actuel, à corriger
+directement. La vider, ou n'y laisser qu'un `-`, retire le texte. 2 000
+caractères maximum.
 
-Retirer le message d'une carte la rend à celui de son fil. Retirer celui d'un
-fil laisse ses mains levées sans aucun accueil.
+Elles n'agissent pas au même niveau, et c'est la confusion la plus fréquente :
+
+- **`/forum fil mp` est celle qu'on veut presque toujours.** Un message par fil,
+  donc quatre en tout, reçu par qui lève la main sur n'importe laquelle de ses
+  cartes. Le retirer laisse tout le fil sans accueil.
+- **`/forum message mp` écrit une exception pour une seule carte**, quand elle
+  doit dire autre chose que ses voisines. Aujourd'hui il n'y en a qu'une dans
+  tout le forum : Veille, dont le projet est en pause et qui doit expliquer
+  pourquoi elle n'accorde aucun rôle. Sur toutes les autres cartes la fenêtre
+  s'ouvre vide, et c'est normal : elles suivent leur fil. Vider le champ
+  supprime l'exception et rend la carte à l'accueil de son fil.
 
 `/forum fil mp` sans fil n'ouvre rien : elle affiche **tous** les messages
 d'accueil, ceux des fils comme ceux des cartes.
