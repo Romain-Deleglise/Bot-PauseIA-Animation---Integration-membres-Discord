@@ -4,6 +4,7 @@
 //! le salon entier à chaque fois, ce qui effaçait au passage les réactions déjà
 //! posées par les membres — exactement ce que le CDC interdit.
 
+use crate::commands::threads::DirectMessageModal;
 use crate::commands::{self, threads::autocomplete_thread};
 use crate::db;
 use crate::db::posts::Post;
@@ -452,56 +453,52 @@ pub async fn modifier(
 /// Consulter, définir ou retirer le message privé propre à une carte.
 ///
 /// Sans texte, il s'affiche. Une carte qui n'en a pas retombe sur celui de son
-/// fil : le retirer ne prive donc pas forcément le membre d'un accueil.
+/// Afficher ou modifier le message privé propre à une carte.
+///
+/// Une fenêtre pré-remplie, comme pour le texte d'une carte. La vider rend la
+/// carte au message privé de son fil : elle ne prive personne d'accueil.
 #[poise::command(slash_command)]
 pub async fn mp(
-    ctx: Context<'_>,
+    ctx: poise::ApplicationContext<'_, Data, Error>,
     #[description = "Message concerné"]
     #[autocomplete = "autocomplete_post"]
     message: String,
-    #[description = "Texte du message privé, ou - pour revenir à celui du fil"] texte: Option<
-        String,
-    >,
 ) -> Result<(), Error> {
-    commands::begin(ctx).await?;
+    let base = Context::Application(ctx);
 
-    let Some(current) = resolve(ctx, &message).await? else {
-        ctx.say("Message introuvable. Choisissez-le dans les suggestions.")
-            .await?;
+    let Some(current) = resolve(base, &message).await? else {
+        commands::reply(
+            base,
+            "Message introuvable. Choisissez-le dans les suggestions.",
+        )
+        .await?;
         return Ok(());
     };
     let Some(thread) = db::categories::by_id(&ctx.data().db, current.category_id).await? else {
-        ctx.say("Le fil de ce message est introuvable, la base est incohérente.")
-            .await?;
+        commands::reply(
+            base,
+            "Le fil de ce message est introuvable, la base est incohérente.",
+        )
+        .await?;
         return Ok(());
     };
 
-    let Some(texte) = texte
-        .as_deref()
-        .map(str::trim)
-        .filter(|text| !text.is_empty())
-    else {
-        let state = match current.dm_text.as_deref() {
-            Some(text) if !text.trim().is_empty() => {
-                format!("Message privé propre à **{}** :\n\n{text}", current.title)
-            }
-            _ => format!(
-                "**{}** n'a pas de message privé à elle : ses mains levées reçoivent celui de **{}**.",
-                current.title, thread.name
-            ),
-        };
-        ctx.say(state).await?;
+    let defaults = DirectMessageModal {
+        texte: current
+            .dm_text
+            .clone()
+            .filter(|text| !text.trim().is_empty()),
+    };
+    let Some(edited) = DirectMessageModal::execute_with_defaults(ctx, defaults).await? else {
         return Ok(());
     };
 
-    let text = match texte {
-        commands::CLEAR_SENTINEL => None,
-        raw => Some(embed::format_description(raw)),
-    };
+    let text = commands::submitted_text(edited.texte.as_deref());
     if let Some(excess) = text.as_deref().and_then(commands::too_long_for_a_message) {
-        ctx.say(format!(
-            "Message privé non enregistré : {excess}. Discord refuserait de l'envoyer."
-        ))
+        commands::reply(
+            base,
+            format!("Message privé non enregistré : {excess}. Discord refuserait de l'envoyer."),
+        )
         .await?;
         return Ok(());
     }
@@ -516,10 +513,8 @@ pub async fn mp(
     .await?;
     // Le message privé propre à une carte décide de son indexation sur le
     // chemin chaud : sans ce rechargement, la réaction ne le trouverait pas.
-    ctx.data().reload_caches().await?;
+    base.data().reload_caches().await?;
 
-    // Les membres qui ont déjà réagi ne sont pas notifiés : le texte vit en
-    // base, aucun message Discord n'est modifié.
     let report = match text {
         Some(_) => format!(
             "Message privé de **{}** enregistré. Ceux qui ont déjà levé la main ne le recevront pas.",
@@ -530,7 +525,7 @@ pub async fn mp(
             current.title, thread.name
         ),
     };
-    ctx.say(report).await?;
+    commands::reply(base, report).await?;
     Ok(())
 }
 

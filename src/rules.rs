@@ -31,9 +31,22 @@ pub const JOINED_DEFAULT: &str = "🙋 Te voilà dans **{carte}** !\n\nTu viens 
 /// Confirmation de sortie par défaut.
 pub const LEFT_DEFAULT: &str = "Tu as quitté **{carte}**, et {rôles} t'a été repris.\n\nLa porte reste ouverte : lève la main sur la carte quand tu veux revenir.";
 
+/// Annonce d'une main levée, publiée dans le salon du projet.
+///
+/// « Souhaite rejoindre » plutôt que « vient de rejoindre » : côté salon, c'est
+/// une candidature à accueillir, pas un fait accompli à enregistrer.
+pub const ANNOUNCE_JOIN_DEFAULT: &str = "🙋 {membre} souhaite rejoindre **{carte}**.";
+
+/// Annonce d'une main baissée.
+pub const ANNOUNCE_LEAVE_DEFAULT: &str = "↩️ {membre} a quitté **{carte}**.";
+
 /// Marqueurs reconnus dans une confirmation. `roles` sans accent est accepté :
 /// la saisie se fait sur un téléphone aussi souvent que sur un clavier.
 pub const MARKERS: [&str; 3] = ["{carte}", "{rôles}", "{roles}"];
+
+/// Marqueurs reconnus dans une annonce. Pas de rôle ici : le salon parle d'une
+/// personne et d'une carte, le détail des rôles est l'affaire du message privé.
+pub const ANNOUNCE_MARKERS: [&str; 2] = ["{carte}", "{membre}"];
 
 /// Remplit les marqueurs d'une confirmation.
 pub fn render_confirmation(template: &str, title: &str, roles: &str) -> String {
@@ -43,18 +56,25 @@ pub fn render_confirmation(template: &str, title: &str, roles: &str) -> String {
         .replace("{roles}", roles)
 }
 
+/// Remplit les marqueurs d'une annonce.
+pub fn render_announce(template: &str, title: &str, member: &str) -> String {
+    template
+        .replace("{carte}", title)
+        .replace("{membre}", member)
+}
+
 /// Liste les marqueurs inconnus d'un texte, pour les refuser à la saisie.
 ///
 /// Une faute de frappe dans `{carte}` partirait sinon telle quelle à chaque
 /// membre, et ne se verrait qu'une fois le mal fait.
-pub fn unknown_markers(template: &str) -> Vec<String> {
+pub fn unknown_markers(template: &str, allowed: &[&str]) -> Vec<String> {
     let mut rest = template;
     let mut found = Vec::new();
     while let Some(start) = rest.find('{') {
         let after = &rest[start..];
         let Some(end) = after.find('}') else { break };
         let marker = &after[..=end];
-        if !MARKERS.contains(&marker) && !found.iter().any(|seen| seen == marker) {
+        if !allowed.contains(&marker) && !found.iter().any(|seen| seen == marker) {
             found.push(marker.to_owned());
         }
         rest = &after[end + 1..];
@@ -139,13 +159,35 @@ mod tests {
 
     #[test]
     fn a_mistyped_marker_is_reported() {
-        assert_eq!(unknown_markers("Bravo {crate} !"), vec!["{crate}"]);
-        assert!(unknown_markers(JOINED_DEFAULT).is_empty());
-        assert!(unknown_markers(LEFT_DEFAULT).is_empty());
+        assert_eq!(
+            unknown_markers("Bravo {crate} !", &MARKERS),
+            vec!["{crate}"]
+        );
+        assert!(unknown_markers(JOINED_DEFAULT, &MARKERS).is_empty());
+        assert!(unknown_markers(LEFT_DEFAULT, &MARKERS).is_empty());
+        assert!(unknown_markers(ANNOUNCE_JOIN_DEFAULT, &ANNOUNCE_MARKERS).is_empty());
+        assert!(unknown_markers(ANNOUNCE_LEAVE_DEFAULT, &ANNOUNCE_MARKERS).is_empty());
+    }
+
+    #[test]
+    fn a_marker_of_another_message_is_refused() {
+        // `{rôles}` n'a pas de sens dans une annonce : le salon n'en parle pas.
+        assert_eq!(
+            unknown_markers("Bienvenue {rôles}", &ANNOUNCE_MARKERS),
+            vec!["{rôles}"]
+        );
     }
 
     #[test]
     fn an_unclosed_brace_is_not_a_marker() {
-        assert!(unknown_markers("accolade { seule").is_empty());
+        assert!(unknown_markers("accolade { seule", &MARKERS).is_empty());
+    }
+
+    #[test]
+    fn an_announce_names_the_member_and_the_card() {
+        assert_eq!(
+            render_announce("{membre} → {carte}", "Veille", "<@1>"),
+            "<@1> → Veille"
+        );
     }
 }

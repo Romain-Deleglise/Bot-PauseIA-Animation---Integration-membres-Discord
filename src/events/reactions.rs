@@ -258,6 +258,7 @@ async fn send_welcome_dm(
 }
 
 /// Ce qu'une réaction vient de changer, pour le dire au membre.
+#[derive(Clone, Copy)]
 enum Change<'a> {
     Joined(&'a [i64]),
     Left(&'a [i64]),
@@ -268,6 +269,37 @@ enum Change<'a> {
 /// Discord ne rend une réponse éphémère qu'à une interaction : une réaction
 /// n'en est pas une, et le membre n'a donc aucun retour à l'écran. Sans ce
 /// message, quitter une équipe par un clic malheureux ferait disparaître des
+/// Nomme des rôles en toutes lettres, pour un message privé.
+///
+/// Une mention `<@&id>` n'a pas de serveur où se résoudre dans un message
+/// privé : Discord y affiche « @rôle inconnu ». On écrit donc le nom.
+async fn role_names(ctx: &serenity::Context, guild_id: serenity::GuildId, roles: &[i64]) -> String {
+    let mut names = Vec::with_capacity(roles.len());
+    for role_id in roles {
+        let role_id = ids::role(*role_id);
+        // Le cache d'abord, sans tenir son garde au travers d'un `.await`.
+        let cached = ctx
+            .cache
+            .guild(guild_id)
+            .and_then(|guild| guild.roles.get(&role_id).map(|role| role.name.clone()));
+        let name = match cached {
+            Some(name) => Some(name),
+            None => guild_id
+                .roles(&ctx.http)
+                .await
+                .ok()
+                .and_then(|roles| roles.get(&role_id).map(|role| role.name.clone())),
+        };
+        // Un rôle introuvable reste mentionné : illisible en privé, mais au
+        // moins le message ne ment pas sur ce qui a été accordé.
+        names.push(match name {
+            Some(name) => format!("**@{name}**"),
+            None => format!("<@&{role_id}>"),
+        });
+    }
+    names.join(" et ")
+}
+
 /// salons sans une explication.
 async fn confirm_change(
     ctx: &serenity::Context,
@@ -295,11 +327,7 @@ async fn confirm_change(
         Ok(Some(found)) => found,
         _ => return,
     };
-    let mentions = roles
-        .iter()
-        .map(|role_id| format!("<@&{role_id}>"))
-        .collect::<Vec<_>>()
-        .join(" et ");
+    let mentions = role_names(ctx, data.config.guild_id, roles).await;
 
     let template = match change {
         Change::Joined(_) => category.joined_text.as_deref(),
@@ -342,21 +370,26 @@ async fn announce(
         return;
     };
 
-    // La personne qui doit agir est nommée, et on lui dit quoi faire : une
-    // annonce que personne ne s'attribue ne fait bouger personne.
-    let text = match change {
-        Change::Joined(_) => {
-            let appel = match card.referent_id {
-                Some(id) => format!("\n<@{id}>, à toi de l'accueillir."),
-                None => String::new(),
-            };
-            format!(
-                "🙋 <@{user_id}> vient de rejoindre **{}**.{appel}",
-                card.title
-            )
-        }
-        Change::Left(_) => format!("↩️ <@{user_id}> a quitté **{}**.", card.title),
+    let Ok(Some(category)) = db::categories::by_id(&data.db, post.category_id).await else {
+        return;
     };
+    let template = match change {
+        Change::Joined(_) => category.announce_join_text.as_deref(),
+        Change::Left(_) => category.announce_leave_text.as_deref(),
+    };
+    let template = match (template, change) {
+        (Some(text), _) if !text.trim().is_empty() => text,
+        (_, Change::Joined(_)) => rules::ANNOUNCE_JOIN_DEFAULT,
+        (_, Change::Left(_)) => rules::ANNOUNCE_LEAVE_DEFAULT,
+    };
+    let mut text = rules::render_announce(template, &card.title, &format!("<@{user_id}>"));
+
+    // La personne qui doit agir est nommée à part, et on lui dit quoi faire :
+    // une annonce que personne ne s'attribue ne fait bouger personne. Hors du
+    // gabarit, parce qu'une carte sans référent n'aurait qu'une ligne vide.
+    if let (Change::Joined(_), Some(id)) = (change, card.referent_id) {
+        text.push_str(&format!("\n<@{id}>, à toi de l'accueillir."));
+    }
 
     // Mentionner sans notifier tout le serveur : seuls le membre et le·la
     // référente sont des mentions légitimes ici.
