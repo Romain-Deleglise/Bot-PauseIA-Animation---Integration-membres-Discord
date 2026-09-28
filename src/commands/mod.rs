@@ -32,6 +32,44 @@ pub fn too_long_for_a_message(text: &str) -> Option<String> {
         .then(|| format!("{length} caractères, maximum {MAX_MESSAGE_CHARS}"))
 }
 
+/// Palette proposée à la saisie, celle du forum plus le gris des cartes en
+/// sommeil.
+///
+/// Les couleurs des quatre fils y figurent pour qu'une nouvelle carte s'aligne
+/// sur les siennes sans aller relever un code ailleurs.
+pub const PALETTE: [(&str, &str); 8] = [
+    ("Vert Projets", "#27AE60"),
+    ("Bleu Compétences", "#2D9CDB"),
+    ("Orange Groupes locaux", "#F2994A"),
+    ("Violet Équipes", "#9B51E0"),
+    ("Bleu vif", "#0080FF"),
+    ("Rouge", "#EB5757"),
+    ("Jaune", "#F2C94C"),
+    ("Gris (carte en sommeil)", "#99AAB5"),
+];
+
+/// Propose la palette pendant la saisie, sans interdire un autre code.
+///
+/// Un paramètre à choix fermé aurait supprimé la couleur libre, alors qu'un
+/// fil peut vouloir la sienne ; l'autocomplétion suggère sans contraindre.
+pub async fn autocomplete_colour(
+    _ctx: Context<'_>,
+    partial: &str,
+) -> Vec<poise::serenity_prelude::AutocompleteChoice> {
+    let needle = partial.trim().to_lowercase();
+    PALETTE
+        .iter()
+        .filter(|(name, hex)| {
+            needle.is_empty()
+                || name.to_lowercase().contains(&needle)
+                || hex.to_lowercase().contains(&needle)
+        })
+        .map(|(name, hex)| {
+            poise::serenity_prelude::AutocompleteChoice::new(format!("{name} — {hex}"), *hex)
+        })
+        .collect()
+}
+
 /// Répond en éphémère, que la commande ait différé sa réponse ou non.
 ///
 /// Une commande qui ouvre une fenêtre ne peut pas différer : le modal doit être
@@ -85,6 +123,18 @@ pub async fn forum(_ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+/// Une commande qui efface : réservée aux rôles de gestion, même quand un rôle
+/// d'édition est configuré.
+///
+/// Un forum s'écrit à plusieurs, il ne s'efface pas à plusieurs : republier ou
+/// supprimer une carte coûte les mains levées des membres, et rien ne les rend.
+fn destroys(qualified_name: &str) -> bool {
+    matches!(
+        qualified_name,
+        "forum message supprimer" | "forum fil supprimer" | "forum importer" | "forum republier"
+    )
+}
+
 /// Autorise ou non l'appelant, quelle que soit la commande.
 ///
 /// Posé une fois dans `FrameworkOptions::command_check`, il couvre aussi les
@@ -93,10 +143,16 @@ pub async fn is_manager(ctx: Context<'_>) -> Result<bool, Error> {
     let Some(member) = ctx.author_member().await else {
         return Ok(false);
     };
-    let allowed = member
+    let config = &ctx.data().config;
+    let manages = member
         .roles
         .iter()
-        .any(|role_id| ctx.data().config.manage_role_ids.contains(role_id));
+        .any(|role_id| config.manage_role_ids.contains(role_id));
+    let edits = member
+        .roles
+        .iter()
+        .any(|role_id| config.edit_role_ids.contains(role_id));
+    let allowed = manages || (edits && !destroys(&ctx.command().qualified_name));
 
     // Répondre uniquement à une vraie invocation. poise applique ce contrôle
     // aussi aux requêtes d'autocomplétion, où toute tentative de réponse
@@ -105,7 +161,11 @@ pub async fn is_manager(ctx: Context<'_>) -> Result<bool, Error> {
     if !allowed && !is_autocomplete(ctx) {
         ctx.send(
             poise::CreateReply::default()
-                .content("Cette commande est réservée aux rôles de gestion du serveur.")
+                .content(if edits {
+                    "Cette commande efface du contenu : elle est réservée aux responsables du forum. Les autres commandes vous restent ouvertes."
+                } else {
+                    "Cette commande est réservée aux rôles de gestion du serveur."
+                })
                 .ephemeral(true),
         )
         .await?;
@@ -415,5 +475,47 @@ mod tests {
         assert!(!is_writable(serenity::ChannelType::Forum));
         assert!(!is_writable(serenity::ChannelType::Voice));
         assert!(!is_writable(serenity::ChannelType::Category));
+    }
+
+    #[test]
+    fn every_palette_entry_is_a_colour_the_bot_accepts() {
+        // La palette est servie telle quelle à la saisie : une coquille dans un
+        // code n'échouerait qu'au moment d'enregistrer, chez l'utilisateur.
+        for (name, hex) in PALETTE {
+            assert!(parse_colour(hex).is_ok(), "{name} porte un code invalide");
+        }
+    }
+
+    #[test]
+    fn only_the_four_erasing_commands_need_full_rights() {
+        for name in [
+            "forum message supprimer",
+            "forum fil supprimer",
+            "forum importer",
+            "forum republier",
+        ] {
+            assert!(destroys(name), "{name} efface pourtant du contenu");
+        }
+        // Tout le reste écrit sans rien perdre : c'est le travail quotidien.
+        for name in [
+            "forum message créer",
+            "forum message modifier",
+            "forum message éditer",
+            "forum message mp",
+            "forum fil mp",
+            "forum fil confirmation",
+            "forum fil annonce",
+            "forum exporter",
+        ] {
+            assert!(!destroys(name), "{name} n'efface rien");
+        }
+    }
+
+    #[test]
+    fn a_command_name_that_merely_looks_like_one_is_not_privileged() {
+        // Le nom qualifié est comparé en entier : une sous-commande ajoutée
+        // plus tard ne devient pas destructrice parce qu'elle s'en approche.
+        assert!(!destroys("forum message supprimer_rôle"));
+        assert!(!destroys("supprimer"));
     }
 }

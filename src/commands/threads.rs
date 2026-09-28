@@ -56,7 +56,9 @@ pub async fn creer(
     ctx: Context<'_>,
     #[description = "Nom affiché du fil"] nom: String,
     #[description = "Fil ou salon où publier les cartes"] salon: serenity::PartialChannel,
-    #[description = "Couleur des cartes, ex. #FF6600"] couleur: Option<String>,
+    #[description = "Couleur des cartes du fil"]
+    #[autocomplete = "commands::autocomplete_colour"]
+    couleur: Option<String>,
     #[description = "URL de l'illustration publiée en tête"] illustration: Option<String>,
     #[description = "Texte d'introduction (\\n pour un saut de ligne)"] description: Option<String>,
     #[description = "Rôle parent : accordé en plus du sien par chaque message du fil"]
@@ -142,7 +144,9 @@ pub async fn modifier(
     fil: String,
     #[description = "Nouveau nom"] nouveau_nom: Option<String>,
     #[description = "Nouveau fil ou salon de publication"] salon: Option<serenity::PartialChannel>,
-    #[description = "Couleur #RRGGBB, ou - pour l'enlever"] couleur: Option<String>,
+    #[description = "Couleur des cartes, ou - pour l'enlever"]
+    #[autocomplete = "commands::autocomplete_colour"]
+    couleur: Option<String>,
     #[description = "URL de l'illustration, ou - pour l'enlever"] illustration: Option<String>,
     #[description = "Texte d'introduction, ou - pour l'enlever"] description: Option<String>,
     #[description = "Rôle parent du fil, accordé par tous ses messages"] role_parent: Option<

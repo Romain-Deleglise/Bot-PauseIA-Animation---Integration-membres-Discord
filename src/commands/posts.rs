@@ -202,7 +202,8 @@ pub async fn creer(
     #[description = "Rôle accordé. Sans rôle, aucune réaction n'est posée"] role: Option<
         serenity::Role,
     >,
-    #[description = "Couleur de la carte, ex. #99AAB5 pour la griser. Défaut : celle du fil"]
+    #[description = "Couleur de la carte. Défaut : celle du fil"]
+    #[autocomplete = "commands::autocomplete_colour"]
     couleur: Option<String>,
     #[description = "Rang dans le fil. Défaut : à la suite"] position: Option<i64>,
 ) -> Result<(), Error> {
@@ -302,7 +303,8 @@ pub async fn modifier(
     #[description = "Détacher le rôle de la carte. Le rôle Discord n'est pas supprimé"]
     #[rename = "retirer_rôle"]
     retirer_role: Option<bool>,
-    #[description = "Couleur de la carte, #99AAB5 pour la griser, - pour revenir à celle du fil"]
+    #[description = "Couleur de la carte, ou - pour revenir à celle du fil"]
+    #[autocomplete = "commands::autocomplete_colour"]
     couleur: Option<String>,
     #[description = "Déplacer vers un autre fil"]
     #[autocomplete = "autocomplete_thread"]
