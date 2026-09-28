@@ -32,6 +32,44 @@ pub fn too_long_for_a_message(text: &str) -> Option<String> {
         .then(|| format!("{length} caractères, maximum {MAX_MESSAGE_CHARS}"))
 }
 
+/// Palette proposée à la saisie, celle du forum plus le gris des cartes en
+/// sommeil.
+///
+/// Les couleurs des quatre fils y figurent pour qu'une nouvelle carte s'aligne
+/// sur les siennes sans aller relever un code ailleurs.
+pub const PALETTE: [(&str, &str); 8] = [
+    ("Vert Projets", "#27AE60"),
+    ("Bleu Compétences", "#2D9CDB"),
+    ("Orange Groupes locaux", "#F2994A"),
+    ("Violet Équipes", "#9B51E0"),
+    ("Bleu vif", "#0080FF"),
+    ("Rouge", "#EB5757"),
+    ("Jaune", "#F2C94C"),
+    ("Gris (carte en sommeil)", "#99AAB5"),
+];
+
+/// Propose la palette pendant la saisie, sans interdire un autre code.
+///
+/// Un paramètre à choix fermé aurait supprimé la couleur libre, alors qu'un
+/// fil peut vouloir la sienne ; l'autocomplétion suggère sans contraindre.
+pub async fn autocomplete_colour(
+    _ctx: Context<'_>,
+    partial: &str,
+) -> Vec<poise::serenity_prelude::AutocompleteChoice> {
+    let needle = partial.trim().to_lowercase();
+    PALETTE
+        .iter()
+        .filter(|(name, hex)| {
+            needle.is_empty()
+                || name.to_lowercase().contains(&needle)
+                || hex.to_lowercase().contains(&needle)
+        })
+        .map(|(name, hex)| {
+            poise::serenity_prelude::AutocompleteChoice::new(format!("{name} — {hex}"), *hex)
+        })
+        .collect()
+}
+
 /// Répond en éphémère, que la commande ait différé sa réponse ou non.
 ///
 /// Une commande qui ouvre une fenêtre ne peut pas différer : le modal doit être
@@ -415,5 +453,14 @@ mod tests {
         assert!(!is_writable(serenity::ChannelType::Forum));
         assert!(!is_writable(serenity::ChannelType::Voice));
         assert!(!is_writable(serenity::ChannelType::Category));
+    }
+
+    #[test]
+    fn every_palette_entry_is_a_colour_the_bot_accepts() {
+        // La palette est servie telle quelle à la saisie : une coquille dans un
+        // code n'échouerait qu'au moment d'enregistrer, chez l'utilisateur.
+        for (name, hex) in PALETTE {
+            assert!(parse_colour(hex).is_ok(), "{name} porte un code invalide");
+        }
     }
 }

@@ -155,7 +155,7 @@ Le fichier accepte quelques champs qui n'ont pas de commande. Pour un fil :
 
 - **Rôle parent** : accordé par chaque carte d'un fil, repris seulement quand la personne n'a plus aucune carte de ce fil.
 - **Introduction d'un fil** : c'est le premier message du fil, écrit à la main. Le bot n'y touche pas, donc la changer ne coûte rien.
-- **Carte grisée** : couleur `#99AAB5`.
+- **Couleurs** : tapez le paramètre `couleur` et une palette nommée s'affiche — le vert des Projets, le bleu des Compétences, le gris des cartes en sommeil… Un code `#RRGGBB` reste accepté si aucune ne convient.
 - **Fils archivés** : Discord archive un fil après 3 jours sans message, ce qui bloque les réactions. Le bot le rouvre aussitôt. Un fil verrouillé reste fermé.
 - **Rôle retiré à la main** : la 🙋 reste sur la carte. Retirez-la puis remettez-la pour récupérer le rôle.
 - **Message d'accueil ou confirmation ?** L'accueil part une seule fois, à la première main levée dans le fil (ou sur la carte, si elle a le sien). Les confirmations partent à chaque main levée ou baissée. Un membre qui refuse les MP de serveur ne reçoit ni l'un ni l'autre, mais garde ses rôles.
