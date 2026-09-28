@@ -35,11 +35,16 @@ https://discord.com/oauth2/authorize?client_id=VOTRE_ID&scope=bot+applications.c
 |---|---|
 | `DISCORD_TOKEN` | le jeton de l'étape 2 — **par un canal privé** |
 | `DISCORD_GUILD_ID` | clic droit sur le serveur → Copier l'identifiant (mode développeur activé) |
-| `MANAGE_ROLE_IDS` | identifiants des rôles autorisés à utiliser les commandes, séparés par des virgules |
+| `MANAGE_ROLE_IDS` | rôles autorisés à tout faire, suppressions et import compris, séparés par des virgules |
+| `EDIT_ROLE_IDS` | facultatif : rôles autorisés à écrire le forum, mais pas à supprimer, republier ni importer |
 | `REACTION_EMOJI` | facultatif, 🙋 par défaut |
 | `ENABLE_IMPORT` | `true` pour le premier import, `false` ensuite : la commande disparaît |
 
 ## 3. Commandes
+
+> Pour l'usage quotidien, la page [commandes.md](commandes.md) dit la même chose
+> sans l'installation : c'est elle qu'on donne aux responsables de fil, et c'est
+> elle que pointe la description du bot sur Discord.
 
 Réservées aux rôles de `MANAGE_ROLE_IDS`. Les réponses ne sont visibles que de
 vous. Une commande qui détruit quelque chose demande `confirmer: True` : lancée

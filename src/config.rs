@@ -11,8 +11,11 @@ use poise::serenity_prelude as serenity;
 pub struct Config {
     pub discord_token: String,
     pub guild_id: serenity::GuildId,
-    /// Rôles autorisés à utiliser les commandes du bot.
+    /// Rôles autorisés à tout faire, suppressions et import compris.
     pub manage_role_ids: Vec<serenity::RoleId>,
+    /// Rôles autorisés à écrire le forum, mais pas à en effacer une partie.
+    /// Vide : seuls les rôles de gestion pilotent le bot.
+    pub edit_role_ids: Vec<serenity::RoleId>,
     /// Emoji de la réaction posée sous chaque carte accordant un rôle.
     pub reaction_emoji: Emoji,
     pub database_path: String,
@@ -48,6 +51,20 @@ impl Config {
                 .map(|ids| ids.into_iter().map(serenity::RoleId::new).collect())
         });
 
+        // Facultatif : sans lui, seuls les rôles de gestion pilotent le bot,
+        // comme avant. Vide n'est donc pas une erreur, contrairement à
+        // MANAGE_ROLE_IDS.
+        let edit_role_ids: Vec<serenity::RoleId> = optional("EDIT_ROLE_IDS")
+            .map(|raw| {
+                raw.split(',')
+                    .map(str::trim)
+                    .filter(|part| !part.is_empty())
+                    .filter_map(|part| parse_id("EDIT_ROLE_IDS", part, &mut errors))
+                    .map(serenity::RoleId::new)
+                    .collect()
+            })
+            .unwrap_or_default();
+
         let reaction_emoji =
             required("REACTION_EMOJI", &mut errors).and_then(|raw| match Emoji::parse(&raw) {
                 Ok(emoji) => Some(emoji),
@@ -82,6 +99,7 @@ impl Config {
             discord_token: discord_token.expect("validé ci-dessus"),
             guild_id: guild_id.expect("validé ci-dessus"),
             manage_role_ids: manage_role_ids.expect("validé ci-dessus"),
+            edit_role_ids,
             reaction_emoji: reaction_emoji.expect("validé ci-dessus"),
             database_path: optional("DATABASE_PATH").unwrap_or_else(|| "/data/bot.db".into()),
             log_level: optional("LOG_LEVEL").unwrap_or_else(|| "info".into()),
@@ -95,6 +113,7 @@ impl Config {
             discord_token: "jeton-de-test".into(),
             guild_id: serenity::GuildId::new(1),
             manage_role_ids: vec![serenity::RoleId::new(2)],
+            edit_role_ids: vec![serenity::RoleId::new(3)],
             reaction_emoji: Emoji::parse("🙋").expect("emoji valide"),
             database_path: ":memory:".into(),
             log_level: "info".into(),

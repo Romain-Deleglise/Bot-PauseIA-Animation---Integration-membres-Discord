@@ -245,6 +245,14 @@ Comparer deux `ReactionType` avec `==` échouerait par intermittence.
   mémoire, une connexion unique — au-delà, chaque connexion ouvrirait sa propre
   base.
 
+## Deux niveaux de droits
+
+`MANAGE_ROLE_IDS` peut tout ; `EDIT_ROLE_IDS`, facultatif, écrit le forum sans
+pouvoir en effacer une partie. `commands::destroys` tranche sur le **nom
+qualifié** de la commande, comparé en entier : une sous-commande ajoutée plus
+tard n'hérite d'aucun privilège par ressemblance de nom. Elle liste les quatre
+commandes qui coûtent des mains levées ou du contenu, et rien d'autre.
+
 ## Ajouter une commande
 
 1. L'écrire dans le fichier thématique de `commands/`, avec
